@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.staticfile.org/vue/2.5.2/vue.min.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+
+        body {
+            font-family: "PingFang SC", sans-serif;
+        }
+
+        .el-calendar__button-group {
+            display: none;
+        }
+
+        .el-calendar__title {
+            width: 100%;
+            text-align: center;
+        }
+
+        .el-calendar-table tr td:first-child {
+            border-left: 0;
+        }
+
+        .el-calendar-table td {
+            min-height: 110px;
+            min-width: 110px;
+            border-right: 0;
+        }
+
+        .el-calendar-table:not(.is-range) td.next, .el-calendar-table:not(.is-range) td.prev {
+            display: none;
+        }
+
+        .el-calendar-table td.is-selected {
+            background-color: white;
+        }
+
+        .el-calendar-table .el-calendar-day {
+            height: 100%;
+            padding: 0;
+            text-align: center;
+        }
+
+        .el-calendar-table .el-calendar-day > div {
+            height: 104px;
+        }
+
+        .el-calendar-table .el-calendar-day > div .solar {
+            padding-top: 30px;
+        }
+
+        .el-calendar-table .el-calendar-day > div .lunar {
+            padding-top: 10px;
+        }
+
+        .el-calendar-table .el-calendar-day > div.selected {
+            background-color: #fef2f2;
+            border-radius: 20px;
+        }
+
+        .el-calendar-table .current:nth-last-child(-n+2) .solar {
+            color: red;
+        }
+
+        #app {
+            transform: scale(0.5);
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .signin-footer {
+            background: white;
+            width: 100%;
+            opacity: 0.8;
+        }
+
+        .desc {
+            height: 100%;
+            float: left;
+            width: 40%;
+            text-align: center;
+            margin-left: 20px;
+            font-family: "温柔养猫人", sans-serif;
+        }
+
+        .desc-value {
+            text-align: left;
+            padding-left: 30%;
+            font-size: 25px
+        }
+
+        .title {
+            width: 100%;
+            color: white;
+            font-family: "温柔养猫人", sans-serif;
+        }
+
+        .desc-item {
+            margin-bottom: 20px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <input type="hidden" id="selectDate" value="">
+    <div class="title">
+        <div style="width: 100%; font-size: 65px; margin-left: 30px; margin-top: 30px">
+            <span id="nickname"></span>
+        </div>
+        <div style="width: 100%; font-size: 45px; margin-left: 30px; margin-top: 40px; margin-bottom: 45px">
+            UID: <span id="uid"></span>
+        </div>
+    </div>
+    <div class="signin-footer">
+        <div class="desc">
+            <img id="qqAvatar" style="width: 100px" src="" alt="">
+            <el-divider></el-divider>
+            <div class="desc-value">
+                <div class="desc-item">
+                    累计签到天数: <span id="signin-day"></span>
+                </div>
+                <div class="desc-item">
+                    签到获得好感度: <span id="signin-impression"></span>
+                </div>
+                <div class="desc-item">
+                    签到获得金币: <span id="signin-coins"></span>
+                </div>
+                <div class="desc-item">
+                    当前好感度: <span id="impression"></span>
+                </div>
+                <div class="desc-item">
+                    当前金币: <span id="coins"></span>
+                </div>
+            </div>
+            <div style="position: absolute; bottom: 0; font-size: 25px">
+                @<span id="by"></span>
+            </div>
+        </div>
+        <div style="height: 100%; float: right">
+            <el-calendar v-model="value" style="width: 820px">
+                <template slot="dateCell" slot-scope="{date, data}">
+                    <div :class="{ selected : isSelected(date, data) }">
+                        <div class="solar">{{ data.day.split('-')[2] }}</div>
+                        <div v-if="isSelected(date, data)" class="lunar">✅</div>
+                    </div>
+                </template>
+            </el-calendar>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    const main = {
+        data() {
+            return {
+                value: null,
+                selectedDates: document.getElementById("selectDate").value
+            }
+        },
+        methods: {
+            // 是否选中日期
+            isSelected: function (slotDate, slotData) {
+                return this.selectedDates.includes(slotData.day)
+            },
+        }
+    };
+    const Ctor = Vue.extend(main);
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

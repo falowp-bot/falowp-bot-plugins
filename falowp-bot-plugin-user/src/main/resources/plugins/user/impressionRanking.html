@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.staticfile.org/Chart.js/3.9.1/chart.js"></script>
+</head>
+<body>
+<input type="hidden" value="" id="labels">
+<input type="hidden" value="" id="data">
+<canvas id="impressionRankingDiv"></canvas>
+
+<script type="text/javascript">
+    const ctx = document.getElementById('impressionRankingDiv');
+    const labels = JSON.parse(document.getElementById("labels").value)
+    const data = {
+        labels: labels,
+        datasets: [{
+            axis: 'y',
+            label: '好感度排行-仅展示前7名',
+            data: JSON.parse(document.getElementById("data").value),
+            fill: false,
+            backgroundColor: [      // 设置每个柱形图的背景颜色
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 205, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(201, 203, 207, 0.2)'
+            ],
+            borderColor: [     //设置每个柱形图边框线条颜色
+                'rgb(255, 99, 132)',
+                'rgb(255, 159, 64)',
+                'rgb(255, 205, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(54, 162, 235)',
+                'rgb(153, 102, 255)',
+                'rgb(201, 203, 207)'
+            ],
+            borderWidth: 2     // 设置线条宽度
+        }]
+    };
+    const config = {
+        type: 'bar', // 设置图表类型
+        data: data,  // 设置数据集
+        options: {
+            indexAxis: 'y',
+        }
+    };
+    const c = new Chart(ctx, config);
+</script>
+</body>
+</html>

@@ -40,6 +40,7 @@ subprojects {
 
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 
     tasks.register<Jar>("javadocJar") {
