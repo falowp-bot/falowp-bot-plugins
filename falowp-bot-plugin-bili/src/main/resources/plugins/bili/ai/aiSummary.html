@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            font-family: "PingFang SC", sans-serif;
+        }
+
+        .ai-summary {
+            background-size: contain;
+        }
+
+        .ai-summary-popup-body {
+            background-color: #fff;
+            opacity: 0.6;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease-in-out;
+            position: relative;
+            width: 500px;
+            color: #18191c;
+            box-sizing: border-box;
+            padding: 8px 8px 6px;
+            min-height: 600px;
+        }
+
+        .ai-summary-popup-body-abstracts {
+            padding: 8px 10px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .ai-summary-popup-body-outline .section .section-title:before {
+            flex-shrink: 0;
+            content: "";
+            display: block;
+            border-radius: 10px;
+            width: 15px;
+            height: 15px;
+            background-color: #000;
+            margin: 8px 12px 8px 6px;
+        }
+
+        .ai-summary-popup-body-outline .section .section-title {
+            margin-top: 30px;
+            display: flex;
+            font-weight: 700;
+        }
+
+        .ai-summary-popup-body-outline .section .bullet {
+            margin-left: 25px;
+            margin-top: 10px;
+            display: flex;
+        }
+
+        .ai-summary-popup-body-outline .section .bullet .content {
+            word-wrap: break-word;
+            margin-left: 20px;
+        }
+    </style>
+    <script src="https://oss.blr19c.com/falowp-bot-image-public/bg-js/random-bg.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            document.querySelector(".ai-summary").style.background = `url('') center no-repeat`
+            document.querySelector(".ai-summary").style.backgroundSize = "contain"
+        }
+    </script>
+</head>
+<body>
+<div class="ai-summary">
+    <div class="ai-summary-popup-body">
+        <div class="ai-summary-popup-body-abstracts" id="summary"></div>
+        <div class="ai-summary-popup-body-outline" id="outline"></div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    body {
+        font-family: "PingFang SC", sans-serif;
+    }
+
+    .card-container {
+        color: #3b3b3b;
+    }
+
+    .live-image {
+        border-radius: 50px;
+        position: fixed;
+        width: 410px;
+        height: 296px;
+        top: 20px;
+    }
+
+    .title {
+        font-size: 20px;
+        left: 40px;
+        top: 30px;
+        max-width: 350px;
+        position: fixed;
+    }
+
+    .face {
+        width: 125px;
+        height: 125px;
+        background-size: 100% 100%;
+        border-radius: 20px;
+        left: 250px;
+        top: 90px;
+        position: fixed;
+    }
+
+    .live-logo {
+        background-size: 100% auto;
+        width: 55px;
+        height: 25px;
+        left: 250px;
+        top: 90px;
+        border-radius: 10px;
+        position: fixed;
+    }
+
+    .live-user {
+        font-size: 20px;
+        left: 30px;
+        top: 100px;
+        color: gray;
+        max-width: 300px;
+        position: fixed;
+    }
+
+    .room-id {
+        font-size: 20px;
+        left: 30px;
+        top: 150px;
+        color: gray;
+        max-width: 300px;
+        position: fixed;
+    }
+
+    .bottom-bar-title {
+        font-size: 20px;
+        left: 90px;
+        top: 270px;
+        color: gray;
+        position: fixed;
+    }
+
+    #background {
+        width: 1000px;
+    }
+
+</style>
+<body>
+<div class="card-container">
+    <img id="background" src="" alt=""/>
+    <div class="live-image">
+        <div class="title"></div>
+        <div class="face">
+            <div class="live-logo"></div>
+        </div>
+        <div class="live-user"></div>
+        <div class="room-id"></div>
+        <div class="bottom-bar-title"></div>
+    </div>
+    <div class="content"></div>
+</div>
+
+</body>
+</html>

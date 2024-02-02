@@ -72,6 +72,7 @@ object BLiveUtils {
                 val articlePage = page.existsToExecute(".article-container") {
                     articlePage(page)
                 }
+                page.waitForLoadState(LoadState.NETWORKIDLE)
                 (biliDynPage + biliOpusPage + articlePage).firstOrNull() ?: screenshot("body", page)
             }
         }
