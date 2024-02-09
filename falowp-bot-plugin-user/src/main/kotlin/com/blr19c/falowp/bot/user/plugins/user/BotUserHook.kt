@@ -13,7 +13,7 @@ import java.math.BigDecimal
 /**
  * 通过hook增加用户信息
  */
-@Plugin(name = "通过hook增加用户信息", hidden = true)
+@Plugin(name = "用户信息", hidden = true)
 class BotUserHook {
 
     private val userInfoHook = beforeHook<ReceiveMessageHook> { (receiveMessage) ->
