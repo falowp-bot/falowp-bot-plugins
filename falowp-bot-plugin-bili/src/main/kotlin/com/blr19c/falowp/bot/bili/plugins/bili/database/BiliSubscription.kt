@@ -36,6 +36,7 @@ object BiliSubscription : Table("bili_subscription") {
 
     init {
         transaction {
+            uniqueIndex(mid, sourceId)
             SchemaUtils.create(BiliSubscription)
         }
     }
