@@ -31,7 +31,8 @@ class Work {
             请在120秒内完成以下5道题目,输入'提交 X X X'进行提交:
             ${int1[0]}+${int1[1]}=?
             ${int2[0]}+${int2[1]}=?
-            ${int3[0]}+${int4[1]}=?
+            ${int3[0]}+${int3[1]}=?
+            ${int4[0]}+${int4[1]}=?
             ${int5[0]}+${int5[1]}=?
           """.trimIndent()
         this.sendReply(replyQuestion)

@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.select.Elements
+import java.math.RoundingMode
 import java.sql.SQLException
 import java.time.LocalDate
 import kotlin.random.Random
@@ -28,8 +29,8 @@ class Signin {
 
     private val signin = message(Regex("签到")) {
         val currentUser = this.currentUser()
-        val addCoins = Random.nextDouble(10.0, 50.0).toBigDecimal().setScale(2)
-        val addImpression = Random.nextDouble(0.5, 5.0).toBigDecimal().setScale(2)
+        val addCoins = Random.nextDouble(10.0, 50.0).toBigDecimal().setScale(2, RoundingMode.HALF_UP)
+        val addImpression = Random.nextDouble(0.5, 5.0).toBigDecimal().setScale(2, RoundingMode.HALF_UP)
         try {
             //签到&增加金币和好感度
             currentUser.signin()

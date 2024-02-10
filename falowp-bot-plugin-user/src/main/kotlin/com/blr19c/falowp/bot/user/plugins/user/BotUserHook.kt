@@ -1,10 +1,15 @@
 package com.blr19c.falowp.bot.user.plugins.user
 
+import com.blr19c.falowp.bot.system.api.BotApi
+import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Hook.Companion.beforeHook
 import com.blr19c.falowp.bot.user.database.BotUser
+import com.blr19c.falowp.bot.user.database.BotUser.sourceId
 import com.blr19c.falowp.bot.user.database.BotUser.userId
+import com.blr19c.falowp.bot.user.vo.BotUserVo
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -19,16 +24,26 @@ class BotUserHook {
     private val userInfoHook = beforeHook<ReceiveMessageHook> { (receiveMessage) ->
         val botApi = this.botApi()
 
-        val avatarUrl = receiveMessage.sender.avatar.toUrl()
-
+        //当前人
         val currentUser = botApi.currentUserOrNull()
-        if (currentUser == null) {
+        botApi.createUser(currentUser, receiveMessage.sender)
+        //被at的人
+        for (user in receiveMessage.content.at) {
+            val atUser = queryByUserId(user.id, receiveMessage.source.id)
+            botApi.createUser(atUser, user)
+        }
+    }
+
+
+    private suspend fun BotApi.createUser(botUser: BotUserVo?, user: ReceiveMessage.User) {
+        val avatarUrl = user.avatar.toUrl()
+        if (botUser == null) {
             transaction {
                 BotUser.insertIgnore {
-                    it[userId] = receiveMessage.sender.id
-                    it[nickname] = receiveMessage.sender.nickname
+                    it[userId] = user.id
+                    it[nickname] = user.nickname
                     it[avatar] = avatarUrl
-                    it[auth] = receiveMessage.sender.auth.name
+                    it[auth] = user.auth.name
                     it[impression] = BigDecimal.ZERO
                     it[coins] = BigDecimal.ZERO
                     it[sourceId] = receiveMessage.source.id
@@ -37,10 +52,10 @@ class BotUserHook {
             }
         } else {
             transaction {
-                BotUser.update({ userId eq receiveMessage.sender.id }) {
-                    it[nickname] = receiveMessage.sender.nickname
+                BotUser.update({ (userId eq user.id).and(sourceId eq receiveMessage.source.id) }) {
+                    it[nickname] = user.nickname
                     it[avatar] = avatarUrl
-                    it[auth] = receiveMessage.sender.auth.name
+                    it[auth] = user.auth.name
                 }
             }
         }

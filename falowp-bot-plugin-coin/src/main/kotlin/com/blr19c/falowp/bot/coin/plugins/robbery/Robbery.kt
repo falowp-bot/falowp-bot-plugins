@@ -11,6 +11,7 @@ import com.blr19c.falowp.bot.user.vo.BotUserVo
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.sql.SQLException
 import java.time.LocalDate
 import kotlin.random.Random
@@ -33,7 +34,7 @@ class Robbery {
         val atList = this.receiveMessage.content.at
         if (atList.size > 1 && successRate(currentUser, 9)) {
             val medicalExpenses = Random.nextDouble(100.0, 500.0)
-                .toBigDecimal().setScale(2)
+                .toBigDecimal().setScale(2, RoundingMode.HALF_UP)
             currentUser.decrementCoins(medicalExpenses)
             this.sendReply(
                 "对方人多,你被打了一顿,损失了${medicalExpenses.toPlainString()}金币的医药费",
@@ -50,7 +51,7 @@ class Robbery {
                         val toUser = queryByUserId(user.id, receiveMessage.source.id)!!
                         val coins = Random.nextDouble(10.0, 300.0)
                             .toBigDecimal()
-                            .setScale(2)
+                            .setScale(2, RoundingMode.HALF_UP)
                             .min(toUser.coins)
                         toUser.decrementCoins(coins)
                         currentUser.incrementCoins(coins)

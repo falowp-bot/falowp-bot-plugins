@@ -3,6 +3,7 @@ package com.blr19c.falowp.bot.coin.plugins.robbery.database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.date
+import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  * 打劫记录
@@ -30,7 +31,9 @@ object RobberyInfo : Table("robbery_info") {
     override val primaryKey = PrimaryKey(id, name = "pk_robbery_info_id")
 
     init {
-        uniqueIndex(userId, robbedUserId, createDate)
-        SchemaUtils.create(RobberyInfo)
+        transaction {
+            uniqueIndex(userId, robbedUserId, createDate)
+            SchemaUtils.create(RobberyInfo)
+        }
     }
 }
