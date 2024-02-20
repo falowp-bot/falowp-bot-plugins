@@ -153,7 +153,7 @@ class Subscription : Log {
                 BiliSubscription.insert(
                     midString,
                     this@message.receiveMessage.source.id,
-                    this@message.receiveMessage.messageType.name
+                    this@message.receiveMessage.source.type.name
                 )
                 if (BiliUpInfo.queryByMid(midString) == null) {
                     BiliUpInfo.insert(midString, roomId, userInfo.name)
