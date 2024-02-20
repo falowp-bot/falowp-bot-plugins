@@ -4,6 +4,7 @@ import com.blr19c.falowp.bot.bili.plugins.bili.api.DatabaseCookiesStorage
 import com.blr19c.falowp.bot.bili.plugins.bili.api.data.BiliLiveInfo
 import com.blr19c.falowp.bot.bili.plugins.bili.api.data.BiliVideoAiSummary
 import com.blr19c.falowp.bot.bili.plugins.bili.vo.BiliUpInfoVo
+import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.configProperty
 import com.blr19c.falowp.bot.system.image.ImageUrl
 import com.blr19c.falowp.bot.system.image.encodeToBase64String
@@ -28,7 +29,7 @@ import java.net.URI
 /**
  * b站获取信息工具
  */
-object BLiveUtils {
+object BLiveUtils : Log {
 
 
     private suspend fun <T> browserContext(block: BrowserContext.() -> T): T {
@@ -57,6 +58,7 @@ object BLiveUtils {
                 page.navigate(url)
                 page.waitForLoadState(LoadState.NETWORKIDLE)
                 if (page.title() == "验证码_哔哩哔哩") {
+                    log().info("b站动态截屏出现验证码,等待下次重试:{}", dynamicId)
                     return@browserContext null
                 }
                 removeDynamicUselessParts(page)
