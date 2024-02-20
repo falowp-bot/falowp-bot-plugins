@@ -39,7 +39,7 @@ class Work {
 
         val inputAnswerList = withTimeoutOrNull(120.seconds) {
             val answer = awaitReply(MessagePluginRegisterMatch(regex = Regex("提交([\\d ]+)"))) { (answer) -> answer }
-            Regex("\\b\\d+\\b").findAll(answer).map { it.value.toInt() }
+            Regex("\\b\\d+\\b").findAll(answer).map { it.value.toInt() }.toList()
         } ?: return@message this.sendReply("你做的太慢了,没得到任何奖励", reference = true)
 
         val answerList = listOf(int1.sum(), int2.sum(), int3.sum(), int4.sum(), int5.sum())
