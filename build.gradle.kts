@@ -88,7 +88,7 @@ subprojects {
 
                 pom {
                     name.set("${project.group}:falowp-bot-system")
-                    description.set("falowp-bot-plugin-auth")
+                    description.set("FalowpBot plugin")
                     packaging = "jar"
                     url.set("https://github.com/falowp-bot")
 
@@ -107,15 +107,14 @@ subprojects {
 
                     developers {
                         developer {
-                            id.set("blr")
-                            name.set("bingliran")
-                            email.set("bingliran@126.com")
+                            id.set("falowp")
+                            name.set("falowp")
                             organization {
-                                name = "blr19c"
+                                name = "falowp"
                                 url = "https://falowp.blr19c.com"
                             }
                             timezone.set("+8")
-                            roles.add("developer")
+                            roles.add("owner")
                         }
                     }
                 }
