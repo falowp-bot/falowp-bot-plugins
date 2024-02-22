@@ -75,6 +75,10 @@ object BLiveUtils : Log {
                     articlePage(page)
                 }
                 page.waitForLoadState(LoadState.NETWORKIDLE)
+                //等待图片加载完成
+                page.existsToExecute("img") {
+                    page.waitForSelector("img")
+                }
                 (biliDynPage + biliOpusPage + articlePage).firstOrNull() ?: screenshot("body", page)
             }
         }
