@@ -21,7 +21,7 @@ import kotlin.random.Random
 class KFC {
 
     private val kfc = cronScheduling("0 0 12 ? * THU") {
-        val message = readPluginResource("kfc/kfc.json") {
+        val message = readPluginResource("kfc.json") {
             val jsonNode = Json.readJsonNode(it.readBytes().decodeToString()) as ArrayNode
             val randomIndex = Random.nextInt(jsonNode.size())
             jsonNode[randomIndex].asText()
