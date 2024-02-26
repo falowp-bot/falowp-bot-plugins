@@ -1,7 +1,7 @@
 package com.blr19c.falowp.bot.user.vo
 
 import com.blr19c.falowp.bot.system.api.ApiAuth
-import com.blr19c.falowp.bot.system.image.ImageUrl
+import com.blr19c.falowp.bot.system.expand.ImageUrl
 import java.math.BigDecimal
 
 /**

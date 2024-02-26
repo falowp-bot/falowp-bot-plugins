@@ -1,8 +1,8 @@
 package com.blr19c.falowp.bot.signin.plugins.signin
 
 import com.blr19c.falowp.bot.system.api.SendMessage
-import com.blr19c.falowp.bot.system.image.ImageUrl
-import com.blr19c.falowp.bot.system.image.encodeToBase64String
+import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.expand.encodeToBase64String
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
@@ -61,7 +61,7 @@ class Signin {
 
             val replyImgBase64 = htmlToImageBase64(html.html(), "#app")
 
-            this.sendReply(SendMessage.builder().images(replyImgBase64).build())
+            this.sendReply(SendMessage.builder().image(replyImgBase64).build())
         } catch (e: SQLException) {
             this.sendReply("你今天已经签到过了", reference = true)
         }

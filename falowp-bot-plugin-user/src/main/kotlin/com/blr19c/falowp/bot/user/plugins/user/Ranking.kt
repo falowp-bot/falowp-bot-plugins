@@ -29,7 +29,7 @@ class Ranking {
         val replyImgBase64 = build(list, "coinsRanking.html", "#coinsRankingDiv") {
             it.coins.toPlainString()
         }
-        this.sendReply(SendMessage.builder().images(replyImgBase64).build())
+        this.sendReply(SendMessage.builder().image(replyImgBase64).build())
     }
 
     private val impressionRanking = message(Regex("好感度排行")) {
@@ -39,7 +39,7 @@ class Ranking {
         val replyImgBase64 = build(list, "impressionRanking.html", "#impressionRankingDiv") {
             it.impression.toPlainString()
         }
-        this.sendReply(SendMessage.builder().images(replyImgBase64).build())
+        this.sendReply(SendMessage.builder().image(replyImgBase64).build())
     }
 
     private suspend fun build(

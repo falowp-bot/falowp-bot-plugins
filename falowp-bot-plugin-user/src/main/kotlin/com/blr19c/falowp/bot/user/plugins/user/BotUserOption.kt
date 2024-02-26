@@ -2,7 +2,7 @@ package com.blr19c.falowp.bot.user.plugins.user
 
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.BotApi
-import com.blr19c.falowp.bot.system.image.ImageUrl
+import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.user.database.BotUser
 import com.blr19c.falowp.bot.user.vo.BotUserVo
 import org.jetbrains.exposed.sql.*

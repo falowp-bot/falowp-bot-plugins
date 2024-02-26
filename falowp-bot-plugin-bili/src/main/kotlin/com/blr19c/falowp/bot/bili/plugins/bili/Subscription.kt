@@ -11,8 +11,9 @@ import com.blr19c.falowp.bot.bili.plugins.bili.vo.BiliSubscriptionVo
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.SendMessage
+import com.blr19c.falowp.bot.system.api.SendMessageChain
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
-import com.blr19c.falowp.bot.system.image.encodeToBase64String
+import com.blr19c.falowp.bot.system.expand.encodeToBase64String
 import com.blr19c.falowp.bot.system.plugin.MessagePluginRegisterMatch
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
@@ -55,14 +56,17 @@ class Subscription : Log {
     private val client by lazy { BiliClient.load() }
 
 
-    private suspend fun SchedulingBotApi.send(subscriptionList: List<BiliSubscriptionVo>, sendMessage: SendMessage) {
+    private suspend fun SchedulingBotApi.send(
+        subscriptionList: List<BiliSubscriptionVo>,
+        sendMessageChain: SendMessageChain
+    ) {
         for (biliSubscriptionVo in subscriptionList) {
             this.addReceive(listOf(biliSubscriptionVo.sourceId))
             if (biliSubscriptionVo.sourceType == SourceTypeEnum.PRIVATE.name) {
-                this.sendPrivate(sendMessage)
+                this.sendPrivate(sendMessageChain)
             }
             if (biliSubscriptionVo.sourceType == SourceTypeEnum.GROUP.name) {
-                this.sendGroup(sendMessage)
+                this.sendGroup(sendMessageChain)
             }
         }
     }
@@ -86,8 +90,8 @@ class Subscription : Log {
                     val liveInfo = client.getLiveInfo(biliUpInfoVo.roomId.toLong())
                     val liveCard = BLiveUtils.liveCard(liveInfo, biliUpInfoVo)
                     val message = SendMessage.builder()
-                        .content("${biliUpInfoVo.name}猪开播啦!")
-                        .images(liveCard)
+                        .text("${biliUpInfoVo.name}猪开播啦!")
+                        .image(liveCard)
                         .build()
                     send(subscriptionList, message)
                     transaction {
@@ -99,8 +103,8 @@ class Subscription : Log {
                 //动态
                 val dynamicScreenshot = BLiveUtils.dynamicScreenshot(prePushDynamic.id) ?: continue
                 val message = SendMessage.builder()
-                    .content("${biliUpInfoVo.name}猪有新动态!")
-                    .images(dynamicScreenshot)
+                    .text("${biliUpInfoVo.name}猪有新动态!")
+                    .image(dynamicScreenshot)
                     .build()
                 send(subscriptionList, message)
                 BiliDynamic.insert(biliUpInfoVo.mid, prePushDynamic.id)
@@ -199,7 +203,7 @@ class Subscription : Log {
                     ImageIO.write(image, "PNG", byteArrayOutputStream)
                     byteArrayOutputStream.toByteArray().encodeToBase64String()
                 }
-                val message = SendMessage.builder().images(loginQrcode).build()
+                val message = SendMessage.builder().image(loginQrcode).build()
                 this@message.sendReply(message)
             }
             this@message.sendReply("登录成功")
@@ -226,7 +230,7 @@ class Subscription : Log {
             .mapNotNull { webclient.urlToRedirectUrl(it) }
             .mapNotNull { extractBvFromBiliUrl(it) }
             .mapNotNull { videoSummarize(client.getVideoAiSummary(it)) }
-            .map { SendMessage.builder().images(it).build() }
+            .map { SendMessage.builder().image(it).build() }
             .toTypedArray()
         if (replyMessages.isEmpty()) {
             this.sendReply("看不懂啊")
