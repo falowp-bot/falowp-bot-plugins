@@ -117,7 +117,6 @@ object BLiveUtils : Log {
         page.existsToExecute(".fixed-author-header") {
             page.evaluate("""document.querySelector(".fixed-author-header").remove();""")
         }
-        println(page.content())
     }
 
     /**
