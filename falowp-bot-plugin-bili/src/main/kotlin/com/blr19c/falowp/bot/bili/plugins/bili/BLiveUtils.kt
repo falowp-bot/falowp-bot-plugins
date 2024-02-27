@@ -56,7 +56,7 @@ object BLiveUtils : Log {
         browserContext {
             this.newPage().use { page ->
                 page.navigate(url)
-                page.waitForLoadState(LoadState.NETWORKIDLE)
+                page.waitForLoadState(LoadState.DOMCONTENTLOADED)
                 if (page.title() == "验证码_哔哩哔哩") {
                     log().info("b站动态截屏出现验证码,等待下次重试:{}", dynamicId)
                     return@browserContext null
@@ -73,11 +73,6 @@ object BLiveUtils : Log {
                 //专栏页面
                 val articlePage = page.existsToExecute(".article-container") {
                     articlePage(page)
-                }
-                page.waitForLoadState(LoadState.NETWORKIDLE)
-                //等待图片加载完成
-                page.existsToExecute("img") {
-                    page.waitForSelector("img")
                 }
                 (biliDynPage + biliOpusPage + articlePage).firstOrNull() ?: screenshot("body", page)
             }
@@ -100,7 +95,8 @@ object BLiveUtils : Log {
         //未登录提示的
         html.select(".unlogin-popover").remove()
         page.setContent(html.html())
-        page.waitForLoadState(LoadState.NETWORKIDLE)
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED)
+        scrollToBottom(page)
         //通用的头
         page.existsToExecute(".bili-header") {
             page.evaluate("""document.querySelector(".bili-header").remove();""")
@@ -113,6 +109,15 @@ object BLiveUtils : Log {
         page.existsToExecute(".bili-dyn-card-link-common") {
             page.evaluate("""document.querySelector(".bili-dyn-card-link-common").remove();""")
         }
+        //消除自己的回复输入框
+        page.existsToExecute(".fixed-reply-box") {
+            page.evaluate("""document.querySelector(".fixed-reply-box").remove();""")
+        }
+        //消除推荐关注当前UP
+        page.existsToExecute(".fixed-author-header") {
+            page.evaluate("""document.querySelector(".fixed-author-header").remove();""")
+        }
+        println(page.content())
     }
 
     /**
@@ -154,7 +159,7 @@ object BLiveUtils : Log {
      */
     private fun biliDynPage(page: Page): String {
         //获取前三个评论
-        page.existsToExecute(".bili-dyn-item__panel") {
+        page.existsToExecute(".bili-dyn-item") {
             page.evaluate(
                 """const replyList = Array.from(document.querySelectorAll(".reply-item")).slice(0, 3);
                    replyList.forEach(item=> document.querySelector(".bili-dyn-item__main").appendChild(item));
@@ -162,6 +167,21 @@ object BLiveUtils : Log {
             )
         }
         return screenshot(".bili-dyn-item__main", page)
+    }
+
+    /**
+     * 滚动到底部
+     */
+    private fun scrollToBottom(page: Page) {
+        val viewportHeight = page.viewportSize().height.toDouble()
+        val scrollHeight = page.evaluate("document.documentElement.scrollHeight").toString().toDouble()
+        val scrollStep = viewportHeight / 10.0
+        var currentScroll = 0.0
+        while (currentScroll < scrollHeight) {
+            currentScroll += scrollStep
+            page.evaluate("window.scrollTo(0, $currentScroll)")
+            page.waitForTimeout(100.0)
+        }
     }
 
     /**
