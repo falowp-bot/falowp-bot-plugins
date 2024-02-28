@@ -1,17 +1,12 @@
 package com.blr19c.falowp.bot.repeat.plugins.repeat
 
 import com.blr19c.falowp.bot.system.api.*
-import com.blr19c.falowp.bot.system.expand.ImageUrl
-import com.blr19c.falowp.bot.system.expand.encodeToBase64String
 import com.blr19c.falowp.bot.system.listener.events.SendMessageEvent
 import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Event.Companion.eventListener
 import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Hook.Companion.afterFinallyHook
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.random.Random
@@ -29,17 +24,12 @@ class Repeater {
     private val executor = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val historyMessage = LinkedHashMap<String, RepeaterData>()
 
-    private suspend fun convertMessage(originalMessage: ReceiveMessage): ReceiveMessage {
-        val base64ImageList = originalMessage.content.image
-            .map { ImageUrl(it.toSummaryBytes().encodeToBase64String()) }
-            .toList()
-        return originalMessage.copy(content = originalMessage.content.copy(image = base64ImageList))
-    }
-
-    private fun equalsContent(content1: ReceiveMessage.Content, content2: ReceiveMessage.Content): Boolean {
-        return content1.at.map { it.id }.toList() == content2.at.map { it.id }.toList()
+    private fun equalsContent(content1: ReceiveMessage.Content, content2: ReceiveMessage.Content) = runBlocking {
+        val image1 = content1.image.map { it.toSummaryBytes() }.toList()
+        val image2 = content2.image.map { it.toSummaryBytes() }.toList()
+        content1.at.map { it.id }.toList() == content2.at.map { it.id }.toList()
                 && content1.message == content2.message
-                && content1.image == content2.image
+                && image1 == image2
     }
 
     private fun buildReplyMessage(content: ReceiveMessage.Content): SendMessageChain {
@@ -79,10 +69,9 @@ class Repeater {
         }
     }
 
-    private val repeater = afterFinallyHook<ReceiveMessageHook>(order = Int.MIN_VALUE) { (originalMessage) ->
+    private val repeater = afterFinallyHook<ReceiveMessageHook>(order = Int.MIN_VALUE) { (receiveMessage) ->
         val botApi = this.botApi()
         executor.launch {
-            val receiveMessage = convertMessage(originalMessage)
             addMessage(botApi, RepeaterData(receiveMessage.content), receiveMessage.source.id)
         }
     }
@@ -94,7 +83,7 @@ class Repeater {
                 .map { ReceiveMessage.User.empty().copy(id = it.at) }
                 .toList()
             val imageList = sendMessageChain.messageQueue.filterIsInstance<ImageSendMessage>()
-                .map { ImageUrl(it.image.toSummaryBytes().encodeToBase64String()) }
+                .map { it.image }
                 .toList()
             val text = sendMessageChain.messageQueue.filterIsInstance<TextSendMessage>().joinToString { it.content }
             val content = ReceiveMessage.Content(text, atList, imageList, emptyList()) { null }
