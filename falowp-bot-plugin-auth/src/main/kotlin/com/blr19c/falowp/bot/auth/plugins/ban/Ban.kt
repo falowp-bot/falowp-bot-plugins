@@ -5,7 +5,6 @@ import com.blr19c.falowp.bot.auth.plugins.ban.database.BanInfo.sourceId
 import com.blr19c.falowp.bot.auth.plugins.ban.database.BanInfo.userId
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
-import com.blr19c.falowp.bot.system.plugin.MessagePluginRegisterMatch
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Hook.Companion.beforeHook
 import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
@@ -33,7 +32,7 @@ class Ban {
         concurrentSet
     }
 
-    private val ban = message(MessagePluginRegisterMatch(Regex("ban"), auth = ApiAuth.ADMINISTRATOR, atMe = true)) {
+    private val ban = message(Regex("ban"), auth = ApiAuth.ADMINISTRATOR) {
         val banList = transaction {
             val banList = mutableListOf<String>()
             for (user in this@message.receiveMessage.content.at) {
@@ -52,7 +51,7 @@ class Ban {
         }
     }
 
-    private val unban = message(MessagePluginRegisterMatch(Regex("unban"), auth = ApiAuth.ADMINISTRATOR, atMe = true)) {
+    private val unban = message(Regex("unban"), auth = ApiAuth.ADMINISTRATOR) {
         val unbanList = transaction {
             val unbanList = mutableListOf<String>()
             for (user in this@message.receiveMessage.content.at) {
