@@ -2,7 +2,7 @@ package com.blr19c.falowp.bot.signin.database
 
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.sql.javatime.date
 import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
@@ -19,12 +19,7 @@ object SigninRecord : Table("signin_record") {
     /**
      * 签到时间
      */
-    val signinDate = varchar("signin_date", 10)
-
-    /**
-     * 创建时间
-     */
-    val createTime = datetime("event_date_time")
+    val signinDate = date("signin_date")
 
     override val primaryKey = PrimaryKey(id, name = "pk_signin_record_id")
 

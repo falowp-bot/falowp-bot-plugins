@@ -1,6 +1,6 @@
 package com.blr19c.falowp.bot.signin.vo
 
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 /**
  * 签到记录
@@ -16,10 +16,5 @@ data class SigninRecordVo(
     /**
      * 签到时间
      */
-    val signinDate: String,
-
-    /**
-     * 创建时间
-     */
-    val createTime: LocalDateTime
+    val signinDate: LocalDate,
 )

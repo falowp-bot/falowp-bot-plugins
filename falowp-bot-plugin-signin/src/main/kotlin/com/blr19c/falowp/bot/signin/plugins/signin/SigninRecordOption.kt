@@ -9,7 +9,6 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.YearMonth
 
 /**
@@ -19,8 +18,7 @@ fun BotUserVo.signin() {
     return transaction {
         SigninRecord.insert {
             it[userId] = this@signin.userId
-            it[signinDate] = LocalDate.now().toString()
-            it[createTime] = LocalDateTime.now()
+            it[signinDate] = LocalDate.now()
         }
     }
 }
@@ -48,7 +46,7 @@ fun BotUserVo.queryCurrentMonthSignin(): List<SigninRecordVo> {
         SigninRecord.selectAll()
             .where {
                 val userEq = SigninRecord.userId eq this@queryCurrentMonthSignin.userId
-                SigninRecord.createTime.between(start, end).and(userEq)
+                SigninRecord.signinDate.between(start, end).and(userEq)
             }.map { convertVo(it) }
     }
 }
@@ -58,6 +56,5 @@ private fun convertVo(resultRow: ResultRow): SigninRecordVo {
         resultRow[SigninRecord.id],
         resultRow[SigninRecord.userId],
         resultRow[SigninRecord.signinDate],
-        resultRow[SigninRecord.createTime]
     )
 }

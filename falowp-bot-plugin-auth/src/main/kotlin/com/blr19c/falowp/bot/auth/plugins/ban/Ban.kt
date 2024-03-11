@@ -35,7 +35,7 @@ class Ban {
 
     private val ban = message(MessagePluginRegisterMatch(Regex("ban"), auth = ApiAuth.ADMINISTRATOR, atMe = true)) {
         val banList = transaction {
-            val banList = listOf<String>()
+            val banList = mutableListOf<String>()
             for (user in this@message.receiveMessage.content.at) {
                 if (user.auth == ApiAuth.ADMINISTRATOR) continue
                 BanInfo.insertIgnore {
@@ -54,7 +54,7 @@ class Ban {
 
     private val unban = message(MessagePluginRegisterMatch(Regex("unban"), auth = ApiAuth.ADMINISTRATOR, atMe = true)) {
         val unbanList = transaction {
-            val unbanList = listOf<String>()
+            val unbanList = mutableListOf<String>()
             for (user in this@message.receiveMessage.content.at) {
                 BanInfo.deleteWhere {
                     (userId eq user.id).and(sourceId eq receiveMessage.source.id)

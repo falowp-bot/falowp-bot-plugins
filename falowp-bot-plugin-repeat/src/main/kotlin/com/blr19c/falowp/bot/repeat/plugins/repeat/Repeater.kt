@@ -79,13 +79,13 @@ class Repeater {
     private val sendMessageEvent = eventListener<SendMessageEvent> { (sendMessageList, _, forward) ->
         if (forward || this.receiveMessage.source.id.isBlank()) return@eventListener
         for (sendMessageChain in sendMessageList) {
-            val atList = sendMessageChain.messageQueue.filterIsInstance<AtSendMessage>()
+            val atList = sendMessageChain.messageList.filterIsInstance<AtSendMessage>()
                 .map { ReceiveMessage.User.empty().copy(id = it.at) }
                 .toList()
-            val imageList = sendMessageChain.messageQueue.filterIsInstance<ImageSendMessage>()
+            val imageList = sendMessageChain.messageList.filterIsInstance<ImageSendMessage>()
                 .map { it.image }
                 .toList()
-            val text = sendMessageChain.messageQueue.filterIsInstance<TextSendMessage>().joinToString { it.content }
+            val text = sendMessageChain.messageList.filterIsInstance<TextSendMessage>().joinToString { it.content }
             val content = ReceiveMessage.Content(text, atList, imageList, emptyList()) { null }
             addMessage(this, RepeaterData(content, repeat = true), this.receiveMessage.source.id)
         }

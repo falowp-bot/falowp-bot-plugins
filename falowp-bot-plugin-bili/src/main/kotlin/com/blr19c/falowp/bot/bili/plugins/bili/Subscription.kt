@@ -9,16 +9,12 @@ import com.blr19c.falowp.bot.bili.plugins.bili.database.BiliSubscription
 import com.blr19c.falowp.bot.bili.plugins.bili.database.BiliUpInfo
 import com.blr19c.falowp.bot.bili.plugins.bili.vo.BiliSubscriptionVo
 import com.blr19c.falowp.bot.system.Log
-import com.blr19c.falowp.bot.system.api.ApiAuth
-import com.blr19c.falowp.bot.system.api.SendMessage
-import com.blr19c.falowp.bot.system.api.SendMessageChain
-import com.blr19c.falowp.bot.system.api.SourceTypeEnum
+import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
 import com.blr19c.falowp.bot.system.plugin.MessagePluginRegisterMatch
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
 import com.blr19c.falowp.bot.system.plugin.Plugin.Task.periodicScheduling
-import com.blr19c.falowp.bot.system.scheduling.api.SchedulingBotApi
 import com.blr19c.falowp.bot.system.web.urlToRedirectUrl
 import com.blr19c.falowp.bot.system.web.webclient
 import com.google.zxing.BarcodeFormat
@@ -56,17 +52,16 @@ class Subscription : Log {
     private val client by lazy { BiliClient.load() }
 
 
-    private suspend fun SchedulingBotApi.send(
+    private suspend fun BotApi.send(
         subscriptionList: List<BiliSubscriptionVo>,
         sendMessageChain: SendMessageChain
     ) {
         for (biliSubscriptionVo in subscriptionList) {
-            this.addReceive(listOf(biliSubscriptionVo.sourceId))
             if (biliSubscriptionVo.sourceType == SourceTypeEnum.PRIVATE.name) {
-                this.sendPrivate(sendMessageChain)
+                this.sendPrivate(sendMessageChain, sourceId = biliSubscriptionVo.sourceId)
             }
             if (biliSubscriptionVo.sourceType == SourceTypeEnum.GROUP.name) {
-                this.sendGroup(sendMessageChain)
+                this.sendGroup(sendMessageChain, sourceId = biliSubscriptionVo.sourceId)
             }
         }
     }
