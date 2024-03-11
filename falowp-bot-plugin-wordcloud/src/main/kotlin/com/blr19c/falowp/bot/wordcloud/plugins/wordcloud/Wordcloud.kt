@@ -90,7 +90,6 @@ class Wordcloud {
             val wordCloudData = Json.toJsonString(segmentCountMap.toList().map { listOf(it.first, it.second) }.toList())
             html.select("#wordCloudData").`val`(wordCloudData)
             val image = htmlToImageBase64(html.html(), "#canvas")
-            println(image)
             this.send(sourceId, sourceType, SendMessage.builder("今日词云").image(image).build())
         }
     }

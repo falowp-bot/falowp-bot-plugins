@@ -80,7 +80,3 @@ class Robbery {
         robbery.register()
     }
 }
-
-fun main() {
-    println(Random.nextDouble(100.0, 500.0).toBigDecimal())
-}
