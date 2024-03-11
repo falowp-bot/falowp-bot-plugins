@@ -14,6 +14,7 @@ version = falowpBotVersion
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 kotlin {
