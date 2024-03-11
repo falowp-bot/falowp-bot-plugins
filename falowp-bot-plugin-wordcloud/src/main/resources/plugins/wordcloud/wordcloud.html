@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.bootcss.com/wordcloud2.js/1.1.0/wordcloud2.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<input type="hidden" value="" id="wordCloudData">
+<div id="canvas-container">
+    <canvas id="canvas" width="1000px" height="1000px"></canvas>
+</div>
+<script type="text/javascript">
+    const options = {
+        list: JSON.parse(document.getElementById("wordCloudData").value),
+        gridSize: 16,
+        weightFactor: 10,
+        fontWeight: 'normal',
+        fontFamily: 'PingFang SC, sans-serif, serif',
+        color: 'random-dark',
+        backgroundColor: '#fff',
+        rotateRatio: 1
+    }
+    const canvas = document.getElementById('canvas');
+    WordCloud(canvas, options);
+</script>
+</body>
+</html>
