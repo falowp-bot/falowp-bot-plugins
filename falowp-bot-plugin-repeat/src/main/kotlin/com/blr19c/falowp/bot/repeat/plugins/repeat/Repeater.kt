@@ -1,6 +1,7 @@
 package com.blr19c.falowp.bot.repeat.plugins.repeat
 
 import com.blr19c.falowp.bot.system.api.*
+import com.blr19c.falowp.bot.system.expand.encodeToBase64String
 import com.blr19c.falowp.bot.system.listener.events.SendMessageEvent
 import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
 import com.blr19c.falowp.bot.system.plugin.Plugin
@@ -25,8 +26,8 @@ class Repeater {
     private val historyMessage = LinkedHashMap<String, RepeaterData>()
 
     private fun equalsContent(content1: ReceiveMessage.Content, content2: ReceiveMessage.Content) = runBlocking {
-        val image1 = content1.image.map { it.toSummaryBytes() }.toList()
-        val image2 = content2.image.map { it.toSummaryBytes() }.toList()
+        val image1 = content1.image.map { it.toSummaryBytes().encodeToBase64String() }.toList()
+        val image2 = content2.image.map { it.toSummaryBytes().encodeToBase64String() }.toList()
         content1.at.map { it.id }.toList() == content2.at.map { it.id }.toList()
                 && content1.message == content2.message
                 && image1 == image2
