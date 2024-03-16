@@ -8,6 +8,7 @@ import com.blr19c.falowp.bot.system.readPluginResource
 import com.blr19c.falowp.bot.system.web.htmlToImageBase64
 import com.blr19c.falowp.bot.user.database.BotUser
 import com.blr19c.falowp.bot.user.vo.BotUserVo
+import org.jetbrains.exposed.sql.SortOrder
 import org.jsoup.Jsoup
 
 /**
@@ -24,7 +25,7 @@ class Ranking {
 
     private val coinsRanking = message(Regex("金币排行")) {
         val list = queryBySourceId(this.receiveMessage.source.id) {
-            it.sortedByDescending { BotUser.coins }.take(7)
+            it.orderBy(BotUser.coins, order = SortOrder.DESC).take(7)
         }
         val replyImgBase64 = build(list, "coinsRanking.html", "#coinsRankingDiv") {
             it.coins.toPlainString()
@@ -34,7 +35,7 @@ class Ranking {
 
     private val impressionRanking = message(Regex("好感度排行")) {
         val list = queryBySourceId(this.receiveMessage.source.id) {
-            it.sortedByDescending { BotUser.impression }.take(7)
+            it.orderBy(BotUser.impression, order = SortOrder.DESC).take(7)
         }
         val replyImgBase64 = build(list, "impressionRanking.html", "#impressionRankingDiv") {
             it.impression.toPlainString()
