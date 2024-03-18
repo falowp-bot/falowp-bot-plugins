@@ -114,6 +114,8 @@ class Subscription : Log {
         for (biliUpInfoVo in BiliUpInfo.queryByLiveStatus(true)) {
             if (!client.getLiveInfo(biliUpInfoVo.roomId.toLong()).liveStatus) {
                 BiliUpInfo.updateLiveStatus(biliUpInfoVo.mid, false)
+                val message = SendMessage.builder("${biliUpInfoVo.name}猪直播结束了,下次再看吧～").build()
+                send(BiliSubscription.queryByMid(biliUpInfoVo.mid), message)
             }
         }
     }
