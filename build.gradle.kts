@@ -66,8 +66,10 @@ subprojects {
                 // https://s01.oss.sonatype.org/content/repositories/snapshots/
                 url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
                 credentials {
-                    username = project.findProperty("s01SonatypeUserName").toString()
-                    password = project.findProperty("s01SonatypePassword").toString()
+                    username =
+                        project.findProperty("s01SonatypeUserName")?.toString() ?: System.getenv("MAVEN_USERNAME")
+                    password =
+                        project.findProperty("s01SonatypePassword")?.toString() ?: System.getenv("MAVEN_PASSWORD")
                 }
             }
         }
@@ -124,6 +126,9 @@ subprojects {
     }
 
     signing {
+        if (System.getenv("GPG_PRIVATE_KEY") != null) {
+            useInMemoryPgpKeys(System.getenv("GPG_PRIVATE_KEY"), System.getenv("GPG_PASSPHRASE"))
+        }
         sign(publishing.publications)
     }
 }
