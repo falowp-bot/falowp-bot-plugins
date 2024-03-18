@@ -102,6 +102,7 @@ class Wordcloud {
                 it[WordcloudTextInfo.userId] = userId
                 it[WordcloudTextInfo.sourceId] = sourceId
                 it[WordcloudTextInfo.sourceType] = sourceType.name
+                it[createDate] = LocalDate.now()
             }
         }
     }
