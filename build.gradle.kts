@@ -31,6 +31,7 @@ subprojects {
 
     kotlin {
         version = kotlinVersion
+        jvmToolchain(21)
     }
 
     apply(plugin = "maven-publish")
