@@ -8,10 +8,13 @@ import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Event.Companion.eventListener
 import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Hook.Companion.beforeHook
+import com.blr19c.falowp.bot.system.plugin.hook.withPluginHook
+import com.blr19c.falowp.bot.system.pluginConfigListProperty
 import com.blr19c.falowp.bot.system.readPluginResource
 import com.blr19c.falowp.bot.system.web.htmlToImageBase64
 import com.blr19c.falowp.bot.wordcloud.plugins.wordcloud.database.WordcloudTextInfo
 import com.blr19c.falowp.bot.wordcloud.plugins.wordcloud.event.WordcloudEvent
+import com.blr19c.falowp.bot.wordcloud.plugins.wordcloud.hook.WordcloudSegmentHook
 import com.hankcs.hanlp.HanLP
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -86,6 +89,11 @@ class Wordcloud {
             }
 
             if (segmentCountMap.isEmpty()) continue
+
+            withPluginHook(this, WordcloudSegmentHook(segmentCountMap)) {
+                val blockWords = pluginConfigListProperty("blockWords")
+                blockWords.forEach { segmentCountMap.remove(it) }
+            }
 
             val wordCloudData = Json.toJsonString(segmentCountMap.toList().map { listOf(it.first, it.second) }.toList())
             html.select("#wordCloudData").`val`(wordCloudData)
