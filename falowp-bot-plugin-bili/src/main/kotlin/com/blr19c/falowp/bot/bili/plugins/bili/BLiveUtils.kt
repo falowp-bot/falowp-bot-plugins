@@ -5,10 +5,10 @@ import com.blr19c.falowp.bot.bili.plugins.bili.api.data.BiliLiveInfo
 import com.blr19c.falowp.bot.bili.plugins.bili.api.data.BiliVideoAiSummary
 import com.blr19c.falowp.bot.bili.plugins.bili.vo.BiliUpInfoVo
 import com.blr19c.falowp.bot.system.Log
-import com.blr19c.falowp.bot.system.configProperty
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
 import com.blr19c.falowp.bot.system.readPluginResource
+import com.blr19c.falowp.bot.system.systemConfigProperty
 import com.blr19c.falowp.bot.system.web.commonWebdriverContext
 import com.blr19c.falowp.bot.system.web.existsToExecute
 import com.blr19c.falowp.bot.system.web.htmlToImageBase64
@@ -264,7 +264,7 @@ object BLiveUtils : Log {
         //房间号
         htmlBody.select(".room-id").html("房间号: ${liveInfo.roomId}")
         //底栏
-        htmlBody.select(".bottom-bar-title").html("${configProperty("bot.system.nickname")}直播推送")
+        htmlBody.select(".bottom-bar-title").html("${systemConfigProperty("nickname")}直播推送")
         return htmlToImageBase64(htmlBody.html(), "#background")
     }
 
