@@ -5,25 +5,29 @@ import com.blr19c.falowp.bot.bili.plugins.bili.api.data.BiliLiveInfo
 import com.blr19c.falowp.bot.bili.plugins.bili.api.data.BiliVideoAiSummary
 import com.blr19c.falowp.bot.bili.plugins.bili.vo.BiliUpInfoVo
 import com.blr19c.falowp.bot.system.Log
+import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
 import com.blr19c.falowp.bot.system.readPluginResource
 import com.blr19c.falowp.bot.system.systemConfigProperty
-import com.blr19c.falowp.bot.system.web.commonWebdriverContext
-import com.blr19c.falowp.bot.system.web.existsToExecute
-import com.blr19c.falowp.bot.system.web.htmlToImageBase64
+import com.blr19c.falowp.bot.system.web.*
 import com.microsoft.playwright.BrowserContext
 import com.microsoft.playwright.ElementHandle
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.options.Cookie
 import com.microsoft.playwright.options.LoadState
 import com.microsoft.playwright.options.ScreenshotType
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.select.Elements
 import java.net.URI
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+import kotlin.time.Duration.Companion.days
 
 
 /**
@@ -31,16 +35,39 @@ import java.net.URI
  */
 object BLiveUtils : Log {
 
+    private val ticket by CacheReference(1.days) { genWebTicket() }
+
+    private suspend fun genWebTicket(): String {
+        val ts = System.currentTimeMillis() / 1000
+        val hmacKey = SecretKeySpec("XgwSnGZ1p".toByteArray(), "HmacSHA256")
+        val mac = Mac.getInstance("HmacSHA256")
+        mac.init(hmacKey)
+        val hexSign = mac.doFinal("ts$ts".toByteArray()).joinToString("") { "%02x".format(it) }
+
+        val formData = Parameters.build {
+            append("key_id", "ec02")
+            append("hexsign", hexSign)
+            append("context[ts]", ts.toString())
+            append("csrf", "")
+        }
+        return webclient().post("https://api.bilibili.com/bapis/bilibili.api.ticket.v1.Ticket/GenWebTicket?${formData.formUrlEncode()}") {
+            for (cookie in DatabaseCookiesStorage.getAll()) {
+                cookie(cookie.name, cookie.value)
+            }
+        }.bodyAsJsonNode()["data"]["ticket"].asText()
+    }
+
 
     private suspend fun <T> browserContext(block: BrowserContext.() -> T): T {
         return withContext(Dispatchers.IO) {
             val cookies = DatabaseCookiesStorage.getAll().map {
                 Cookie(it.name, it.value)
-                    .setDomain(it.domain)
+                    .setDomain(".bilibili.com")
                     .setPath(it.path)
                     .setHttpOnly(it.httpOnly)
                     .setSecure(it.secure)
-            }
+            }.toMutableList()
+            cookies.add(Cookie("bili_ticket", ticket).setDomain(".bilibili.com").setPath("/"))
             commonWebdriverContext {
                 this.addCookies(cookies)
                 block(this)
@@ -56,9 +83,13 @@ object BLiveUtils : Log {
         browserContext {
             this.newPage().use { page ->
                 page.navigate(url)
-                page.waitForLoadState(LoadState.DOMCONTENTLOADED)
-                if (page.title() == "验证码_哔哩哔哩") {
+                page.waitForLoadState(LoadState.NETWORKIDLE)
+                if (page.title().contains("验证码")) {
                     log().info("b站动态截屏出现验证码,等待下次重试:{}", dynamicId)
+                    return@browserContext null
+                }
+                if (page.title().contains("出错")) {
+                    log().info("b站动态截屏出现页面错误,等待下次重试:{}", dynamicId)
                     return@browserContext null
                 }
                 removeDynamicUselessParts(page)
@@ -83,19 +114,6 @@ object BLiveUtils : Log {
      * 删除动态列表中的无用处部分
      */
     private fun removeDynamicUselessParts(page: Page) {
-        val content = page.content()
-        //使用Jsoup的原因是,页面上这些元素是动态加载的,使用js的document获取不到这些元素,导致无法隐藏或者删除
-        val html = Jsoup.parse(content)
-        //消除登录弹出框
-        html.select(".bili-mini-mask").remove()
-        //消除提示
-        html.select(".vip-login-tip").remove()
-        //消除顶部登录提示框
-        html.select(".login-panel-popover").remove()
-        //未登录提示的
-        html.select(".unlogin-popover").remove()
-        page.setContent(html.html())
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED)
         scrollToBottom(page)
         //通用的头
         page.existsToExecute(".bili-header") {
