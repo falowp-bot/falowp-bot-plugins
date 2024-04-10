@@ -39,10 +39,10 @@ suspend fun BiliClient.login(push: suspend (url: String) -> Unit) {
     val sso = json<LoginSso>(QRCODE_SSO_LIST) {
         setBody(FormDataContent(Parameters.build { append("csrf", csrf) }))
     }
-    for (ticket in sso.sso.mapNotNull { Url(it).parameters["ticket"] }.toList()) {
+    for (ticketUrl in sso.sso) {
         try {
-            json<String>(QRCODE_SSO_SET) {
-                parameter("ticket", ticket)
+            json<String>(ticketUrl) {
+                request { method = HttpMethod.Post }
             }
         } catch (e: Exception) {
             log().error("登录请求sso-ticket失败", e)
