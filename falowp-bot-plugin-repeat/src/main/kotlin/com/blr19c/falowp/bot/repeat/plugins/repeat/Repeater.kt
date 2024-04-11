@@ -1,12 +1,11 @@
 package com.blr19c.falowp.bot.repeat.plugins.repeat
 
 import com.blr19c.falowp.bot.system.api.*
-import com.blr19c.falowp.bot.system.expand.encodeToBase64String
 import com.blr19c.falowp.bot.system.listener.events.SendMessageEvent
-import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
+import com.blr19c.falowp.bot.system.plugin.MessagePluginRegisterMatch
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Event.Companion.eventListener
-import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Hook.Companion.afterFinallyHook
+import com.blr19c.falowp.bot.system.plugin.Plugin.Message.queueMessage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -26,8 +25,8 @@ class Repeater {
     private val historyMessage = LinkedHashMap<String, RepeaterData>()
 
     private fun equalsContent(content1: ReceiveMessage.Content, content2: ReceiveMessage.Content) = runBlocking {
-        val image1 = content1.image.map { it.toSummaryBytes().encodeToBase64String() }.toList()
-        val image2 = content2.image.map { it.toSummaryBytes().encodeToBase64String() }.toList()
+        val image1 = content1.image.map { it.toSummary() }.toList()
+        val image2 = content2.image.map { it.toSummary() }.toList()
         content1.at.map { it.id }.toList() == content2.at.map { it.id }.toList()
                 && content1.message == content2.message
                 && image1 == image2
@@ -70,10 +69,13 @@ class Repeater {
         }
     }
 
-    private val repeater = afterFinallyHook<ReceiveMessageHook>(order = Int.MIN_VALUE) { (receiveMessage) ->
-        val botApi = this.botApi()
+
+    private val repeater = queueMessage(
+        MessagePluginRegisterMatch.allMatch(),
+        terminateEvent = false, onSuccess = {}, onOverFlow = {}
+    ) {
         executor.launch {
-            addMessage(botApi, RepeaterData(receiveMessage.content), receiveMessage.source.id)
+            addMessage(this@queueMessage, RepeaterData(receiveMessage.content), receiveMessage.source.id)
         }
     }
 
