@@ -108,9 +108,9 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
     }
 
     private suspend fun preprocessingEvents(goCQHttpMessage: GoCQHttpMessage): Boolean {
-        val messageType = goCQHttpMessage.subType ?: return false
+        val noticeType = goCQHttpMessage.noticeType ?: return false
 
-        when (messageType) {
+        when (noticeType) {
             "group_recall", "friend_recall" -> {
                 val sender = parseSender(goCQHttpMessage)
                 val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.getMessage(it) }
