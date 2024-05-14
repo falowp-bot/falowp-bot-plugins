@@ -11,8 +11,11 @@ import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.json.Json
+import com.blr19c.falowp.bot.system.listener.events.GroupDecreaseEvent
+import com.blr19c.falowp.bot.system.listener.events.GroupIncreaseEvent
+import com.blr19c.falowp.bot.system.listener.events.WithdrawMessageEvent
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
-import com.blr19c.falowp.bot.system.systemConfigListProperty
+import com.blr19c.falowp.bot.system.scheduling.api.SchedulingBotApi
 import com.fasterxml.jackson.databind.JsonNode
 import com.google.common.base.Strings
 import io.ktor.server.application.*
@@ -33,9 +36,9 @@ import java.util.concurrent.atomic.AtomicReference
 class GoCQHttpWebSocket(onload: () -> Unit) : Log {
 
     fun configure() {
-        embeddedServer(Netty, port = adapterConfigProperty("gocqhttp.port").toInt()) {
+        embeddedServer(Netty, port = adapterConfigProperty("cq.port").toInt()) {
             config()
-        }.start(wait = systemConfigListProperty("adapter.enableAdapter").size == 1)
+        }.start(wait = adapterConfigProperty("cq.wait") { "true" } == "true")
     }
 
     class GoCqHttpWebSocketSession(session: WebSocketSession) : WebSocketSession by session
@@ -44,6 +47,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
     private val echoCache = ConcurrentHashMap<Any, Channel<GoCQHttpEchoMessage>>()
     private val onload by lazy { onload() }
     private val executor = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val eventBot = SchedulingBotApi(this::class)
 
     fun webSocketSession(): GoCqHttpWebSocketSession {
         return webSocketSession.get()
@@ -99,23 +103,63 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             log().info("GoCQHttp适配器接收到消息没有userId不处理")
             return
         }
+        if (preprocessingEvents(goCQHttpMessage)) return
         PluginManagement.message(parseMessage(goCQHttpMessage), GoCQHttpBotApi::class)
     }
 
+    private suspend fun preprocessingEvents(goCQHttpMessage: GoCQHttpMessage): Boolean {
+        val messageType = goCQHttpMessage.subType ?: return false
+
+        when (messageType) {
+            "group_recall", "friend_recall" -> {
+                val sender = parseSender(goCQHttpMessage)
+                val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.getMessage(it) }
+                val message = cqMessage?.let { parseMessage(it) } ?: ReceiveMessage.empty()
+                eventBot.publishEvent(WithdrawMessageEvent(message, sender))
+                return true
+            }
+
+            "group_increase" -> {
+                val sender = parseSender(goCQHttpMessage)
+                val source = parseSource(goCQHttpMessage)
+                eventBot.publishEvent(GroupIncreaseEvent(sender, source))
+                return true
+            }
+
+            "group_decrease" -> {
+                val sender = parseSender(goCQHttpMessage)
+                val source = parseSource(goCQHttpMessage)
+                eventBot.publishEvent(GroupDecreaseEvent(sender, source))
+                return true
+            }
+
+            else -> return false
+        }
+    }
+
     private fun parseMessage(goCQHttpMessage: GoCQHttpMessage): ReceiveMessage {
-        val userId = goCQHttpMessage.userId!!
         val content = parseMessageContent(goCQHttpMessage)
-        val sender = ReceiveMessage.User(
+        val sender = parseSender(goCQHttpMessage)
+        val source = parseSource(goCQHttpMessage)
+        val self = ReceiveMessage.Self(goCQHttpMessage.selfId!!)
+        val messageId = goCQHttpMessage.messageId ?: UUID.randomUUID().toString()
+        val messageType = if (goCQHttpMessage.subType == "poke") MessageTypeEnum.POKE else MessageTypeEnum.MESSAGE
+        return ReceiveMessage(messageId, messageType, content, sender, source, self)
+    }
+
+    private fun parseSource(goCQHttpMessage: GoCQHttpMessage): ReceiveMessage.Source {
+        val userId = goCQHttpMessage.userId!!
+        return ReceiveMessage.Source(goCQHttpMessage.groupId ?: userId, sourceTypeEnum(goCQHttpMessage))
+    }
+
+    private fun parseSender(goCQHttpMessage: GoCQHttpMessage): ReceiveMessage.User {
+        val userId = goCQHttpMessage.userId!!
+        return ReceiveMessage.User(
             userId,
             Strings.emptyToNull(goCQHttpMessage.sender?.card) ?: goCQHttpMessage.sender?.nickname ?: "",
             GoCqHttpBotApiSupport.apiAuth(userId, goCQHttpMessage.sender?.role),
             GoCqHttpBotApiSupport.avatar(userId)
         )
-        val source = ReceiveMessage.Source(goCQHttpMessage.groupId ?: userId, messageTypeEnum(goCQHttpMessage))
-        val self = ReceiveMessage.Self(goCQHttpMessage.selfId!!)
-        val messageId = goCQHttpMessage.messageId ?: UUID.randomUUID().toString()
-        val messageType = if (goCQHttpMessage.subType == "poke") MessageTypeEnum.POKE else MessageTypeEnum.MESSAGE
-        return ReceiveMessage(messageId, messageType, content, sender, source, self)
     }
 
     private fun parseMessageContent(goCQHttpMessage: GoCQHttpMessage): ReceiveMessage.Content {
@@ -145,6 +189,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
 
         return ReceiveMessage.Content(
             finalMessage,
+            null,
             atList(atList, goCQHttpMessage),
             imageList(imageList),
             shareList(shareList)
@@ -219,7 +264,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
     }
 
 
-    private fun messageTypeEnum(goCQHttpMessage: GoCQHttpMessage): SourceTypeEnum {
+    private fun sourceTypeEnum(goCQHttpMessage: GoCQHttpMessage): SourceTypeEnum {
         return if (goCQHttpMessage.messageType == "group" || !goCQHttpMessage.groupId.isNullOrBlank())
             SourceTypeEnum.GROUP
         else SourceTypeEnum.PRIVATE

@@ -53,21 +53,21 @@ object GoCqHttpBotApiSupport : SchedulingBotApiSupport {
     }
 
     suspend fun getMessage(messageId: String): GoCQHttpMessage {
-        val url = adapterConfigProperty("gocqhttp.apiUrl")
+        val url = adapterConfigProperty("cq.apiUrl")
         return webclient().get("$url/get_msg?message_id=$messageId")
             .bodyAsJsonNode()["data"].let { Json.readObj(it, GoCQHttpMessage::class) }
     }
 
 
     private suspend fun groupList(): List<String> {
-        val url = adapterConfigProperty("gocqhttp.apiUrl")
+        val url = adapterConfigProperty("cq.apiUrl")
         val nodeList = webclient().get("$url/get_group_list")
             .bodyAsJsonNode()["data"] as ArrayNode
         return nodeList.map { it["group_id"].asText() }.toList()
     }
 
     private suspend fun friendList(): List<ReceiveMessage.User> {
-        val url = adapterConfigProperty("gocqhttp.apiUrl")
+        val url = adapterConfigProperty("cq.apiUrl")
         val nodeList = webclient()
             .get("$url/get_friend_list")
             .bodyAsJsonNode()["data"] as ArrayNode
@@ -78,7 +78,7 @@ object GoCqHttpBotApiSupport : SchedulingBotApiSupport {
     }
 
     private suspend fun groupFriendList(): List<ReceiveMessage.User> {
-        val url = adapterConfigProperty("gocqhttp.apiUrl")
+        val url = adapterConfigProperty("cq.apiUrl")
         val list = arrayListOf<ReceiveMessage.User>()
         for (groupId in groupIdList) {
             val nodeList = webclient()

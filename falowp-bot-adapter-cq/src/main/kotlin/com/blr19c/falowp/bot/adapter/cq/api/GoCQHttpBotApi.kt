@@ -11,6 +11,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
+import java.net.URI
 import kotlin.reflect.KClass
 
 /**
@@ -18,7 +19,7 @@ import kotlin.reflect.KClass
  */
 class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : BotApi(receiveMessage, originalClass) {
 
-    private val baseUrl by lazy { adapterConfigProperty("gocqhttp.apiUrl") }
+    private val baseUrl by lazy { adapterConfigProperty("cq.apiUrl") }
 
     private val client by lazy { longTimeoutWebclient() }
 
@@ -145,6 +146,7 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
             val message = when (sendMessage) {
                 is AtSendMessage -> atCQ(sendMessage.at)
                 is TextSendMessage -> sendMessage.content
+                is VoiceSendMessage -> voiceCQ(sendMessage.voice)
                 is ImageSendMessage -> imageCQ(sendMessage.image)
                 is VideoSendMessage -> videoCQ(sendMessage.video)
                 is PokeSendMessage -> pokeCQ(receiveMessage.sender.id)
@@ -166,13 +168,17 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
         return "[CQ:reply,id=$messageId]"
     }
 
+    private fun voiceCQ(voice: URI): String {
+        return "[CQ:record,file=$voice]"
+    }
+
     private fun imageCQ(image: ImageUrl): String = runBlocking {
         if (image.isUrl()) "[CQ:image,type=custom,url=${image.toUrl()},file=图片]"
         else "[CQ:image,type=custom,url=base64://${image.toBase64()},file=图片]"
     }
 
-    private fun videoCQ(videos: String): String {
-        return "[CQ:video,file=$videos]"
+    private fun videoCQ(video: URI): String {
+        return "[CQ:video,file=$video]"
     }
 
     private fun pokeCQ(sendId: String): String {
