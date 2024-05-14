@@ -130,6 +130,7 @@ class QQApplication : BotAdapterInterface, Log {
         val imageList = opReceiveMessage.d.attachments
         val content = ReceiveMessage.Content(
             message,
+            null,
             atList(guildId, atList),
             imageList(imageList),
             emptyList()
