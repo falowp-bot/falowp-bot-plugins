@@ -126,7 +126,7 @@ class Subscription : Log {
     private val updateUserInfoTask = periodicScheduling(1.days) {
         for (biliUpInfo in BiliUpInfo.queryAll()) {
             val userInfo = client.getUserInfo(biliUpInfo.mid.toLong())
-            if (biliUpInfo.name != userInfo.name) {
+            if (biliUpInfo.name != userInfo.name) transaction {
                 BiliUpInfo.update({ BiliUpInfo.mid eq biliUpInfo.mid }) {
                     it[name] = userInfo.name
                 }
