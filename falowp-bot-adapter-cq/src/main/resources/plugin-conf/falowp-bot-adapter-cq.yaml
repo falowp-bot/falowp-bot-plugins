@@ -1,0 +1,4 @@
+bot:
+  system:
+    adapterPackage:
+      - "com.blr19c.falowp.bot.adapter.cq"
