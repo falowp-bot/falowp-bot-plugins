@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.coroutines.runBlocking
 import java.net.URI
 import kotlin.reflect.KClass
 
@@ -104,7 +103,7 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
     /**
      * 转发消息
      */
-    private fun buildForwardMessage(vararg sendMessageChains: SendMessageChain): ArrayNode {
+    private suspend fun buildForwardMessage(vararg sendMessageChains: SendMessageChain): ArrayNode {
         val nickname = systemConfigProperty("nickname")
         val selfId = this.receiveMessage.self.id
         val messageNode = Json.createArrayNode()
@@ -140,7 +139,7 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
     /**
      * 单个消息
      */
-    private fun buildMessage(sendMessageChain: SendMessageChain, reference: Boolean): String {
+    private suspend fun buildMessage(sendMessageChain: SendMessageChain, reference: Boolean): String {
         val builder = StringBuilder()
         for (sendMessage in sendMessageChain.messageList) {
             val message = when (sendMessage) {
@@ -172,8 +171,8 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
         return "[CQ:record,file=$voice]"
     }
 
-    private fun imageCQ(image: ImageUrl): String = runBlocking {
-        if (image.isUrl()) "[CQ:image,type=custom,url=${image.toUrl()},file=图片]"
+    private suspend fun imageCQ(image: ImageUrl): String {
+        return if (image.isUrl()) "[CQ:image,type=custom,url=${image.toUrl()},file=图片]"
         else "[CQ:image,type=custom,url=base64://${image.toBase64()},file=图片]"
     }
 

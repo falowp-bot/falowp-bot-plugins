@@ -1,17 +1,32 @@
-package com.blr19c.falowp.bot.adapter.qq.op
+package com.blr19c.falowp.bot.adapter.qq.op.qq
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class OpSendMessage(
+/**
+ * QQ发送消息
+ */
+data class OpQQSendMessage(
+    /**
+     * 消息id
+     */
+    @field:JsonProperty("msg_seq")
+    val id: Int,
+
+    /**
+     * 消息类型
+     */
+    @field:JsonProperty("msg_type")
+    val messageType: OpQQMessageTypeEnum,
+
     /**
      * 消息内容
      */
-    val content: OpMessageContent,
+    val content: String?,
 
     /**
-     * 图片地址
+     * 富媒体
      */
-    val image: String?,
+    val media: String?,
 
     /**
      * 引用消息对象
@@ -23,7 +38,7 @@ data class OpSendMessage(
      * 要回复的消息id
      */
     @field:JsonProperty("msg_id")
-    val msgId: String?,
+    val msgId: String?
 ) {
     data class Reference(
         /**
@@ -31,11 +46,5 @@ data class OpSendMessage(
          */
         @field:JsonProperty("message_id")
         val messageId: String,
-
-        /**
-         * 是否忽略获取引用消息详情错误，默认否
-         */
-        @field:JsonProperty("ignore_get_message_error")
-        val ignore: Boolean = false
     )
 }

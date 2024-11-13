@@ -1,25 +1,17 @@
 package com.blr19c.falowp.bot.adapter.qq
 
-import com.blr19c.falowp.bot.adapter.qq.api.QQBotApi
+import com.blr19c.falowp.bot.adapter.qq.api.ChannelBotApiSupport
 import com.blr19c.falowp.bot.adapter.qq.api.QQBotApiSupport
 import com.blr19c.falowp.bot.adapter.qq.op.OpCodeEnum
 import com.blr19c.falowp.bot.adapter.qq.op.OpCodeEnum.*
 import com.blr19c.falowp.bot.adapter.qq.op.OpException
-import com.blr19c.falowp.bot.adapter.qq.op.OpReceiveMessage
+import com.blr19c.falowp.bot.adapter.qq.op.OpTypeEnum
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.adapter.BotAdapter
 import com.blr19c.falowp.bot.system.adapter.BotAdapterInterface
 import com.blr19c.falowp.bot.system.adapter.BotAdapterRegister
 import com.blr19c.falowp.bot.system.adapterConfigProperty
-import com.blr19c.falowp.bot.system.api.ApiAuth
-import com.blr19c.falowp.bot.system.api.MessageTypeEnum
-import com.blr19c.falowp.bot.system.api.ReceiveMessage
-import com.blr19c.falowp.bot.system.api.SourceTypeEnum
-import com.blr19c.falowp.bot.system.expand.ImageUrl
-import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.json.Json
-import com.blr19c.falowp.bot.system.plugin.PluginManagement
-import com.blr19c.falowp.bot.system.systemConfigListProperty
 import com.blr19c.falowp.bot.system.web.bodyAsMap
 import com.blr19c.falowp.bot.system.web.webclient
 import io.ktor.client.plugins.websocket.*
@@ -31,8 +23,18 @@ import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
+/**
+ * QQ适配器
+ */
 @BotAdapter(name = "QQ")
 class QQApplication : BotAdapterInterface, Log {
+
+    companion object {
+        /**
+         * Bot {appid}.{app_token}
+         */
+        val token by lazy { "Bot ${adapterConfigProperty("qq.appId")}.${adapterConfigProperty("qq.token")}" }
+    }
 
     override suspend fun start(register: BotAdapterRegister) {
         createWebSocketSession(register)
@@ -114,73 +116,23 @@ class QQApplication : BotAdapterInterface, Log {
     private suspend fun handlerMessage(frame: Frame, message: Map<String, Any>) {
         val opCodeEnum = OpCodeEnum.valueOfCode(message["op"].toString().toInt())
         when (opCodeEnum) {
-            DISPATCH -> dispatchMessage(frame.readBytes())
+            DISPATCH -> dispatchMessage(frame.readBytes(), message)
             RECONNECT -> throw OpException("服务器要求客户端重新连接")
             INVALID_SESSION -> log().error("认证失败")
             RESUME, IDENTIFY, HEARTBEAT, HELLO, HEARTBEAT_ACK, HTTP_CALLBACK_ACK -> Unit
         }
     }
 
-    private suspend fun dispatchMessage(readBytes: ByteArray) {
-        val opReceiveMessage = Json.readObj(readBytes, OpReceiveMessage::class)
-        log().info("QQ适配器接收到消息:{}", opReceiveMessage)
-        val atList = opReceiveMessage.d.content.at
-        val guildId = opReceiveMessage.d.guildId
-        val message = opReceiveMessage.d.content.message.trim().substringAfter("/")
-        val imageList = opReceiveMessage.d.attachments
-        val content = ReceiveMessage.Content(
-            message,
-            null,
-            atList(guildId, atList),
-            imageList(imageList),
-            emptyList()
-        ) { null }
-        val sender = ReceiveMessage.User(
-            opReceiveMessage.d.author.id,
-            opReceiveMessage.d.member.nick ?: opReceiveMessage.d.author.username,
-            apiAuth(opReceiveMessage.d.member.roles, opReceiveMessage.d.author.id),
-            opReceiveMessage.d.author.avatar.toImageUrl()
-        )
-        val sourceType = if (opReceiveMessage.isDirect()) SourceTypeEnum.PRIVATE else SourceTypeEnum.GROUP
-        val source = ReceiveMessage.Source(opReceiveMessage.d.channelId, sourceType)
-        val self = ReceiveMessage.Self(QQBotApiSupport.selfId)
-        val messageId = opReceiveMessage.d.id
-        val messageType = MessageTypeEnum.MESSAGE
-        val receiveMessage = ReceiveMessage(messageId, messageType, content, sender, source, self)
-        PluginManagement.message(receiveMessage, QQBotApi::class)
-    }
-
-    private fun imageList(imageList: List<OpReceiveMessage.Data.Attachment>?): List<ImageUrl> {
-        imageList ?: return emptyList()
-        return imageList.filter { it.contentType == "image/jpeg" }
-            .map { it.url.toImageUrl() }
-            .toList()
-    }
-
-    private suspend fun atList(guildId: String, atList: List<String>): List<ReceiveMessage.User> {
-        return atList.map {
-            val userInfo = QQBotApiSupport.userInfo(guildId, it)
-            ReceiveMessage.User(
-                it,
-                userInfo.username,
-                apiAuth(userInfo.roles, userInfo.id),
-                userInfo.avatar.toImageUrl()
-            )
-        }.toList()
-    }
-
-    private fun apiAuth(roles: List<String>?, id: String): ApiAuth {
-        if (systemConfigListProperty("administrator").contains(id)) {
-            return ApiAuth.ADMINISTRATOR
+    private suspend fun dispatchMessage(readBytes: ByteArray, message: Map<String, Any>) {
+        log().info("QQApplication接收到消息:{}", message)
+        val opTypeEnum = OpTypeEnum.valueOfOption(message["t"].toString()) ?: return
+        if (opTypeEnum.isChannel()) {
+            ChannelBotApiSupport.dispatchMessage(readBytes)
         }
-        roles ?: return ApiAuth.ORDINARY_MEMBER
-        val adminRole = listOf("2", "4", "5")
-        if (roles.any { adminRole.contains(it) }) {
-            return ApiAuth.MANAGER
+        if (opTypeEnum.isQQ()) {
+            QQBotApiSupport.dispatchMessage(readBytes)
         }
-        return ApiAuth.ORDINARY_MEMBER
     }
-
 
     /**
      * 保存最后一次消息的s
@@ -206,8 +158,8 @@ class QQApplication : BotAdapterInterface, Log {
         val authMap = mapOf(
             "op" to IDENTIFY,
             "d" to mapOf(
-                "token" to QQBotApiSupport.token,
-                "intents" to (0 or (1 shl 30) or (1 shl 12)),
+                "token" to token,
+                "intents" to (0 or (1 shl 30) or (1 shl 12) or (1 shl 25)),
                 "shard" to intArrayOf(0, 1)
             )
         )
@@ -225,7 +177,7 @@ class QQApplication : BotAdapterInterface, Log {
         val authMap = mapOf(
             "op" to RESUME,
             "d" to mapOf(
-                "token" to QQBotApiSupport.token,
+                "token" to token,
                 "session_id" to sessionId.get(),
                 "seq" to lastS.get()
             )
@@ -251,8 +203,8 @@ class QQApplication : BotAdapterInterface, Log {
      */
     private suspend fun websocketAddress(): String {
         return webclient().get(adapterConfigProperty("qq.websocketAddressUrl")) {
-            header(HttpHeaders.Authorization, QQBotApiSupport.token)
-        }.bodyAsMap<String, String>()["url"]!!
+            header(HttpHeaders.Authorization, token)
+        }.bodyAsMap<String, String>()["url"] ?: throw OpException("websocketAddressUrl认证错误")
     }
 
     private suspend fun WebSocketSession.sendMessage(data: Any, showLog: Boolean = true) {

@@ -1,8 +1,11 @@
-package com.blr19c.falowp.bot.adapter.qq.op
+package com.blr19c.falowp.bot.adapter.qq.op.channel
 
 import java.net.URI
 
-data class OpUser(
+/**
+ * 频道用户信息
+ */
+data class OpChannelUser(
     /**
      * 用户在频道中的id
      */

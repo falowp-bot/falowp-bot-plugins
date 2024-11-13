@@ -65,7 +65,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             executor.launch {
                 try {
                     websocketFrame(frame)
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     log().error("GoCQHttp适配器处理消息失败", e)
                 }
             }
