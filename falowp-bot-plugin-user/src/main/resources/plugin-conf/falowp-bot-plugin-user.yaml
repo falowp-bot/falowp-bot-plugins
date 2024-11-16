@@ -1,4 +1,4 @@
 bot:
   system:
-    adapterPackage:
+    pluginPackage:
       - "com.blr19c.falowp.bot.plugins"
