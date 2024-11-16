@@ -24,10 +24,19 @@ class ChannelBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
 
     override suspend fun buildSendMessage(chain: OpSendMessageChain): List<OpChannelSendMessage> {
         val reference = chain.messageReference?.let { OpChannelSendMessage.Reference(it) }
-        val message = OpChannelMessageContent(chain.content, chain.atList, emptyList())
-        val contentMessage = OpChannelSendMessage(message, null, reference, receiveMessage.id)
-        return listOf(contentMessage) + chain.imageList.map {
-            OpChannelSendMessage(message, it, reference, receiveMessage.id)
+        val content = chain.content
+        var contentMessage = emptyList<OpChannelSendMessage>()
+        if (content.isNotBlank()) {
+            val message = OpChannelMessageContent(content, chain.atList, emptyList())
+            contentMessage = listOf(OpChannelSendMessage(message, null, reference, receiveMessage.id))
+        }
+        return contentMessage + chain.imageList.map {
+            OpChannelSendMessage(
+                OpChannelMessageContent("", chain.atList, emptyList()),
+                it,
+                reference,
+                receiveMessage.id
+            )
         }
     }
 

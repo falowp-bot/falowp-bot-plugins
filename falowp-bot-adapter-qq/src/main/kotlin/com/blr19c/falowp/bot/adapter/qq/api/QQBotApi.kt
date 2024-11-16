@@ -8,7 +8,9 @@ import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQSendMessage
 import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.json.Json
+import com.blr19c.falowp.bot.system.web.bodyAsJsonNode
 import com.blr19c.falowp.bot.system.web.webclient
+import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.client.call.body
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -26,11 +28,15 @@ class QQBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
 
     override suspend fun buildSendMessage(chain: OpSendMessageChain): List<OpQQSendMessage> {
         val reference = chain.messageReference?.let { OpQQSendMessage.Reference(it) }
-        val message = chain.content
-        val contentMessage = OpQQSendMessage(index.incrementAndGet(), TEXT, message, null, reference, receiveMessage.id)
+        val content = chain.content
+        var contentMessage = emptyList<OpQQSendMessage>()
+        if (content.isNotBlank()) {
+            val message = OpQQSendMessage(index.incrementAndGet(), TEXT, content, null, reference, receiveMessage.id)
+            contentMessage = listOf(message)
+        }
         val imageMessage = chain.imageList
-            .map { OpQQSendMessage(index.incrementAndGet(), MEDIA, null, it, reference, receiveMessage.id) }
-        return listOf(contentMessage) + imageMessage
+            .map { OpQQSendMessage(index.incrementAndGet(), MEDIA, "", toImageUrl(it), reference, receiveMessage.id) }
+        return contentMessage + imageMessage
     }
 
     override suspend fun allGroupId(): Set<String> {
@@ -63,5 +69,23 @@ class QQBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
             header(HttpHeaders.Authorization, token)
         }.body<String>()
         log().info("QQ适配器发送私聊消息返回结果:{}", res)
+    }
+
+    private suspend fun toImageUrl(imageUrl: String): JsonNode {
+        val sourceId = this.receiveMessage.source.id
+        val url = if (SourceTypeEnum.GROUP == this.receiveMessage.source.type) "/v2/groups/${sourceId}/files"
+        else "/v2/users/${sourceId}/files"
+        return webclient().post(adapterConfigProperty("qq.apiUrl") + url) {
+            setBody(
+                Json.toJsonString(
+                    mapOf(
+                        "file_type" to 1,
+                        "url" to imageUrl,
+                        "srv_send_msg" to false
+                    )
+                )
+            )
+            header(HttpHeaders.Authorization, token)
+        }.bodyAsJsonNode()
     }
 }

@@ -1,6 +1,7 @@
 package com.blr19c.falowp.bot.adapter.qq.op.qq
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.JsonNode
 
 /**
  * QQ发送消息
@@ -21,12 +22,12 @@ data class OpQQSendMessage(
     /**
      * 消息内容
      */
-    val content: String?,
+    val content: String,
 
     /**
      * 富媒体
      */
-    val media: String?,
+    val media: JsonNode?,
 
     /**
      * 引用消息对象
