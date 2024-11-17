@@ -3,11 +3,7 @@ package com.blr19c.falowp.bot.adapter.qq.api
 import com.blr19c.falowp.bot.adapter.qq.op.OpReceiveMessage
 import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQReceiveMessage
 import com.blr19c.falowp.bot.system.Log
-import com.blr19c.falowp.bot.system.api.ApiAuth
-import com.blr19c.falowp.bot.system.api.BotApi
-import com.blr19c.falowp.bot.system.api.MessageTypeEnum
-import com.blr19c.falowp.bot.system.api.ReceiveMessage
-import com.blr19c.falowp.bot.system.api.SourceTypeEnum
+import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
@@ -42,7 +38,7 @@ object QQBotApiSupport : SchedulingBotApiSupport, Log {
         val content = ReceiveMessage.Content(
             message,
             null,
-            emptyList(),
+            listOf(ReceiveMessage.User.empty().copy(id = "qq-self")),
             emptyList(),
             emptyList()
         ) { null }
@@ -54,7 +50,7 @@ object QQBotApiSupport : SchedulingBotApiSupport, Log {
         )
         val sourceType = if (opReceiveMessage.t.isDirect()) SourceTypeEnum.PRIVATE else SourceTypeEnum.GROUP
         val source = ReceiveMessage.Source(opReceiveMessage.d.groupId ?: opReceiveMessage.d.author.id, sourceType)
-        val self = ReceiveMessage.Self("")
+        val self = ReceiveMessage.Self("qq-self")
         val receiveMessage = ReceiveMessage(messageId, messageType, content, sender, source, self)
         opReceiveMessage.d.groupId?.let { groupIdList.add(it) }
         PluginManagement.message(receiveMessage, QQBotApi::class)
