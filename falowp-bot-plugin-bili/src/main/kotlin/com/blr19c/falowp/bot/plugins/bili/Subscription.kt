@@ -49,8 +49,7 @@ import kotlin.time.Duration.Companion.seconds
 )
 class Subscription : Log {
 
-    private val client by lazy { BiliClient.load() }
-
+    private val client by lazy { BiliClient() }
 
     private suspend fun BotApi.send(
         subscriptionList: List<BiliSubscriptionVo>,
@@ -70,6 +69,7 @@ class Subscription : Log {
      * 定时查询动态/直播
      */
     private val dynamicTask = periodicScheduling(30.seconds) {
+        log().info("定时查询动态/直播")
         for (biliUpInfoVo in BiliUpInfo.queryAll()) {
             //订阅列表
             val subscriptionList = BiliSubscription.queryByMid(biliUpInfoVo.mid)
@@ -88,6 +88,7 @@ class Subscription : Log {
                         .text("${biliUpInfoVo.name}猪开播啦!")
                         .image(liveCard)
                         .build()
+                    log().info("定时查询动态/直播-${biliUpInfoVo.name}猪开播啦!")
                     send(subscriptionList, message)
                     transaction {
                         BiliUpInfo.updateLiveStatus(biliUpInfoVo.mid, true)
@@ -101,6 +102,7 @@ class Subscription : Log {
                     .text("${biliUpInfoVo.name}猪有新动态!")
                     .image(dynamicScreenshot)
                     .build()
+                log().info("定时查询动态/直播-${biliUpInfoVo.name}猪有新动态!")
                 send(subscriptionList, message)
                 BiliDynamic.insert(biliUpInfoVo.mid, prePushDynamic.id)
             }
@@ -111,8 +113,9 @@ class Subscription : Log {
      * 定时查询已开播的up的开播状态
      */
     private val liveTask = periodicScheduling(1.minutes) {
+        log().info("定时查询开播状态")
         for (biliUpInfoVo in BiliUpInfo.queryByLiveStatus(true)) {
-            if (!client.getLiveInfo(biliUpInfoVo.roomId.toLong()).liveStatus) {
+            if (!client.getLiveInfo(biliUpInfoVo.roomId.toLong()).roomInfo.liveStatus) {
                 BiliUpInfo.updateLiveStatus(biliUpInfoVo.mid, false)
                 val message = SendMessage.builder("${biliUpInfoVo.name}猪直播结束了,下次再看吧～").build()
                 send(BiliSubscription.queryByMid(biliUpInfoVo.mid), message)

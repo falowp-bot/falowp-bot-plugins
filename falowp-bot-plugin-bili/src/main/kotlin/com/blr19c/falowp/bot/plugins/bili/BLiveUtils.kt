@@ -80,6 +80,7 @@ object BLiveUtils : Log {
      */
     suspend fun dynamicScreenshot(dynamicId: String): String? = coroutineScope {
         val url = "https://www.bilibili.com/opus/$dynamicId"
+        log().info("b站动态截屏:{}", dynamicId)
         browserContext {
             this.newPage().use { page ->
                 page.navigate(url)
@@ -270,18 +271,18 @@ object BLiveUtils : Log {
             inputStream.bufferedReader().use { it.readText() }
         }
         val htmlBody = Jsoup.parse(htmlString)
-        val cover = "data:image/png;base64,${ImageUrl(liveInfo.cover.trim()).toBase64()}"
+        val cover = "data:image/png;base64,${ImageUrl(liveInfo.roomInfo.cover.trim()).toBase64()}"
         htmlBody.select("#background").attr("src", cover)
         //标题
-        htmlBody.select(".title").html(liveInfo.title)
+        htmlBody.select(".title").html(liveInfo.roomInfo.title)
         //头像
-        htmlBody.select(".face").backgroundUrl(liveInfo.face)
+        htmlBody.select(".face").backgroundUrl(liveInfo.anchorInfo.baseInfo.face)
         //头像添加直播
         htmlBody.select(".live-logo").backgroundUrl(liveLogoImg)
         //直播人
         htmlBody.select(".live-user").html("UP猪: ${userInfo.name}")
         //房间号
-        htmlBody.select(".room-id").html("房间号: ${liveInfo.roomId}")
+        htmlBody.select(".room-id").html("房间号: ${liveInfo.roomInfo.roomId}")
         //底栏
         htmlBody.select(".bottom-bar-title").html("${systemConfigProperty("nickname")}直播推送")
         return htmlToImageBase64(htmlBody.html(), "#background")
