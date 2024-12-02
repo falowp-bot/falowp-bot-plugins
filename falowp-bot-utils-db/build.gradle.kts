@@ -7,7 +7,7 @@ dependencies {
     api("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     api("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
     runtimeOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    api("org.mariadb.jdbc:mariadb-java-client:3.5.0")
+    api("org.mariadb.jdbc:mariadb-java-client:3.5.1")
     api("com.mysql:mysql-connector-j:9.1.0")
     api("org.postgresql:postgresql:42.7.4")
 }
