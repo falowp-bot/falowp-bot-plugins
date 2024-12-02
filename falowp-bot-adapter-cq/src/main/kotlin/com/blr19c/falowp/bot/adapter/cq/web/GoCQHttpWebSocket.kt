@@ -4,6 +4,7 @@ import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpBotApi
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpEchoMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCqHttpBotApiSupport
+import com.blr19c.falowp.bot.adapter.cq.event.RequestJoinGroupEvent
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.MessageTypeEnum
@@ -103,14 +104,35 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             log().info("GoCQHttp适配器接收到消息没有userId不处理")
             return
         }
-        if (preprocessingEvents(goCQHttpMessage)) return
+        if (preprocessingNoticeTypeEvents(goCQHttpMessage)) return
+        if (preprocessingPostTypeEvents(goCQHttpMessage)) return
         PluginManagement.message(parseMessage(goCQHttpMessage), GoCQHttpBotApi::class)
     }
 
-    private suspend fun preprocessingEvents(goCQHttpMessage: GoCQHttpMessage): Boolean {
-        val noticeType = goCQHttpMessage.noticeType ?: return false
+    private fun preprocessingPostTypeEvents(goCQHttpMessage: GoCQHttpMessage): Boolean {
+        when (goCQHttpMessage.postType ?: return false) {
+            "request" -> {
+                when (goCQHttpMessage.requestType ?: return false) {
+                    "group" -> {
+                        eventBot.publishEvent(
+                            RequestJoinGroupEvent(
+                                goCQHttpMessage.userId!!,
+                                parseSource(goCQHttpMessage),
+                                goCQHttpMessage.comment!!,
+                                goCQHttpMessage.flag!!,
+                                goCQHttpMessage.subType!!
+                            )
+                        )
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
 
-        when (noticeType) {
+    private suspend fun preprocessingNoticeTypeEvents(goCQHttpMessage: GoCQHttpMessage): Boolean {
+        when (goCQHttpMessage.noticeType ?: return false) {
             "group_recall", "friend_recall" -> {
                 val sender = parseSender(goCQHttpMessage)
                 val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.getMessage(it) }

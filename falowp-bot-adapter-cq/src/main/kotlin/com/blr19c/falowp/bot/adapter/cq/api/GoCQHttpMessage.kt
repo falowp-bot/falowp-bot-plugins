@@ -20,6 +20,12 @@ data class GoCQHttpMessage(
     var noticeType: String? = null,
 
     /**
+     * 请求类型
+     */
+    @field:JsonProperty("request_type")
+    var requestType: String? = null,
+
+    /**
      * 消息来源
      */
     @field:JsonProperty("message_type")
@@ -120,6 +126,24 @@ data class GoCQHttpMessage(
      */
     @field:JsonProperty("echo")
     var echo: String? = null,
+
+    /**
+     * 邀请者id
+     */
+    @field:JsonProperty("invitor_id")
+    var invitorId: String? = null,
+
+    /**
+     * 备注(在申请时是附加信息)
+     */
+    @field:JsonProperty("comment")
+    var comment: String? = null,
+
+    /**
+     * 特殊内容时的flag(回执)
+     */
+    @field:JsonProperty("flag")
+    var flag: String? = null,
 ) {
 
     /**

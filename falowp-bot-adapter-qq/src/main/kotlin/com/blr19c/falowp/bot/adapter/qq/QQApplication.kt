@@ -7,6 +7,7 @@ import com.blr19c.falowp.bot.adapter.qq.op.OpCodeEnum.*
 import com.blr19c.falowp.bot.adapter.qq.op.OpException
 import com.blr19c.falowp.bot.adapter.qq.op.OpTypeEnum
 import com.blr19c.falowp.bot.system.Log
+import com.blr19c.falowp.bot.system.adapter.AdapterApplication
 import com.blr19c.falowp.bot.system.adapter.BotAdapter
 import com.blr19c.falowp.bot.system.adapter.BotAdapterInterface
 import com.blr19c.falowp.bot.system.adapter.BotAdapterRegister
@@ -37,6 +38,8 @@ class QQApplication : BotAdapterInterface, Log {
     }
 
     override suspend fun start(register: BotAdapterRegister) {
+        AdapterApplication.botApiSupportRegister(ChannelBotApiSupport)
+        AdapterApplication.botApiSupportRegister(QQBotApiSupport)
         createWebSocketSession(register)
     }
 
