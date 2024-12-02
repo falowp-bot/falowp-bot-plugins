@@ -25,7 +25,6 @@ object LogListener {
         }
 
         override fun append(eventObject: ILoggingEvent) {
-            println("123")
             eventObject.formattedMessage
         }
 
