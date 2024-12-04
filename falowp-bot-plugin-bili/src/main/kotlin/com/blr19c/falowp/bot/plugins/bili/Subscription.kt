@@ -7,6 +7,7 @@ import com.blr19c.falowp.bot.plugins.bili.api.api.*
 import com.blr19c.falowp.bot.plugins.bili.database.BiliDynamic
 import com.blr19c.falowp.bot.plugins.bili.database.BiliSubscription
 import com.blr19c.falowp.bot.plugins.bili.database.BiliUpInfo
+import com.blr19c.falowp.bot.plugins.bili.message.biliMessage
 import com.blr19c.falowp.bot.plugins.bili.vo.BiliSubscriptionVo
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.api.*
@@ -82,11 +83,13 @@ class Subscription : Log {
             for (prePushDynamic in prePushDynamicList) {
                 //直播
                 if (prePushDynamic.type.startsWith("DYNAMIC_TYPE_LIVE") && !biliUpInfoVo.liveStatus) {
-                    val liveInfo = client.getLiveInfo(biliUpInfoVo.roomId.toLong())
+                    val roomId = biliUpInfoVo.roomId
+                    val liveInfo = client.getLiveInfo(roomId.toLong())
                     val liveCard = BLiveUtils.liveCard(liveInfo, biliUpInfoVo)
                     val message = SendMessage.builder()
                         .text("${biliUpInfoVo.name}猪开播啦!")
                         .image(liveCard)
+                        .biliMessage(biliUpInfoVo, "https://live.bilibili.com/$roomId", roomId)
                         .build()
                     log().info("定时查询动态/直播-${biliUpInfoVo.name}猪开播啦!")
                     send(subscriptionList, message)
@@ -98,9 +101,11 @@ class Subscription : Log {
                 }
                 //动态
                 val dynamicScreenshot = BLiveUtils.dynamicScreenshot(prePushDynamic.id) ?: continue
+                val url = "https://www.bilibili.com/opus/${prePushDynamic.id}"
                 val message = SendMessage.builder()
                     .text("${biliUpInfoVo.name}猪有新动态!")
                     .image(dynamicScreenshot)
+                    .biliMessage(biliUpInfoVo, url, prePushDynamic.id)
                     .build()
                 log().info("定时查询动态/直播-${biliUpInfoVo.name}猪有新动态!")
                 send(subscriptionList, message)
@@ -115,9 +120,13 @@ class Subscription : Log {
     private val liveTask = periodicScheduling(1.minutes) {
         log().info("定时查询开播状态")
         for (biliUpInfoVo in BiliUpInfo.queryByLiveStatus(true)) {
-            if (!client.getLiveInfo(biliUpInfoVo.roomId.toLong()).roomInfo.liveStatus) {
+            val roomId = biliUpInfoVo.roomId
+            if (!client.getLiveInfo(roomId.toLong()).roomInfo.liveStatus) {
                 BiliUpInfo.updateLiveStatus(biliUpInfoVo.mid, false)
-                val message = SendMessage.builder("${biliUpInfoVo.name}猪直播结束了,下次再看吧～").build()
+                val message = SendMessage.builder()
+                    .text("${biliUpInfoVo.name}猪直播结束了,下次再看吧～")
+                    .biliMessage(biliUpInfoVo, "https://live.bilibili.com/$roomId", roomId)
+                    .build()
                 send(BiliSubscription.queryByMid(biliUpInfoVo.mid), message)
             }
         }
@@ -127,6 +136,7 @@ class Subscription : Log {
      * 更新up信息
      */
     private val updateUserInfoTask = periodicScheduling(1.days) {
+        log().info("更新up信息")
         for (biliUpInfo in BiliUpInfo.queryAll()) {
             val userInfo = client.getUserInfo(biliUpInfo.mid.toLong())
             if (biliUpInfo.name != userInfo.name) transaction {
