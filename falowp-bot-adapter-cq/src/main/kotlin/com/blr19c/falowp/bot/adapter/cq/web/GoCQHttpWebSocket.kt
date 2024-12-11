@@ -7,6 +7,7 @@ import com.blr19c.falowp.bot.adapter.cq.api.GoCqHttpBotApiSupport
 import com.blr19c.falowp.bot.adapter.cq.event.RequestJoinGroupEvent
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.adapterConfigProperty
+import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.api.MessageTypeEnum
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
@@ -16,7 +17,6 @@ import com.blr19c.falowp.bot.system.listener.events.GroupDecreaseEvent
 import com.blr19c.falowp.bot.system.listener.events.GroupIncreaseEvent
 import com.blr19c.falowp.bot.system.listener.events.WithdrawMessageEvent
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
-import com.blr19c.falowp.bot.system.scheduling.api.SchedulingBotApi
 import com.fasterxml.jackson.databind.JsonNode
 import com.google.common.base.Strings
 import io.ktor.server.application.*
@@ -48,7 +48,6 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
     private val echoCache = ConcurrentHashMap<Any, Channel<GoCQHttpEchoMessage>>()
     private val onload by lazy { onload() }
     private val executor = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    private val eventBot = SchedulingBotApi(this::class)
 
     fun webSocketSession(): GoCqHttpWebSocketSession {
         return webSocketSession.get()
@@ -114,7 +113,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             "request" -> {
                 when (goCQHttpMessage.requestType ?: return false) {
                     "group" -> {
-                        eventBot.publishEvent(
+                        parseEventBotApi(goCQHttpMessage).publishEvent(
                             RequestJoinGroupEvent(
                                 goCQHttpMessage.userId!!,
                                 parseSource(goCQHttpMessage),
@@ -132,31 +131,40 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
     }
 
     private suspend fun preprocessingNoticeTypeEvents(goCQHttpMessage: GoCQHttpMessage): Boolean {
+
         when (goCQHttpMessage.noticeType ?: return false) {
             "group_recall", "friend_recall" -> {
                 val sender = parseSender(goCQHttpMessage)
                 val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.getMessage(it) }
                 val message = cqMessage?.let { parseMessage(it) } ?: ReceiveMessage.empty()
-                eventBot.publishEvent(WithdrawMessageEvent(message, sender))
+                parseEventBotApi(goCQHttpMessage).publishEvent(WithdrawMessageEvent(message, sender))
                 return true
             }
 
             "group_increase" -> {
                 val sender = parseSender(goCQHttpMessage)
                 val source = parseSource(goCQHttpMessage)
-                eventBot.publishEvent(GroupIncreaseEvent(sender, source))
+                parseEventBotApi(goCQHttpMessage).publishEvent(GroupIncreaseEvent(sender, source))
                 return true
             }
 
             "group_decrease" -> {
                 val sender = parseSender(goCQHttpMessage)
                 val source = parseSource(goCQHttpMessage)
-                eventBot.publishEvent(GroupDecreaseEvent(sender, source))
+                parseEventBotApi(goCQHttpMessage).publishEvent(GroupDecreaseEvent(sender, source))
                 return true
             }
 
             else -> return false
         }
+    }
+
+    private fun parseEventBotApi(goCQHttpMessage: GoCQHttpMessage): BotApi {
+        val sender = parseSender(goCQHttpMessage)
+        val source = parseSource(goCQHttpMessage)
+        val self = ReceiveMessage.Self(goCQHttpMessage.selfId!!)
+        val message = ReceiveMessage.empty().copy(sender = sender, source = source, self = self)
+        return GoCQHttpBotApi(message, this::class)
     }
 
     private fun parseMessage(goCQHttpMessage: GoCQHttpMessage): ReceiveMessage {
