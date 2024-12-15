@@ -4,20 +4,21 @@ import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpBotApi
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpEchoMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCqHttpBotApiSupport
+import com.blr19c.falowp.bot.adapter.cq.event.RequestAddFriendEvent
 import com.blr19c.falowp.bot.adapter.cq.event.RequestJoinGroupEvent
+import com.blr19c.falowp.bot.adapter.cq.expand.avatar
+import com.blr19c.falowp.bot.adapter.cq.expand.getMsg
+import com.blr19c.falowp.bot.adapter.cq.expand.markMsgAsRead
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.BotApi
-import com.blr19c.falowp.bot.system.api.MessageTypeEnum
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
-import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.listener.events.GroupDecreaseEvent
 import com.blr19c.falowp.bot.system.listener.events.GroupIncreaseEvent
 import com.blr19c.falowp.bot.system.listener.events.WithdrawMessageEvent
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
-import com.fasterxml.jackson.databind.JsonNode
 import com.google.common.base.Strings
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -103,6 +104,8 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             log().info("GoCQHttp适配器接收到消息没有userId不处理")
             return
         }
+        //设置已读
+        goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.markMsgAsRead(it) }
         if (preprocessingNoticeTypeEvents(goCQHttpMessage)) return
         if (preprocessingPostTypeEvents(goCQHttpMessage)) return
         PluginManagement.message(parseMessage(goCQHttpMessage), GoCQHttpBotApi::class)
@@ -124,6 +127,18 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
                         )
                         return true
                     }
+
+                    "friend" -> {
+                        parseEventBotApi(goCQHttpMessage).publishEvent(
+                            RequestAddFriendEvent(
+                                goCQHttpMessage.userId!!,
+                                parseSource(goCQHttpMessage),
+                                goCQHttpMessage.comment!!,
+                                goCQHttpMessage.flag!!,
+                            )
+                        )
+                        return true
+                    }
                 }
             }
         }
@@ -135,7 +150,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
         when (goCQHttpMessage.noticeType ?: return false) {
             "group_recall", "friend_recall" -> {
                 val sender = parseSender(goCQHttpMessage)
-                val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.getMessage(it) }
+                val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.getMsg(it) }
                 val message = cqMessage?.let { parseMessage(it) } ?: ReceiveMessage.empty()
                 parseEventBotApi(goCQHttpMessage).publishEvent(WithdrawMessageEvent(message, sender))
                 return true
@@ -173,7 +188,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
         val source = parseSource(goCQHttpMessage)
         val self = ReceiveMessage.Self(goCQHttpMessage.selfId!!)
         val messageId = goCQHttpMessage.messageId ?: UUID.randomUUID().toString()
-        val messageType = if (goCQHttpMessage.subType == "poke") MessageTypeEnum.POKE else MessageTypeEnum.MESSAGE
+        val messageType = goCQHttpMessage.toMessageType()
         return ReceiveMessage(messageId, messageType, content, sender, source, self)
     }
 
@@ -188,109 +203,34 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             userId,
             Strings.emptyToNull(goCQHttpMessage.sender?.card) ?: goCQHttpMessage.sender?.nickname ?: "",
             GoCqHttpBotApiSupport.apiAuth(userId, goCQHttpMessage.sender?.role),
-            GoCqHttpBotApiSupport.avatar(userId)
+            GoCqHttpBotApiSupport.tempBot.avatar(userId)
         )
     }
 
     private fun parseMessageContent(goCQHttpMessage: GoCQHttpMessage): ReceiveMessage.Content {
-        val cqMessage = goCQHttpMessage.message ?: return emptyMessageContent(goCQHttpMessage)
-        //处理@
-        val atRegex = Regex("\\[CQ:at,qq=(\\d+)]")
-        val atList = atRegex.findAll(cqMessage).map { it.groupValues[1] }.toList()
-        val notAtMessage = cqMessage.replace(atRegex, "")
-
-        //处理图片
-        val imageRegex = Regex("\\[CQ:image.+,url=(https?://[^\\s/\$.?#].\\S*)]")
-        val imageList = imageRegex.findAll(notAtMessage).map { it.groupValues[1] }.toList()
-        val notImageMessage = notAtMessage.replace(imageRegex, "")
-
-        //处理分享
-        val shareRegex = Regex("\\[CQ:json,data=([\\s\\S]*)]")
-        val shareList = shareRegex.findAll(notImageMessage).map { it.groupValues[1] }.toList()
-        val notShareMessage = notImageMessage.replace(shareRegex, "")
-
-        //处理引用
-        val referenceRegex = Regex("\\[CQ:reply,id=(\\d+)]")
-        val referenceSingle = referenceRegex.findAll(notShareMessage).map { it.groupValues[1] }.singleOrNull()
-        val notReferenceMessage = notShareMessage.replace(referenceRegex, "")
-
-
-        val finalMessage = notReferenceMessage.trim()
-
         return ReceiveMessage.Content(
-            finalMessage,
-            null,
-            atList(atList, goCQHttpMessage),
-            imageList(imageList),
-            shareList(shareList)
-        ) { referenceSingle(referenceSingle, goCQHttpMessage) }
-    }
-
-    private fun emptyMessageContent(goCQHttpMessage: GoCQHttpMessage): ReceiveMessage.Content {
-        return ReceiveMessage.Content.empty().copy(at = atList(listOf(), goCQHttpMessage))
-    }
-
-    private fun atList(atList: List<String>, goCQHttpMessage: GoCQHttpMessage): List<ReceiveMessage.User> {
-        val atUserList = atList.mapNotNull { GoCqHttpBotApiSupport.userInfo(it) }.toMutableList()
-        goCQHttpMessage.targetId?.let { GoCqHttpBotApiSupport.userInfo(it) }?.let { atUserList.add(it) }
-        return atUserList.toList()
-    }
-
-    private fun imageList(imageList: List<String>): List<ImageUrl> {
-        return imageList.map { ImageUrl(it) }.toList()
-    }
-
-    private fun shareList(shareList: List<String>): List<ReceiveMessage.Share> {
-        return shareList
-            .map { replaceEscapeCharacter(it) }
-            .map { Json.readJsonNode(it) }
-            .mapNotNull { shareInfo(it) }
-            .toList()
+            goCQHttpMessage.content,
+            goCQHttpMessage.voice.orElse(null),
+            goCQHttpMessage.atList,
+            goCQHttpMessage.imageList,
+            goCQHttpMessage.shareList
+        ) {
+            val cqMessage = goCQHttpMessage.message ?: return@Content null
+            //处理引用
+            val referenceRegex = Regex("\\[CQ:reply,id=(\\d+)]")
+            val referenceSingle = referenceRegex.findAll(cqMessage).map { it.groupValues[1] }.singleOrNull()
+            referenceSingle(referenceSingle, goCQHttpMessage)
+        }
     }
 
     private suspend fun referenceSingle(referenceSingle: String?, goCQHttpMessage: GoCQHttpMessage): ReceiveMessage? {
         referenceSingle ?: return null
-        val originalMessage = GoCqHttpBotApiSupport.getMessage(referenceSingle)
+        val originalMessage = GoCqHttpBotApiSupport.tempBot.getMsg(referenceSingle)
         val finalMessage = originalMessage.copy(
             selfId = goCQHttpMessage.selfId,
             userId = originalMessage.sender?.userId
         )
         return parseMessage(finalMessage)
-    }
-
-    private fun shareInfo(jsonNode: JsonNode): ReceiveMessage.Share? {
-        return if (jsonNode["app"].asText().startsWith("com.tencent.miniapp"))
-            shareMiniAppStandard(jsonNode)
-        else if (jsonNode["app"].asText().startsWith("com.tencent.structmsg"))
-            shareStandard(jsonNode)
-        else null
-    }
-
-    private fun shareMiniAppStandard(jsonNode: JsonNode): ReceiveMessage.Share {
-        val appInfo = jsonNode["meta"].elements().next()
-        return ReceiveMessage.Share(
-            appInfo["title"].asText(),
-            appInfo["desc"].asText(),
-            ImageUrl(appInfo["preview"].asText()),
-            appInfo["qqdocurl"].asText(),
-        )
-    }
-
-    private fun shareStandard(jsonNode: JsonNode): ReceiveMessage.Share {
-        val view = jsonNode["view"].asText()
-        return ReceiveMessage.Share(
-            jsonNode["meta"][view]["tag"].asText(),
-            jsonNode["meta"][view]["title"].asText(),
-            ImageUrl(jsonNode["meta"][view]["preview"].asText()),
-            jsonNode["meta"][view]["jumpUrl"].asText(),
-        )
-    }
-
-    private fun replaceEscapeCharacter(cqMessage: String): String {
-        return cqMessage.replace("&#44;", ",")
-            .replace("&amp;", "&")
-            .replace("&#91;", "[")
-            .replace("&#93;", "]")
     }
 
 

@@ -1,6 +1,15 @@
 package com.blr19c.falowp.bot.adapter.cq.api
 
+import com.blr19c.falowp.bot.system.api.MessageTypeEnum
+import com.blr19c.falowp.bot.system.api.ReceiveMessage
+import com.blr19c.falowp.bot.system.cache.CacheReference
+import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.json.Json
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.JsonNode
+import java.net.URI
+import java.util.*
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * GoCQHttp消息
@@ -145,6 +154,116 @@ data class GoCQHttpMessage(
     @field:JsonProperty("flag")
     var flag: String? = null,
 ) {
+
+    val content by CacheReference(30.minutes) { content() }
+
+    val atList by CacheReference(30.minutes) { atList() }
+
+    val imageList by CacheReference(30.minutes) { imageList() }
+
+    val voice by CacheReference(30.minutes) { voice() }
+
+    val shareList by CacheReference(30.minutes) { shareList() }
+
+
+    fun toMessageType(): MessageTypeEnum {
+        if (this.subType == "poke") {
+            return MessageTypeEnum.POKE
+        }
+        if (voice.isEmpty) {
+            return MessageTypeEnum.VOICE
+        }
+        if (shareList.isNotEmpty()) {
+            return MessageTypeEnum.SHARE
+        }
+        return MessageTypeEnum.MESSAGE
+    }
+
+    /**
+     * 处理文本
+     */
+    private fun content(): String {
+        return this.message?.replace(Regex("\\[CQ:[^]]*]"), "") ?: ""
+    }
+
+    /**
+     * 处理@列表
+     */
+    private suspend fun atList(): List<ReceiveMessage.User> {
+        val atSet = mutableSetOf<ReceiveMessage.User>()
+        this.message?.let { cqMessage ->
+            val atRegex = Regex("\\[CQ:at,qq=(\\d+)]")
+            val atList = atRegex.findAll(cqMessage).map { it.groupValues[1] }.toList()
+            atSet.addAll(atList.mapNotNull { GoCqHttpBotApiSupport.userInfo(it, groupId) }.toMutableList())
+        }
+        this.targetId?.let { GoCqHttpBotApiSupport.userInfo(it, groupId) }?.let { atSet.add(it) }
+        return atSet.toList()
+    }
+
+    /**
+     * 处理图片
+     */
+    private fun imageList(): List<ImageUrl> {
+        val cqMessage = this.message ?: return emptyList()
+        val imageRegex = Regex("\\[CQ:image.+,url=(https?://[^\\s/\$.?#].\\S*)]")
+        return imageRegex.findAll(cqMessage).map { it.groupValues[1] }.map { ImageUrl(it) }.toList()
+    }
+
+    /**
+     * 处理语音
+     */
+    private fun voice(): Optional<URI> {
+        return Optional.empty()
+    }
+
+    /**
+     * 处理分享
+     */
+    private fun shareList(): List<ReceiveMessage.Share> {
+        val cqMessage = this.message ?: return emptyList()
+        val shareRegex = Regex("\\[CQ:json,data=([\\s\\S]*)]")
+        val shareList = shareRegex.findAll(cqMessage).map { it.groupValues[1] }.toList()
+        return shareList
+            .map { replaceEscapeCharacter(it) }
+            .map { Json.readJsonNode(it) }
+            .mapNotNull { shareInfo(it) }
+            .toList()
+    }
+
+    private fun shareInfo(jsonNode: JsonNode): ReceiveMessage.Share? {
+        return if (jsonNode["app"].asText().startsWith("com.tencent.miniapp"))
+            shareMiniAppStandard(jsonNode)
+        else if (jsonNode["app"].asText().startsWith("com.tencent.structmsg"))
+            shareStandard(jsonNode)
+        else null
+    }
+
+    private fun shareMiniAppStandard(jsonNode: JsonNode): ReceiveMessage.Share {
+        val appInfo = jsonNode["meta"].elements().next()
+        return ReceiveMessage.Share(
+            appInfo["title"].asText(),
+            appInfo["desc"].asText(),
+            ImageUrl(appInfo["preview"].asText()),
+            appInfo["qqdocurl"].asText(),
+        )
+    }
+
+    private fun shareStandard(jsonNode: JsonNode): ReceiveMessage.Share {
+        val view = jsonNode["view"].asText()
+        return ReceiveMessage.Share(
+            jsonNode["meta"][view]["tag"].asText(),
+            jsonNode["meta"][view]["title"].asText(),
+            ImageUrl(jsonNode["meta"][view]["preview"].asText()),
+            jsonNode["meta"][view]["jumpUrl"].asText(),
+        )
+    }
+
+    private fun replaceEscapeCharacter(cqMessage: String): String {
+        return cqMessage.replace("&#44;", ",")
+            .replace("&amp;", "&")
+            .replace("&#91;", "[")
+            .replace("&#93;", "]")
+    }
 
     /**
      * GoCQHttp消息发送人信息
