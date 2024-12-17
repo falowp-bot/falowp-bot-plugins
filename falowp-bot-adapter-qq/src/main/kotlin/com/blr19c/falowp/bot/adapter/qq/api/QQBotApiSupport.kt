@@ -51,7 +51,8 @@ object QQBotApiSupport : SchedulingBotApiSupport, Log {
         val sourceType = if (opReceiveMessage.t.isDirect()) SourceTypeEnum.PRIVATE else SourceTypeEnum.GROUP
         val source = ReceiveMessage.Source(opReceiveMessage.d.groupId ?: opReceiveMessage.d.author.id, sourceType)
         val self = ReceiveMessage.Self("qq-self")
-        val receiveMessage = ReceiveMessage(messageId, messageType, content, sender, source, self)
+        val adapter = ReceiveMessage.Adapter("QQ", opReceiveMessage)
+        val receiveMessage = ReceiveMessage(messageId, messageType, content, sender, source, self, adapter)
         opReceiveMessage.d.groupId?.let { groupIdList.add(it) }
         PluginManagement.message(receiveMessage, QQBotApi::class)
     }

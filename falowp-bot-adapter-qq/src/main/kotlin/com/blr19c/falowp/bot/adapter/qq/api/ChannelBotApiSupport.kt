@@ -1,19 +1,13 @@
 package com.blr19c.falowp.bot.adapter.qq.api
 
 import com.blr19c.falowp.bot.adapter.qq.QQApplication.Companion.token
-import com.blr19c.falowp.bot.adapter.qq.api.ChannelBotApiSupport.channelIdList
-import com.blr19c.falowp.bot.adapter.qq.api.ChannelBotApiSupport.selfId
 import com.blr19c.falowp.bot.adapter.qq.op.OpAttachment
 import com.blr19c.falowp.bot.adapter.qq.op.OpReceiveMessage
 import com.blr19c.falowp.bot.adapter.qq.op.channel.OpChannelReceiveMessage
 import com.blr19c.falowp.bot.adapter.qq.op.channel.OpChannelUser
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.adapterConfigProperty
-import com.blr19c.falowp.bot.system.api.ApiAuth
-import com.blr19c.falowp.bot.system.api.BotApi
-import com.blr19c.falowp.bot.system.api.MessageTypeEnum
-import com.blr19c.falowp.bot.system.api.ReceiveMessage
-import com.blr19c.falowp.bot.system.api.SourceTypeEnum
+import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.cache.CacheMap
 import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.ImageUrl
@@ -96,7 +90,8 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
         val self = ReceiveMessage.Self(selfId)
         val messageId = opReceiveMessage.d.id
         val messageType = MessageTypeEnum.MESSAGE
-        val receiveMessage = ReceiveMessage(messageId, messageType, content, sender, source, self)
+        val adapter = ReceiveMessage.Adapter("QQ-CHANNEL", opReceiveMessage)
+        val receiveMessage = ReceiveMessage(messageId, messageType, content, sender, source, self, adapter)
         PluginManagement.message(receiveMessage, ChannelBotApi::class)
     }
 

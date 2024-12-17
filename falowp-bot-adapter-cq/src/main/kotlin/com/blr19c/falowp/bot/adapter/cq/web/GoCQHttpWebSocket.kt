@@ -189,7 +189,8 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
         val self = ReceiveMessage.Self(goCQHttpMessage.selfId!!)
         val messageId = goCQHttpMessage.messageId ?: UUID.randomUUID().toString()
         val messageType = goCQHttpMessage.toMessageType()
-        return ReceiveMessage(messageId, messageType, content, sender, source, self)
+        val adapter = ReceiveMessage.Adapter("CQ", goCQHttpMessage)
+        return ReceiveMessage(messageId, messageType, content, sender, source, self, adapter)
     }
 
     private fun parseSource(goCQHttpMessage: GoCQHttpMessage): ReceiveMessage.Source {
