@@ -160,8 +160,8 @@ class Subscription : Log {
                 .items
                 .filter { !it.type.startsWith("DYNAMIC_TYPE_LIVE") }
                 .map { it.id }
-            val roomId = userInfo.liveRoom?.roomId?.toString() ?: ""
-            val midString = userInfo.mid.toString()
+            val roomId = userInfo.liveRoom?.roomId ?: ""
+            val midString = userInfo.mid
             transaction {
                 dynamicList.forEach { BiliDynamic.insert(midString, it) }
                 BiliSubscription.insert(
