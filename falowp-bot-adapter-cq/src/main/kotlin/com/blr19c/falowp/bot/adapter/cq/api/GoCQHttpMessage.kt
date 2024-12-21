@@ -183,7 +183,7 @@ data class GoCQHttpMessage(
      * 处理文本
      */
     private fun content(): String {
-        return this.message?.replace(Regex("\\[CQ:[^]]*]"), "") ?: ""
+        return this.message?.replace(Regex("\\[CQ:[^]]*]"), "")?.trim() ?: ""
     }
 
     /**
