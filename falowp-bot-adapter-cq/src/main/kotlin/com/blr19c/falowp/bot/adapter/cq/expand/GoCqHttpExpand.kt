@@ -4,12 +4,12 @@ package com.blr19c.falowp.bot.adapter.cq.expand
 
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCqHttpBotApiSupport.messageIdToCQMessageIdMap
-import com.blr19c.falowp.bot.adapter.cq.event.RequestAddFriendEvent
-import com.blr19c.falowp.bot.adapter.cq.event.RequestJoinGroupEvent
 import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.json.Json
+import com.blr19c.falowp.bot.system.listener.events.RequestAddFriendEvent
+import com.blr19c.falowp.bot.system.listener.events.RequestJoinGroupEvent
 import com.blr19c.falowp.bot.system.web.longTimeoutWebclient
 import com.fasterxml.jackson.core.type.TypeReference
 import io.ktor.client.request.*
@@ -632,7 +632,7 @@ suspend fun BotApi.setFriendAddRequest(event: RequestAddFriendEvent, approve: Bo
     apiRequest<Unit>(
         "set_friend_add_request",
         mapOf(
-            "flag" to event.flag,
+            "flag" to event.flag.toString(),
             "approve" to approve,
             "reason" to reason
         )
@@ -659,8 +659,8 @@ suspend fun BotApi.setGroupAddRequest(event: RequestJoinGroupEvent, approve: Boo
     apiRequest<Unit>(
         "set_group_add_request",
         mapOf(
-            "flag" to event.flag,
-            "sub_type" to event.subType,
+            "flag" to event.flag.toString(),
+            "sub_type" to event.type,
             "approve" to approve,
             "reason" to reason
         )

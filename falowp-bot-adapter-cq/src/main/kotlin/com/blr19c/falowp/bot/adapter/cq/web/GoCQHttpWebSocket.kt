@@ -4,8 +4,6 @@ import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpBotApi
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpEchoMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCqHttpBotApiSupport
-import com.blr19c.falowp.bot.adapter.cq.event.RequestAddFriendEvent
-import com.blr19c.falowp.bot.adapter.cq.event.RequestJoinGroupEvent
 import com.blr19c.falowp.bot.adapter.cq.expand.avatar
 import com.blr19c.falowp.bot.adapter.cq.expand.getMsg
 import com.blr19c.falowp.bot.adapter.cq.expand.markMsgAsRead
@@ -15,9 +13,7 @@ import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.json.Json
-import com.blr19c.falowp.bot.system.listener.events.GroupDecreaseEvent
-import com.blr19c.falowp.bot.system.listener.events.GroupIncreaseEvent
-import com.blr19c.falowp.bot.system.listener.events.WithdrawMessageEvent
+import com.blr19c.falowp.bot.system.listener.events.*
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
 import com.google.common.base.Strings
 import io.ktor.server.application.*

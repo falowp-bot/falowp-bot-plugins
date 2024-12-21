@@ -225,12 +225,14 @@ class Subscription : Log {
     /**
      * 视频ai描述
      */
-    private val videoAi = message(MessagePluginRegisterMatch(customBlock = { receiveMessage ->
-        if (receiveMessage.content.share.isEmpty()) {
-            return@MessagePluginRegisterMatch false
-        }
-        receiveMessage.content.share.any { it.appName == "哔哩哔哩" }
-    })) {
+    private val videoAi = message(
+        MessagePluginRegisterMatch(
+            messageType = MessageTypeEnum.SHARE,
+            customBlock = { receiveMessage ->
+                receiveMessage.content.share.any { it.appName == "哔哩哔哩" }
+            }
+        )
+    ) {
         val webclient = webclient()
         val sourceUrlList = this.receiveMessage.content.share
             .filter { it.appName == "哔哩哔哩" }

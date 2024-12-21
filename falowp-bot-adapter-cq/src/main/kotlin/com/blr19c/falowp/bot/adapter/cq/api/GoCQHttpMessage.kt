@@ -170,7 +170,7 @@ data class GoCQHttpMessage(
         if (this.subType == "poke") {
             return MessageTypeEnum.POKE
         }
-        if (voice.isEmpty) {
+        if (voice.isPresent) {
             return MessageTypeEnum.VOICE
         }
         if (shareList.isNotEmpty()) {
@@ -235,6 +235,8 @@ data class GoCQHttpMessage(
             shareMiniAppStandard(jsonNode)
         else if (jsonNode["app"].asText().startsWith("com.tencent.structmsg"))
             shareStandard(jsonNode)
+        else if (jsonNode["app"].asText().startsWith("com.tencent.troopsharecard"))
+            shareCard(jsonNode)
         else null
     }
 
@@ -255,6 +257,15 @@ data class GoCQHttpMessage(
             jsonNode["meta"][view]["title"].asText(),
             ImageUrl(jsonNode["meta"][view]["preview"].asText()),
             jsonNode["meta"][view]["jumpUrl"].asText(),
+        )
+    }
+
+    private fun shareCard(jsonNode: JsonNode): ReceiveMessage.Share {
+        return ReceiveMessage.Share(
+            jsonNode["meta"]["contact"]["tag"].asText(),
+            jsonNode["meta"]["contact"]["nickname"].asText(),
+            ImageUrl(jsonNode["meta"]["contact"]["avatar"].asText()),
+            jsonNode["meta"]["contact"]["jumpUrl"].asText(),
         )
     }
 
