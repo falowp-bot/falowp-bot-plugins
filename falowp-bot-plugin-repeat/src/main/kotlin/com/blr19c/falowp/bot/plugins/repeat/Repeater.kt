@@ -89,7 +89,7 @@ class Repeater {
                 .map { it.image }
                 .toList()
             val text = sendMessageChain.messageList.filterIsInstance<TextSendMessage>().joinToString { it.content }
-            val content = ReceiveMessage.Content(text, null, atList, imageList, emptyList()) { null }
+            val content = ReceiveMessage.Content(text, null, atList, imageList, null, emptyList()) { null }
             addMessage(this, RepeaterData(content, repeat = true), this.receiveMessage.source.id)
         }
     }
