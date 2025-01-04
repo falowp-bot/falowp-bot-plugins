@@ -2,8 +2,8 @@ val kotlinVersion: String by project
 val falowpBotVersion: String by project
 
 plugins {
-    kotlin("jvm") version "2.1.0"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.0"
+    kotlin("jvm") version "2.1.20-Beta1"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20-Beta1"
     id("com.github.ben-manes.versions") version "0.51.0"
     id("maven-publish")
     signing

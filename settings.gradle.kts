@@ -2,6 +2,7 @@ rootProject.name = "falowp-bot-plugins"
 include("falowp-bot-adapter-qq")
 include("falowp-bot-adapter-cq")
 include("falowp-bot-adapter-nc")
+include("falowp-bot-adapter-tg")
 include("falowp-bot-plugin-auth")
 include("falowp-bot-plugin-user")
 include("falowp-bot-plugin-signin")
