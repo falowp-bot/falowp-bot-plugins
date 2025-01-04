@@ -21,7 +21,7 @@ object DatabaseCookiesStorage : CookiesStorage, Log {
     private val container by lazy {
         transaction {
             BiliCookie.selectAll()
-                .map { Json.readObj(it[BiliCookie.cookie], Cookie::class) }
+                .map { Json.readObj<Cookie>(it[BiliCookie.cookie]) }
                 .toMutableList()
         }
     }

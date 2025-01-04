@@ -10,4 +10,4 @@ suspend fun BiliClient.getLiveInfo(
     url: String = ROOM_INFO
 ): BiliLiveInfo = Json.readObj(get(url) {
     parameter("room_id", roomId)
-}, BiliLiveInfo::class)
+})

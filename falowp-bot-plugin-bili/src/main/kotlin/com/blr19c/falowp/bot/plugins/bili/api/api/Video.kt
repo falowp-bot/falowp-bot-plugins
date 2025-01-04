@@ -11,7 +11,7 @@ suspend fun BiliClient.getVideoInfo(
     url: String = VIDEO_INFO
 ): BiliVideoInfo = Json.readObj(get(url) {
     parameter("bvid", bvid)
-}, BiliVideoInfo::class)
+})
 
 /**
  * 获取视频的ai总结
@@ -26,5 +26,5 @@ suspend fun BiliClient.getVideoAiSummary(
         put("cid", videoInfo.cid)
         put("up_mid", videoInfo.owner.mid)
         put("web_location", 333.788.toString())
-    }, BiliVideoAiSummary::class)
+    })
 }

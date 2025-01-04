@@ -11,7 +11,7 @@ suspend fun BiliClient.getDynamicInfo(
     url: String = DYNAMIC_INFO
 ): BiliDynamicInfo = Json.readObj(get(url) {
     parameter("dynamic_id", dynamicId)
-}, BiliDynamicInfo::class)
+})
 
 suspend fun BiliClient.spaceDynamicInfo(
     uid: Long,
@@ -22,4 +22,4 @@ suspend fun BiliClient.spaceDynamicInfo(
     parameter("timezone_offset", -480)
     parameter("platform", "web")
     parameter("features", "itemOpusStyle,listOnlyfans")
-}, BiliSpaceDynamicInfo::class)
+})

@@ -11,4 +11,4 @@ suspend fun BiliClient.getUserInfo(
     put("mid", uid.toString())
     put("token", "")
     put("platform", "web")
-}, BiliUserInfo::class)
+})
