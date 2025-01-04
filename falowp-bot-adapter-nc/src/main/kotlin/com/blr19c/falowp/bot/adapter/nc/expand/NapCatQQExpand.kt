@@ -9,7 +9,6 @@ import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.web.longTimeoutWebclient
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import io.ktor.client.request.*
@@ -20,7 +19,7 @@ import io.ktor.client.statement.*
  *
  * @param groupId 群组id
  */
-suspend fun BotApi.setGroupSign(groupId: String = this.receiveMessage.source.id) {
+suspend fun BotApi.ncSetGroupSign(groupId: String = this.receiveMessage.source.id) {
     apiRequest<Unit>("set_group_sign", mapOf("group_id" to groupId))
 }
 
@@ -30,7 +29,7 @@ suspend fun BotApi.setGroupSign(groupId: String = this.receiveMessage.source.id)
  * @param userId 用户id
  * @param phoneNumber 手机号
  */
-suspend fun BotApi.arkSharePeerUser(
+suspend fun BotApi.ncArkSharePeerUser(
     userId: String = this.receiveMessage.sender.id,
     phoneNumber: String? = null
 ): ArkSharePeer {
@@ -45,14 +44,14 @@ suspend fun BotApi.arkSharePeerUser(
  * @param groupId 群组id
  * @return json卡片
  */
-suspend fun BotApi.arkShareGroup(groupId: String = this.receiveMessage.source.id): String {
+suspend fun BotApi.ncArkShareGroup(groupId: String = this.receiveMessage.source.id): String {
     return apiRequest<String>("ArkShareGroup", mapOf("group_id" to groupId))!!
 }
 
 /**
  * 获取机器人QQ号区间
  */
-suspend fun BotApi.getRobotUinRange(): List<RobotUinRange> {
+suspend fun BotApi.ncGetRobotUinRange(): List<RobotUinRange> {
     return apiRequest<List<RobotUinRange>>("get_robot_uin_range")!!
 }
 
@@ -62,7 +61,7 @@ suspend fun BotApi.getRobotUinRange(): List<RobotUinRange> {
  * @param onlineStatus 在线状态
  * @param battery 电池电量
  */
-suspend fun BotApi.setOnlineStatus(onlineStatus: BotOnlineStatusEnum, battery: Int = 0) {
+suspend fun BotApi.ncSetOnlineStatus(onlineStatus: BotOnlineStatusEnum, battery: Int = 0) {
     apiRequest<Unit>(
         "set_online_status",
         mapOf(
@@ -76,7 +75,7 @@ suspend fun BotApi.setOnlineStatus(onlineStatus: BotOnlineStatusEnum, battery: I
 /**
  * 获取好友分组列表
  */
-suspend fun BotApi.getFriendsWithCategory(): List<FriendsWithCategory> {
+suspend fun BotApi.ncGetFriendsWithCategory(): List<FriendsWithCategory> {
     return apiRequest<List<FriendsWithCategory>>("get_friends_with_category")!!
 }
 
@@ -85,7 +84,7 @@ suspend fun BotApi.getFriendsWithCategory(): List<FriendsWithCategory> {
  *
  * @param file 文件(支持文件路径/网络url)
  */
-suspend fun BotApi.setQQAvatar(file: String) {
+suspend fun BotApi.ncSetQQAvatar(file: String) {
     apiRequest<Unit>("set_qq_avatar", mapOf("file" to file))
 }
 
@@ -96,7 +95,7 @@ suspend fun BotApi.setQQAvatar(file: String) {
  *
  * @param fileId 文件id
  */
-suspend fun BotApi.getFileInfo(fileId: String): FileInfo {
+suspend fun BotApi.ncGetFileInfo(fileId: String): FileInfo {
     return apiRequest<FileInfo>("get_file", mapOf("file_id" to fileId))!!
 }
 
@@ -106,7 +105,7 @@ suspend fun BotApi.getFileInfo(fileId: String): FileInfo {
  * @param userId 用户id
  * @param messageId 消息id
  */
-suspend fun BotApi.forwardFriendSingleMsg(
+suspend fun BotApi.ncForwardFriendSingleMsg(
     userId: String = this.receiveMessage.sender.id,
     messageId: String = this.receiveMessage.id
 ) {
@@ -122,7 +121,7 @@ suspend fun BotApi.forwardFriendSingleMsg(
  * @param groupId 群组id
  * @param messageId 消息id
  */
-suspend fun BotApi.forwardGroupSingleMsg(
+suspend fun BotApi.ncForwardGroupSingleMsg(
     groupId: String = this.receiveMessage.source.id,
     messageId: String = this.receiveMessage.id
 ) {
@@ -139,7 +138,7 @@ suspend fun BotApi.forwardGroupSingleMsg(
  *
  * @param words 内容
  */
-suspend fun BotApi.translateEn2zh(vararg words: String): List<String> {
+suspend fun BotApi.ncTranslateEn2zh(vararg words: String): List<String> {
     return apiRequest<List<String>>("translate_en2zh", mapOf("words" to words.toList()))!!
 }
 
@@ -150,7 +149,7 @@ suspend fun BotApi.translateEn2zh(vararg words: String): List<String> {
  * @param emojiId 表情
  * @param set 设置
  */
-suspend fun BotApi.setMsgEmojiLike(
+suspend fun BotApi.ncSetMsgEmojiLike(
     messageId: String = this.receiveMessage.id,
     emojiId: String,
     set: Boolean = true
@@ -170,7 +169,7 @@ suspend fun BotApi.setMsgEmojiLike(
  *
  * @param userId 用户id
  */
-suspend fun BotApi.markPrivateMsgAsRead(userId: String = this.receiveMessage.sender.id) {
+suspend fun BotApi.ncMarkPrivateMsgAsRead(userId: String = this.receiveMessage.sender.id) {
     apiRequest<Unit>("mark_private_msg_as_read", mapOf("user_id" to userId))
 }
 
@@ -179,7 +178,7 @@ suspend fun BotApi.markPrivateMsgAsRead(userId: String = this.receiveMessage.sen
  *
  * @param groupId 群组id
  */
-suspend fun BotApi.markGroupMsgAsRead(groupId: String = this.receiveMessage.source.id) {
+suspend fun BotApi.ncMarkGroupMsgAsRead(groupId: String = this.receiveMessage.source.id) {
     apiRequest<Unit>("mark_group_msg_as_read", mapOf("group_id" to groupId))
 }
 
@@ -191,7 +190,7 @@ suspend fun BotApi.markGroupMsgAsRead(groupId: String = this.receiveMessage.sour
  * @param count 数量
  * @param reverseOrder 倒序
  */
-suspend fun BotApi.getFriendMsgHistory(
+suspend fun BotApi.ncGetFriendMsgHistory(
     userId: String = this.receiveMessage.sender.id,
     messageSeq: Long,
     count: Int = 20,
@@ -214,7 +213,7 @@ suspend fun BotApi.getFriendMsgHistory(
  * @param brief 标题
  * @param rawData 内容
  */
-suspend fun BotApi.createCollection(brief: String, rawData: String) {
+suspend fun BotApi.ncCreateCollection(brief: String, rawData: String) {
     apiRequest<Unit>("create_collection", mapOf("brief" to brief, "rawData" to rawData))
 }
 
@@ -226,7 +225,7 @@ suspend fun BotApi.createCollection(brief: String, rawData: String) {
  * @param category 类别
  * @param count 数量
  */
-suspend fun BotApi.getCollectionList(category: String = "10", count: Int = 1): String {
+suspend fun BotApi.ncGetCollectionList(category: String = "10", count: Int = 1): String {
     return apiRequest<String>("get_collection_list", mapOf("category" to category, "count" to count))!!
 }
 
@@ -235,21 +234,21 @@ suspend fun BotApi.getCollectionList(category: String = "10", count: Int = 1): S
  *
  * @param longNick 签名
  */
-suspend fun BotApi.setSelfSignature(longNick: String) {
+suspend fun BotApi.ncSetSelfSignature(longNick: String) {
     apiRequest<Unit>("set_self_longnick", mapOf("longNick" to longNick))
 }
 
 /**
  * 获取最近的聊天记录
  */
-suspend fun BotApi.getRecentContact(): ArrayNode {
+suspend fun BotApi.ncGetRecentContact(): ArrayNode {
     return apiRequest<ArrayNode>("get_recent_contact")!!
 }
 
 /**
  * 标记所有为已读
  */
-suspend fun BotApi.markAllAsRead() {
+suspend fun BotApi.ncMarkAllAsRead() {
     apiRequest<Unit>("_mark_all_as_read")
 }
 
@@ -258,7 +257,7 @@ suspend fun BotApi.markAllAsRead() {
  *
  * WARNING: 由于NapCatQQ自身原因会出现"Cannot read properties of undefined (reading 'voteInfo')"异常
  */
-suspend fun BotApi.getProfileLike(): ProfileLike {
+suspend fun BotApi.ncGetProfileLike(): ProfileLike {
     return apiRequest<ProfileLike>("get_profile_like")!!
 }
 
@@ -267,7 +266,7 @@ suspend fun BotApi.getProfileLike(): ProfileLike {
  *
  * @param count 数量
  */
-suspend fun BotApi.fetchCustomFace(count: Int = 40): List<String> {
+suspend fun BotApi.ncFetchCustomFace(count: Int = 40): List<String> {
     return apiRequest<List<String>>("fetch_custom_face", mapOf("count" to count))!!
 }
 
@@ -277,7 +276,7 @@ suspend fun BotApi.fetchCustomFace(count: Int = 40): List<String> {
  * @param userId 用户id
  * @param eventType 状态,0正在讲话,1正在输入
  */
-suspend fun BotApi.setInputStatus(
+suspend fun BotApi.ncSetInputStatus(
     userId: String = this.receiveMessage.sender.id,
     eventType: String
 ) {
@@ -289,14 +288,14 @@ suspend fun BotApi.setInputStatus(
  *
  * @param groupId 群组id
  */
-suspend fun BotApi.getGroupInfoEx(groupId: String = this.receiveMessage.source.id): JsonNode {
+suspend fun BotApi.ncGetGroupInfoEx(groupId: String = this.receiveMessage.source.id): JsonNode {
     return apiRequest<JsonNode>("get_group_info_ex", mapOf("group_id" to groupId))!!
 }
 
 /**
  * 获取群组忽略的通知
  */
-suspend fun BotApi.getGroupIgnoreAddRequest(): JsonNode {
+suspend fun BotApi.ncGetGroupIgnoreAddRequest(): JsonNode {
     return apiRequest<JsonNode>("fetch_user_profile_like")!!
 }
 
@@ -308,7 +307,7 @@ suspend fun BotApi.getGroupIgnoreAddRequest(): JsonNode {
  * @param groupId 群组id
  * @param noticeId 公告id
  */
-suspend fun BotApi.delGroupNotice(
+suspend fun BotApi.ncDelGroupNotice(
     groupId: String = this.receiveMessage.source.id,
     noticeId: String
 ) {
@@ -322,14 +321,14 @@ suspend fun BotApi.delGroupNotice(
  *
  * @param userId 用户id
  */
-suspend fun BotApi.fetchUserProfileLike(userId: String = this.receiveMessage.sender.id): String {
+suspend fun BotApi.ncFetchUserProfileLike(userId: String = this.receiveMessage.sender.id): String {
     return apiRequest<String>("fetch_user_profile_like", mapOf("qq" to userId))!!
 }
 
 /**
  * 获取PacketServer状态
  */
-suspend fun BotApi.ncGetPacketStatus(): String? {
+suspend fun BotApi.ncNcGetPacketStatus(): String? {
     return apiRequest<String>("nc_get_packet_status")
 }
 
@@ -338,7 +337,7 @@ suspend fun BotApi.ncGetPacketStatus(): String? {
  *
  * @param userId 用户id
  */
-suspend fun BotApi.ncGetUserStatus(userId: String = this.receiveMessage.sender.id): BotOnlineStatusEnum? {
+suspend fun BotApi.ncNcGetUserStatus(userId: String = this.receiveMessage.sender.id): BotOnlineStatusEnum? {
     val res = apiRequest<Map<String, Int>>("nc_get_user_status", mapOf("user_id" to userId))!!
     return BotOnlineStatusEnum.entries.singleOrNull {
         it.status == res["status"] && it.extStatus == res["extStatus"]
@@ -348,7 +347,7 @@ suspend fun BotApi.ncGetUserStatus(userId: String = this.receiveMessage.sender.i
 /**
  * 获取RKey
  */
-suspend fun BotApi.ncGetRKey(): List<NCRKey> {
+suspend fun BotApi.ncNcGetRKey(): List<NCRKey> {
     return apiRequest<List<NCRKey>>("nc_get_rkey")!!
 }
 
@@ -359,7 +358,7 @@ suspend fun BotApi.ncGetRKey(): List<NCRKey> {
  *
  * @param groupId 群组id
  */
-suspend fun BotApi.getGroupShutList(groupId: String = this.receiveMessage.source.id): List<GroupShutInfo> {
+suspend fun BotApi.ncGetGroupShutList(groupId: String = this.receiveMessage.source.id): List<GroupShutInfo> {
     return apiRequest<List<GroupShutInfo>>("get_group_shut_list", mapOf("group_id" to groupId))!!
 }
 
@@ -374,7 +373,7 @@ suspend fun BotApi.getGroupShutList(groupId: String = this.receiveMessage.source
  * @param iconUrl 图标
  * @param versionId 版本
  */
-suspend fun BotApi.getMiniAppArk(
+suspend fun BotApi.ncGetMiniAppArk(
     title: String,
     desc: String,
     picUrl: String,
@@ -424,7 +423,7 @@ suspend fun BotApi.getMiniAppArk(
  * @param text 内容
  * @return 语音链接
  */
-suspend fun BotApi.getAiRecord(
+suspend fun BotApi.ncGetAiRecord(
     groupId: String = this.receiveMessage.source.id,
     character: String,
     text: String
@@ -445,7 +444,7 @@ suspend fun BotApi.getAiRecord(
  * @param groupId 群组id
  * @param chatType 类型
  */
-suspend fun BotApi.getAiCharacters(
+suspend fun BotApi.ncGetAiCharacters(
     groupId: String = this.receiveMessage.source.id,
     chatType: Int = 0
 ): AiCharacters {
@@ -459,7 +458,7 @@ suspend fun BotApi.getAiCharacters(
  * @param character ai角色id
  * @param text 内容
  */
-suspend fun BotApi.sendGroupAiRecord(
+suspend fun BotApi.ncSendGroupAiRecord(
     groupId: String = this.receiveMessage.source.id,
     character: String,
     text: String
@@ -486,8 +485,7 @@ private suspend inline fun <reified T : Any> apiRequest(url: String, body: Any =
     val resBytes = longTimeoutWebclient().post("$baseUrl/$url") {
         setBody(body)
     }.bodyAsBytes()
-    val typeReference = object : TypeReference<NapCatQQApiResult<T>>() {}
-    val result = Json.readObj(resBytes, typeReference)
+    val result = Json.readObj<NapCatQQApiResult<T>>(resBytes)
     if (result.success()) {
         return result.data
     }
