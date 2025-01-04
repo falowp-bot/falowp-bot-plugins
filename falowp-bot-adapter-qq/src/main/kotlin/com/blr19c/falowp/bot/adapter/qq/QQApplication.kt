@@ -19,8 +19,7 @@ import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
@@ -37,10 +36,12 @@ class QQApplication : BotAdapterInterface, Log {
         val token by lazy { "Bot ${adapterConfigProperty("qq.appId")}.${adapterConfigProperty("qq.token")}" }
     }
 
+    private val executor = CoroutineScope(Dispatchers.Default + SupervisorJob())
+
     override suspend fun start(register: BotAdapterRegister) {
         AdapterApplication.botApiSupportRegister(ChannelBotApiSupport)
         AdapterApplication.botApiSupportRegister(QQBotApiSupport)
-        createWebSocketSession(register)
+        executor.launch { createWebSocketSession(register) }
     }
 
     private suspend fun createWebSocketSession(register: BotAdapterRegister) {
@@ -218,9 +219,9 @@ class QQApplication : BotAdapterInterface, Log {
 
     private fun Frame.readMap(): Map<String, Any> {
         if (this is Frame.Text) {
-            return Json.readMap(this.readText())
+            return Json.readObj(this.readText())
         }
-        return Json.readMap(this.readBytes())
+        return Json.readObj(this.readBytes())
     }
 
     private fun errorLog(message: String, e: Exception) {

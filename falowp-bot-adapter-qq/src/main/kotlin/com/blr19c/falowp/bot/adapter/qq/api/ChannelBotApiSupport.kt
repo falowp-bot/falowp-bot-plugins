@@ -19,7 +19,6 @@ import com.blr19c.falowp.bot.system.systemConfigListProperty
 import com.blr19c.falowp.bot.system.web.bodyAsArrayNode
 import com.blr19c.falowp.bot.system.web.bodyAsJsonNode
 import com.blr19c.falowp.bot.system.web.webclient
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.node.ArrayNode
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -54,8 +53,6 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
         loadUserInfo(guildId, userId)
     }
 
-    private val messageTypeReference = object : TypeReference<OpReceiveMessage<OpChannelReceiveMessage>>() {}
-
     override suspend fun supportReceive(receiveId: String): Boolean {
         return channelIdList.contains(receiveId)
     }
@@ -66,7 +63,7 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
     }
 
     suspend fun dispatchMessage(readBytes: ByteArray) {
-        val opReceiveMessage = Json.readObj(readBytes, messageTypeReference)
+        val opReceiveMessage = Json.readObj<OpReceiveMessage<OpChannelReceiveMessage>>(readBytes)
         log().info("频道适配器接收到消息:{}", opReceiveMessage)
         val atList = opReceiveMessage.d.content.at
         val guildId = opReceiveMessage.d.guildId
@@ -77,6 +74,7 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
             null,
             atList(guildId, atList),
             imageList(imageList),
+            null,
             emptyList()
         ) { null }
         val sender = ReceiveMessage.User(
@@ -159,7 +157,7 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
             webclient().get(adapterConfigProperty("qq.apiUrl") + "/guilds/${guildId}/members/$userId") {
                 header(HttpHeaders.Authorization, token)
             }.bodyAsJsonNode()
-        val opUser = Json.readObj(jsonNode["user"], OpChannelUser::class)
+        val opUser = Json.readObj<OpChannelUser>(jsonNode["user"])
         val nick = jsonNode["nick"].asText()
         val roles = (jsonNode["roles"] as ArrayNode).map { it.asText() }
         return opUser.copy(nick = nick, roles = roles)

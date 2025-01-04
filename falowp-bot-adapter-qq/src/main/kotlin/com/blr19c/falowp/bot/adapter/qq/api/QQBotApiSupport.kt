@@ -8,13 +8,10 @@ import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
 import com.blr19c.falowp.bot.system.scheduling.api.SchedulingBotApiSupport
-import com.fasterxml.jackson.core.type.TypeReference
 import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.reflect.KClass
 
 object QQBotApiSupport : SchedulingBotApiSupport, Log {
-
-    private val messageTypeReference = object : TypeReference<OpReceiveMessage<OpQQReceiveMessage>>() {}
 
     /**
      * 所有群聊列表
@@ -31,7 +28,7 @@ object QQBotApiSupport : SchedulingBotApiSupport, Log {
     }
 
     fun dispatchMessage(readBytes: ByteArray) {
-        val opReceiveMessage = Json.readObj(readBytes, messageTypeReference)
+        val opReceiveMessage = Json.readObj<OpReceiveMessage<OpQQReceiveMessage>>(readBytes)
         val messageId = opReceiveMessage.d.id
         val messageType = MessageTypeEnum.MESSAGE
         val message = opReceiveMessage.d.content.trim().substringAfter("/")
@@ -40,6 +37,7 @@ object QQBotApiSupport : SchedulingBotApiSupport, Log {
             null,
             listOf(ReceiveMessage.User.empty().copy(id = "qq-self")),
             emptyList(),
+            null,
             emptyList()
         ) { null }
         val sender = ReceiveMessage.User(
