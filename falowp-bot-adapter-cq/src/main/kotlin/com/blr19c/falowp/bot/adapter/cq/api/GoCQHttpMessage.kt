@@ -163,6 +163,8 @@ data class GoCQHttpMessage(
 
     val voice by CacheReference(30.minutes) { voice() }
 
+    val video by CacheReference(30.minutes) { video() }
+
     val shareList by CacheReference(30.minutes) { shareList() }
 
 
@@ -213,6 +215,13 @@ data class GoCQHttpMessage(
      * 处理语音
      */
     private fun voice(): Optional<URI> {
+        return Optional.empty()
+    }
+
+    /**
+     * 处理视频
+     */
+    private fun video(): Optional<ReceiveMessage.Video> {
         return Optional.empty()
     }
 

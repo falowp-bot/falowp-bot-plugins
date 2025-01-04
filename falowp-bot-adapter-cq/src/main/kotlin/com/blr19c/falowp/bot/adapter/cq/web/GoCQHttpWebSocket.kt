@@ -4,9 +4,9 @@ import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpBotApi
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpEchoMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCqHttpBotApiSupport
-import com.blr19c.falowp.bot.adapter.cq.expand.avatar
-import com.blr19c.falowp.bot.adapter.cq.expand.getMsg
-import com.blr19c.falowp.bot.adapter.cq.expand.markMsgAsRead
+import com.blr19c.falowp.bot.adapter.cq.expand.cqAvatar
+import com.blr19c.falowp.bot.adapter.cq.expand.cqGetMsg
+import com.blr19c.falowp.bot.adapter.cq.expand.cqMarkMsgAsRead
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.BotApi
@@ -36,7 +36,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
     fun configure() {
         embeddedServer(Netty, port = adapterConfigProperty("cq.port").toInt()) {
             config()
-        }.start(wait = adapterConfigProperty("cq.wait") { "true" } == "true")
+        }.start(wait = false)
     }
 
     class GoCqHttpWebSocketSession(session: WebSocketSession) : WebSocketSession by session
@@ -79,11 +79,11 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
         }
         //消息
         if (jsonNode.findPath("post_type").asText().isNotBlank()) {
-            processMessages(Json.readObj(frame.readText(), GoCQHttpMessage::class))
+            processMessages(Json.readObj(frame.readText()))
         }
         //回执
         if (jsonNode.findPath("echo").asText().isNotBlank()) {
-            processEcho(Json.readObj(frame.readText(), GoCQHttpEchoMessage::class))
+            processEcho(Json.readObj(frame.readText()));
         }
     }
 
@@ -101,7 +101,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             return
         }
         //设置已读
-        goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.markMsgAsRead(it) }
+        goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.cqMarkMsgAsRead(it) }
         if (preprocessingNoticeTypeEvents(goCQHttpMessage)) return
         if (preprocessingPostTypeEvents(goCQHttpMessage)) return
         PluginManagement.message(parseMessage(goCQHttpMessage), GoCQHttpBotApi::class)
@@ -146,7 +146,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
         when (goCQHttpMessage.noticeType ?: return false) {
             "group_recall", "friend_recall" -> {
                 val sender = parseSender(goCQHttpMessage)
-                val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.getMsg(it) }
+                val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.cqGetMsg(it) }
                 val message = cqMessage?.let { parseMessage(it) } ?: ReceiveMessage.empty()
                 parseEventBotApi(goCQHttpMessage).publishEvent(WithdrawMessageEvent(message, sender))
                 return true
@@ -200,7 +200,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             userId,
             Strings.emptyToNull(goCQHttpMessage.sender?.card) ?: goCQHttpMessage.sender?.nickname ?: "",
             GoCqHttpBotApiSupport.apiAuth(userId, goCQHttpMessage.sender?.role),
-            GoCqHttpBotApiSupport.tempBot.avatar(userId)
+            GoCqHttpBotApiSupport.tempBot.cqAvatar(userId)
         )
     }
 
@@ -210,6 +210,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             goCQHttpMessage.voice.orElse(null),
             goCQHttpMessage.atList,
             goCQHttpMessage.imageList,
+            goCQHttpMessage.video.orElse(null),
             goCQHttpMessage.shareList
         ) {
             val cqMessage = goCQHttpMessage.message ?: return@Content null
@@ -222,7 +223,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
 
     private suspend fun referenceSingle(referenceSingle: String?, goCQHttpMessage: GoCQHttpMessage): ReceiveMessage? {
         referenceSingle ?: return null
-        val originalMessage = GoCqHttpBotApiSupport.tempBot.getMsg(referenceSingle)
+        val originalMessage = GoCqHttpBotApiSupport.tempBot.cqGetMsg(referenceSingle)
         val finalMessage = originalMessage.copy(
             selfId = goCQHttpMessage.selfId,
             userId = originalMessage.sender?.userId
