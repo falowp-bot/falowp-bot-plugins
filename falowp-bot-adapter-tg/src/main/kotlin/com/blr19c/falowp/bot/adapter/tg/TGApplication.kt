@@ -12,6 +12,7 @@ import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.MessageTypeEnum
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
+import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
 import com.blr19c.falowp.bot.system.systemConfigListProperty
@@ -31,6 +32,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 import java.io.Serializable
 import java.net.URI
+import kotlin.time.Duration.Companion.hours
 
 
 /**
@@ -71,10 +73,14 @@ class TGApplication : BotAdapterInterface, Log {
         private val botToken: String,
     ) : TelegramLongPollingBot(botOptions, botToken), Log {
 
-        private val meInfo by lazy { this.executeIgnoreException(GetMe())!! }
+        private val meInfo by CacheReference(1.hours) { this.executeIgnoreException(GetMe())!! }
 
         init {
-            this.executeIgnoreException(SetMyName(systemConfigProperty("nickname"), null))
+            val nickName = systemConfigProperty("nickname")
+            if (nickName != meInfo.userName) {
+                this.executeIgnoreException(SetMyName(nickName, null))
+                (::meInfo.getDelegate() as? CacheReference<*>)?.refresh()
+            }
         }
 
         override fun getBotUsername(): String {
