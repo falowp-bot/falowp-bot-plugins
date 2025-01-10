@@ -1,8 +1,8 @@
 package com.blr19c.falowp.bot.plugins.user.database
 
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  * 机器人用户
@@ -53,7 +53,7 @@ object BotUser : Table("bot_user") {
     override val primaryKey = PrimaryKey(id, name = "pk_bot_user_id")
 
     init {
-        transaction {
+        multiTransaction {
             uniqueIndex(userId, sourceId)
             SchemaUtils.create(BotUser)
         }

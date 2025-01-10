@@ -1,13 +1,13 @@
 package com.blr19c.falowp.bot.plugins.user
 
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
+import com.blr19c.falowp.bot.plugins.user.database.BotUser
+import com.blr19c.falowp.bot.plugins.user.vo.BotUserVo
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.expand.ImageUrl
-import com.blr19c.falowp.bot.plugins.user.database.BotUser
-import com.blr19c.falowp.bot.plugins.user.vo.BotUserVo
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.math.BigDecimal
 
 /**
@@ -28,7 +28,7 @@ fun BotApi.currentUserOrNull(): BotUserVo? {
  * 根据userId查询用户
  */
 fun queryByUserId(userId: String, sourceId: String): BotUserVo? {
-    return transaction {
+    return multiTransaction {
         BotUser.selectAll()
             .where {
                 val user = BotUser.userId eq userId
@@ -44,7 +44,7 @@ fun queryByUserId(userId: String, sourceId: String): BotUserVo? {
  * 根据来源id获取用户
  */
 fun queryBySourceId(sourceId: String, block: (Query) -> List<ResultRow> = { it.toList() }): List<BotUserVo> {
-    return transaction {
+    return multiTransaction {
         BotUser.selectAll()
             .where { BotUser.sourceId eq sourceId }
             .let { block.invoke(it) }
@@ -57,7 +57,7 @@ fun queryBySourceId(sourceId: String, block: (Query) -> List<ResultRow> = { it.t
  * 增加金币
  */
 fun BotUserVo.incrementCoins(coins: BigDecimal) {
-    transaction {
+    multiTransaction {
         BotUser.update({ BotUser.id eq this@incrementCoins.id }) {
             it.update(BotUser.coins, BotUser.coins + coins)
         }
@@ -75,7 +75,7 @@ fun BotUserVo.decrementCoins(coins: BigDecimal) {
  * 增加好感度
  */
 fun BotUserVo.incrementImpression(impression: BigDecimal) {
-    transaction {
+    multiTransaction {
         BotUser.update({ BotUser.id eq this@incrementImpression.id }) {
             it.update(BotUser.impression, BotUser.impression + impression)
         }

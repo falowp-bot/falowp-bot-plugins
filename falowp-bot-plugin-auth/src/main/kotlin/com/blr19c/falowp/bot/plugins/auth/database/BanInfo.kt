@@ -1,8 +1,8 @@
 package com.blr19c.falowp.bot.plugins.auth.database
 
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  * 禁用用户
@@ -23,7 +23,7 @@ object BanInfo : Table("ban_info") {
     override val primaryKey = PrimaryKey(id, name = "pk_ban_info_id")
 
     init {
-        transaction {
+        multiTransaction {
             uniqueIndex(userId, sourceId)
             SchemaUtils.create(BanInfo)
         }

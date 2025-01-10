@@ -1,6 +1,7 @@
 package com.blr19c.falowp.bot.plugins.bili.api
 
 import com.blr19c.falowp.bot.plugins.bili.database.BiliCookie
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.json.Json
 import io.ktor.client.plugins.cookies.*
@@ -12,14 +13,13 @@ import kotlinx.coroutines.sync.withLock
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.min
 
 object DatabaseCookiesStorage : CookiesStorage, Log {
 
     private val container by lazy {
-        transaction {
+        multiTransaction {
             BiliCookie.selectAll()
                 .map { Json.readObj<Cookie>(it[BiliCookie.cookie]) }
                 .toMutableList()
@@ -37,7 +37,7 @@ object DatabaseCookiesStorage : CookiesStorage, Log {
                 oldestCookie.set(expires)
             }
         }
-        transaction {
+        multiTransaction {
             BiliCookie.deleteAll()
             container.map { Json.toJsonString(it) }
                 .forEach { cookieJson -> BiliCookie.insert { it[BiliCookie.cookie] = cookieJson } }

@@ -1,12 +1,12 @@
 package com.blr19c.falowp.bot.plugins.bili.database
 
 import com.blr19c.falowp.bot.plugins.bili.vo.BiliSubscriptionVo
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  * b站订阅
@@ -35,14 +35,14 @@ object BiliSubscription : Table("bili_subscription") {
     override val primaryKey = PrimaryKey(id, name = "pk_bili_subscription_id")
 
     init {
-        transaction {
+        multiTransaction {
             uniqueIndex(mid, sourceId)
             SchemaUtils.create(BiliSubscription)
         }
     }
 
     fun insert(mid: String, sourceId: String, sourceType: String) {
-        transaction {
+        multiTransaction {
             BiliSubscription.insert {
                 it[BiliSubscription.mid] = mid
                 it[BiliSubscription.sourceId] = sourceId
@@ -52,7 +52,7 @@ object BiliSubscription : Table("bili_subscription") {
     }
 
     fun queryByMid(mid: String): List<BiliSubscriptionVo> {
-        return transaction {
+        return multiTransaction {
             BiliSubscription.selectAll().where(BiliSubscription.mid eq mid).map {
                 BiliSubscriptionVo(
                     it[BiliSubscription.id],
@@ -65,7 +65,7 @@ object BiliSubscription : Table("bili_subscription") {
     }
 
     fun queryBySourceId(sourceId: String): List<BiliSubscriptionVo> {
-        return transaction {
+        return multiTransaction {
             BiliSubscription.selectAll().where(BiliSubscription.sourceId eq sourceId).map {
                 BiliSubscriptionVo(
                     it[BiliSubscription.id],

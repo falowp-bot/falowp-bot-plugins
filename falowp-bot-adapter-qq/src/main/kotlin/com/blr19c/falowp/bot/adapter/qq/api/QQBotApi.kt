@@ -3,19 +3,19 @@ package com.blr19c.falowp.bot.adapter.qq.api
 import com.blr19c.falowp.bot.adapter.qq.QQApplication.Companion.token
 import com.blr19c.falowp.bot.adapter.qq.api.QQBotApiSupport.groupIdList
 import com.blr19c.falowp.bot.adapter.qq.op.OpBotApi
-import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQMessageTypeEnum.*
+import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQMessageTypeEnum.MEDIA
+import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQMessageTypeEnum.TEXT
 import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQSendMessage
 import com.blr19c.falowp.bot.system.adapterConfigProperty
-import com.blr19c.falowp.bot.system.api.*
+import com.blr19c.falowp.bot.system.api.ReceiveMessage
+import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.web.bodyAsJsonNode
 import com.blr19c.falowp.bot.system.web.webclient
 import com.fasterxml.jackson.databind.JsonNode
-import io.ktor.client.call.body
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.HttpHeaders
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 

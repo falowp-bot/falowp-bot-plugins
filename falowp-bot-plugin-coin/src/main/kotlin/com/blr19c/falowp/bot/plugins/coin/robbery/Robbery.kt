@@ -1,15 +1,15 @@
 package com.blr19c.falowp.bot.plugins.coin.robbery
 
 import com.blr19c.falowp.bot.plugins.coin.robbery.database.RobberyInfo
-import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.plugins.user.currentUser
 import com.blr19c.falowp.bot.plugins.user.decrementCoins
 import com.blr19c.falowp.bot.plugins.user.incrementCoins
 import com.blr19c.falowp.bot.plugins.user.queryByUserId
 import com.blr19c.falowp.bot.plugins.user.vo.BotUserVo
+import com.blr19c.falowp.bot.system.plugin.Plugin
+import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.sql.SQLException
@@ -45,7 +45,7 @@ class Robbery {
 
         try {
             var sum = BigDecimal.ZERO
-            transaction {
+            multiTransaction {
                 for (user in atList) {
                     if (successRate(currentUser)) {
                         val toUser = queryByUserId(user.id, receiveMessage.source.id)!!

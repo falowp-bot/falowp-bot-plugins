@@ -1,5 +1,9 @@
 package com.blr19c.falowp.bot.plugins.wordcloud
 
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
+import com.blr19c.falowp.bot.plugins.wordcloud.database.WordcloudTextInfo
+import com.blr19c.falowp.bot.plugins.wordcloud.event.WordcloudEvent
+import com.blr19c.falowp.bot.plugins.wordcloud.hook.WordcloudSegmentHook
 import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.listener.events.GreetingEvent
@@ -12,16 +16,12 @@ import com.blr19c.falowp.bot.system.plugin.hook.withPluginHook
 import com.blr19c.falowp.bot.system.pluginConfigListProperty
 import com.blr19c.falowp.bot.system.readPluginResource
 import com.blr19c.falowp.bot.system.web.htmlToImageBase64
-import com.blr19c.falowp.bot.plugins.wordcloud.database.WordcloudTextInfo
-import com.blr19c.falowp.bot.plugins.wordcloud.event.WordcloudEvent
-import com.blr19c.falowp.bot.plugins.wordcloud.hook.WordcloudSegmentHook
 import com.hankcs.hanlp.HanLP
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.jsoup.Jsoup
 import java.time.LocalDate
 
@@ -104,7 +104,7 @@ class Wordcloud {
 
 
     private fun addMessage(text: String, userId: String, sourceId: String, sourceType: SourceTypeEnum) {
-        transaction {
+        multiTransaction {
             WordcloudTextInfo.insert {
                 it[WordcloudTextInfo.text] = text
                 it[WordcloudTextInfo.userId] = userId

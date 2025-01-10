@@ -2,8 +2,8 @@ package com.blr19c.falowp.bot.adapter.tg.database
 
 import com.blr19c.falowp.bot.adapter.tg.api.TGBotApiSupport
 import com.blr19c.falowp.bot.adapter.tg.vo.TGUserInfoVo
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.telegram.telegrambots.meta.api.objects.Message
 
 /**
@@ -36,38 +36,38 @@ object TGUserInfo : Table("tg_user_info") {
     override val primaryKey = PrimaryKey(id, name = "pk_tg_user_info_id")
 
     init {
-        transaction {
+        multiTransaction {
             SchemaUtils.create(TGUserInfo)
         }
     }
 
-    fun queryAllGroup(): List<Long> = transaction {
-        return@transaction TGUserInfo.select(sourceId)
+    fun queryAllGroup(): List<Long> = multiTransaction {
+        TGUserInfo.select(sourceId)
             .where { sourceType inList TGBotApiSupport.groupTypeList }
             .map { it[sourceId] }
             .toList()
     }
 
-    fun queryByUserName(userName: String, message: Message? = null): TGUserInfoVo? = transaction {
+    fun queryByUserName(userName: String, message: Message? = null): TGUserInfoVo? = multiTransaction {
         val select = TGUserInfo.selectAll().where { TGUserInfo.userName eq userName }
         message?.let { select.andWhere { sourceId eq it.chatId } }
-        return@transaction select.map { toVo(it) }.firstOrNull()
+        select.map { toVo(it) }.firstOrNull()
     }
 
-    fun queryByUserId(userId: Long, message: Message? = null): TGUserInfoVo? = transaction {
+    fun queryByUserId(userId: Long, message: Message? = null): TGUserInfoVo? = multiTransaction {
         val select = TGUserInfo.selectAll().where { TGUserInfo.userId eq userId }
         message?.let { select.andWhere { sourceId eq it.chatId } }
-        return@transaction select.map { toVo(it) }.firstOrNull()
+        select.map { toVo(it) }.firstOrNull()
     }
 
-    fun queryBySourceId(sourceId: Long): List<TGUserInfoVo> = transaction {
-        return@transaction TGUserInfo.selectAll()
+    fun queryBySourceId(sourceId: Long): List<TGUserInfoVo> = multiTransaction {
+        TGUserInfo.selectAll()
             .where { TGUserInfo.sourceId eq sourceId }
             .map { toVo(it) }
             .toList()
     }
 
-    fun saveOrUpdate(message: Message) = transaction {
+    fun saveOrUpdate(message: Message) = multiTransaction {
         val current = queryByUserId(message.from.id, message)
         if (current == null) {
             TGUserInfo.insert {
@@ -76,7 +76,7 @@ object TGUserInfo : Table("tg_user_info") {
                 it[sourceId] = message.chatId
                 it[sourceType] = message.chat.type
             }
-            return@transaction
+            return@multiTransaction
         }
         TGUserInfo.update({ TGUserInfo.id eq current.id }) {
             it[userName] = message.from.userName

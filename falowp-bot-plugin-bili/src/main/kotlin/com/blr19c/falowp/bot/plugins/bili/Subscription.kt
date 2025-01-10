@@ -9,6 +9,7 @@ import com.blr19c.falowp.bot.plugins.bili.database.BiliSubscription
 import com.blr19c.falowp.bot.plugins.bili.database.BiliUpInfo
 import com.blr19c.falowp.bot.plugins.bili.message.biliMessage
 import com.blr19c.falowp.bot.plugins.bili.vo.BiliSubscriptionVo
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
@@ -23,7 +24,6 @@ import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.QRCodeWriter
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
@@ -93,7 +93,7 @@ class Subscription : Log {
                         .build()
                     log().info("定时查询动态/直播-${biliUpInfoVo.name}猪开播啦!")
                     send(subscriptionList, message)
-                    transaction {
+                    multiTransaction {
                         BiliUpInfo.updateLiveStatus(biliUpInfoVo.mid, true)
                         BiliDynamic.insert(biliUpInfoVo.mid, prePushDynamic.id)
                     }
@@ -139,7 +139,7 @@ class Subscription : Log {
         log().info("更新up信息")
         for (biliUpInfo in BiliUpInfo.queryAll()) {
             val userInfo = client.getUserInfo(biliUpInfo.mid.toLong())
-            if (biliUpInfo.name != userInfo.name) transaction {
+            if (biliUpInfo.name != userInfo.name) multiTransaction {
                 BiliUpInfo.update({ BiliUpInfo.mid eq biliUpInfo.mid }) {
                     it[name] = userInfo.name
                 }
@@ -162,7 +162,7 @@ class Subscription : Log {
                 .map { it.id }
             val roomId = userInfo.liveRoom?.roomId ?: ""
             val midString = userInfo.mid
-            transaction {
+            multiTransaction {
                 dynamicList.forEach { BiliDynamic.insert(midString, it) }
                 BiliSubscription.insert(
                     midString,
@@ -189,7 +189,7 @@ class Subscription : Log {
             return@message this.sendReply("此订阅不存在")
         }
         val upInfo = BiliUpInfo.queryByMid(subscription.mid)
-        transaction {
+        multiTransaction {
             BiliSubscription.deleteWhere { id eq subscription.id }
             BiliUpInfo.queryByMid(subscription.mid)
             if (subscriptionList.size == 1) {

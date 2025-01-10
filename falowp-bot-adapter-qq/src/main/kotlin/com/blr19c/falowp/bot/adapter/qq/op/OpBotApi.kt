@@ -1,11 +1,6 @@
 package com.blr19c.falowp.bot.adapter.qq.op
 
-import com.blr19c.falowp.bot.system.api.AtSendMessage
-import com.blr19c.falowp.bot.system.api.BotApi
-import com.blr19c.falowp.bot.system.api.ImageSendMessage
-import com.blr19c.falowp.bot.system.api.ReceiveMessage
-import com.blr19c.falowp.bot.system.api.SendMessageChain
-import com.blr19c.falowp.bot.system.api.TextSendMessage
+import com.blr19c.falowp.bot.system.api.*
 import kotlin.reflect.KClass
 
 /**

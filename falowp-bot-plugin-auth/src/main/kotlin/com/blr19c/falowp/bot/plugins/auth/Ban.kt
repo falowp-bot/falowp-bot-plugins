@@ -3,6 +3,7 @@ package com.blr19c.falowp.bot.plugins.auth
 import com.blr19c.falowp.bot.plugins.auth.database.BanInfo
 import com.blr19c.falowp.bot.plugins.auth.database.BanInfo.sourceId
 import com.blr19c.falowp.bot.plugins.auth.database.BanInfo.userId
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
 import com.blr19c.falowp.bot.system.plugin.Plugin
@@ -14,7 +15,6 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  * 禁用用户
@@ -25,7 +25,7 @@ class Ban {
     private val banSet by lazy {
         val concurrentSet = ConcurrentSet<String>()
         concurrentSet.addAll(
-            transaction {
+            multiTransaction {
                 BanInfo.selectAll().map { it[userId] + it[sourceId] }.toSet()
             }
         )
@@ -33,7 +33,7 @@ class Ban {
     }
 
     private val ban = message(Regex("ban"), auth = ApiAuth.ADMINISTRATOR) {
-        val banList = transaction {
+        val banList = multiTransaction {
             val banList = mutableListOf<String>()
             for (user in this@message.receiveMessage.content.at) {
                 if (user.auth == ApiAuth.ADMINISTRATOR) continue
@@ -52,7 +52,7 @@ class Ban {
     }
 
     private val unban = message(Regex("unban"), auth = ApiAuth.ADMINISTRATOR) {
-        val unbanList = transaction {
+        val unbanList = multiTransaction {
             val unbanList = mutableListOf<String>()
             for (user in this@message.receiveMessage.content.at) {
                 BanInfo.deleteWhere {

@@ -1,12 +1,12 @@
 package com.blr19c.falowp.bot.plugins.wordcloud.database
 
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.plugins.wordcloud.vo.WordcloudTextInfoVo
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.javatime.date
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 
 /**
@@ -43,13 +43,13 @@ object WordcloudTextInfo : Table("word_cloud_text_info") {
     override val primaryKey = PrimaryKey(id, name = "pk_bot_user_id")
 
     init {
-        transaction {
+        multiTransaction {
             SchemaUtils.create(WordcloudTextInfo)
         }
     }
 
-    fun queryAllSourceId(createDate: LocalDate): List<String> = transaction {
-        return@transaction WordcloudTextInfo.select(sourceId)
+    fun queryAllSourceId(createDate: LocalDate): List<String> = multiTransaction {
+        WordcloudTextInfo.select(sourceId)
             .where { WordcloudTextInfo.createDate eq createDate }
             .groupBy(sourceId)
             .distinctBy { it[sourceId] }
@@ -57,8 +57,8 @@ object WordcloudTextInfo : Table("word_cloud_text_info") {
             .toList()
     }
 
-    fun queryBySourceId(sourceId: String, createDate: LocalDate): List<WordcloudTextInfoVo> = transaction {
-        return@transaction WordcloudTextInfo.selectAll()
+    fun queryBySourceId(sourceId: String, createDate: LocalDate): List<WordcloudTextInfoVo> = multiTransaction {
+        WordcloudTextInfo.selectAll()
             .where { (WordcloudTextInfo.sourceId eq sourceId).and(WordcloudTextInfo.createDate eq createDate) }
             .map {
                 WordcloudTextInfoVo(

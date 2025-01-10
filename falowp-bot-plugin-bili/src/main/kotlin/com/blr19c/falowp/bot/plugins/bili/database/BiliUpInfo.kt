@@ -1,8 +1,8 @@
 package com.blr19c.falowp.bot.plugins.bili.database
 
 import com.blr19c.falowp.bot.plugins.bili.vo.BiliUpInfoVo
+import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  * b站up主信息
@@ -33,13 +33,13 @@ object BiliUpInfo : Table("bili_up_info") {
     override val primaryKey = PrimaryKey(id, name = "pk_bili_up_info_id")
 
     init {
-        transaction {
+        multiTransaction {
             SchemaUtils.create(BiliUpInfo)
         }
     }
 
     fun queryAll(): List<BiliUpInfoVo> {
-        return transaction {
+        return multiTransaction {
             BiliUpInfo.selectAll().map {
                 BiliUpInfoVo(
                     it[BiliUpInfo.id],
@@ -53,7 +53,7 @@ object BiliUpInfo : Table("bili_up_info") {
     }
 
     fun queryByMid(mid: String): BiliUpInfoVo? {
-        return transaction {
+        return multiTransaction {
             BiliUpInfo.selectAll().where { BiliUpInfo.mid eq mid }.map {
                 BiliUpInfoVo(
                     it[BiliUpInfo.id],
@@ -67,7 +67,7 @@ object BiliUpInfo : Table("bili_up_info") {
     }
 
     fun queryByLiveStatus(liveStatus: Boolean): List<BiliUpInfoVo> {
-        return transaction {
+        return multiTransaction {
             BiliUpInfo.selectAll().where { BiliUpInfo.liveStatus eq liveStatus }.map {
                 BiliUpInfoVo(
                     it[BiliUpInfo.id],
@@ -81,7 +81,7 @@ object BiliUpInfo : Table("bili_up_info") {
     }
 
     fun updateLiveStatus(mid: String, liveStatus: Boolean) {
-        transaction {
+        multiTransaction {
             BiliUpInfo.update({ BiliUpInfo.mid eq mid }) {
                 it[BiliUpInfo.liveStatus] = liveStatus
             }
@@ -89,7 +89,7 @@ object BiliUpInfo : Table("bili_up_info") {
     }
 
     fun insert(mid: String, roomId: String, name: String) {
-        transaction {
+        multiTransaction {
             BiliUpInfo.insert {
                 it[BiliUpInfo.mid] = mid
                 it[BiliUpInfo.roomId] = roomId
