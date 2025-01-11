@@ -32,6 +32,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 import java.io.Serializable
 import java.net.URI
+import kotlin.reflect.jvm.isAccessible
 import kotlin.time.Duration.Companion.hours
 
 
@@ -77,9 +78,9 @@ class TGApplication : BotAdapterInterface, Log {
 
         init {
             val nickName = systemConfigProperty("nickname")
-            if (nickName != meInfo.userName) {
+            if (nickName != (meInfo.firstName + (meInfo.lastName ?: ""))) {
                 this.executeIgnoreException(SetMyName(nickName, null))
-                (::meInfo.getDelegate() as? CacheReference<*>)?.refresh()
+                (::meInfo.apply { isAccessible = true }.getDelegate() as? CacheReference<*>)?.refresh()
             }
         }
 
