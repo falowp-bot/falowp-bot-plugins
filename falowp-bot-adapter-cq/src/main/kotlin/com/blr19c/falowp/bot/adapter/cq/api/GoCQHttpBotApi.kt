@@ -145,8 +145,8 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
     }
 
     private suspend fun imageCQ(image: ImageUrl): String {
-        return if (image.isUrl()) "[CQ:image,type=custom,url=${image.toUrl()},file=图片]"
-        else "[CQ:image,type=custom,url=base64://${image.toBase64()},file=图片]"
+        return if (image.isUrl()) "[CQ:image,file=${image.toUrl()}]"
+        else "[CQ:image,file=base64://${image.toBase64()}]"
     }
 
     private fun videoCQ(video: URI): String {
