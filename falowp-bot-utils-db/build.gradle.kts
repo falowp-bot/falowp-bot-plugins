@@ -1,4 +1,4 @@
-val exposedVersion = "0.57.0"
+val exposedVersion = "0.60.0"
 
 dependencies {
     implementation("com.blr19c.falowp:falowp-bot-system:${rootProject.version}")
