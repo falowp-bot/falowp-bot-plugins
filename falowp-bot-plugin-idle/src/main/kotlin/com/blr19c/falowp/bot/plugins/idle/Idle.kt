@@ -41,7 +41,7 @@ class Idle {
         for (closestHoliday in getClosestHolidays(calendar, now)) {
             val startDate = closestHoliday.getStartDateTime()!!
             val endDate = closestHoliday.getEndDateTime()!!
-            val summary = closestHoliday.summary.get().value
+            val summary = closestHoliday.summary.value
             val distanceSummary = ChronoUnit.DAYS.between(now, startDate)
             val sumSummaryDay = ChronoUnit.DAYS.between(startDate, endDate) + 1
             val line = "距离【$summary】还有: ${distanceSummary}天-共${sumSummaryDay}天"
@@ -122,7 +122,7 @@ class Idle {
             .filter { it.getStartDateTime() != null }
             .filter { it.getStartDateTime()!!.isAfter(currentDate) }
             .sortedBy { it.getEndDateTime() }) {
-            val summarySplit = holiday.summary.get().value.split(" ")
+            val summarySplit = holiday.summary.value.split(" ")
             if (summarySplit.size < 2) continue
             if (summarySplit[1] == "补班") continue
             val summaryComment = summarySplit[0] + summarySplit[1]
@@ -153,7 +153,7 @@ class Idle {
 
 
     private fun DateTimePropertyAccessor.getStartDateTime(): LocalDate? {
-        val startDate = this.getDateTimeStart<Temporal>().orElse(null)?.date ?: return null
+        val startDate = this.getDateTimeStart<Temporal>()?.date ?: return null
         if (startDate is LocalDateTime) {
             return startDate.toLocalDate()
         }
@@ -161,7 +161,7 @@ class Idle {
     }
 
     private fun DateTimePropertyAccessor.getEndDateTime(): LocalDate? {
-        val endDate = this.getDateTimeEnd<Temporal>().orElse(null)?.date ?: return null
+        val endDate = this.getDateTimeEnd<Temporal>()?.date ?: return null
         if (endDate is LocalDateTime) {
             return endDate.toLocalDate()
         }
