@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 /**
  * 带有echo的回执消息
  */
+@Suppress("SpellCheckingInspection")
 data class GoCQHttpEchoMessage(
 
     /**
@@ -28,7 +29,6 @@ data class GoCQHttpEchoMessage(
     /**
      * 状态码
      */
-    @Suppress("SpellCheckingInspection")
     @field:JsonProperty("retcode")
     var retCode: String? = null,
     /**

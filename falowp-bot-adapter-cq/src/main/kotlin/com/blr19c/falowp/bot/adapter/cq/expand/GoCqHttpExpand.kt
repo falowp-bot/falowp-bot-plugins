@@ -465,13 +465,14 @@ suspend fun BotApi.cqUploadGroupFile(
 /**
  * 删除群文件
  */
+@Suppress("SpellCheckingInspection")
 suspend fun BotApi.cqDeleteGroupFile(groupFile: GroupFile) {
     apiRequest<Unit>(
         "delete_group_file",
         mapOf(
             "group_id" to groupFile.groupId,
             "file_id" to groupFile.fileId,
-            @Suppress("SpellCheckingInspection") "busid" to groupFile.busId
+            "busid" to groupFile.busId
         )
     )
 }
@@ -549,13 +550,14 @@ suspend fun BotApi.cqGetGroupFilesByFolder(groupFolder: GroupFolder): GroupFileI
  *
  * @param groupFile 群组文件
  */
+@Suppress("SpellCheckingInspection")
 suspend fun BotApi.cqGetGroupFileUrl(groupFile: GroupFile): String {
     return apiRequest<Map<String, String>>(
         "get_group_file_url",
         mapOf(
             "group_id" to groupFile.groupId,
             "file_id" to groupFile.fileId,
-            @Suppress("SpellCheckingInspection") "busid" to groupFile.busId
+            "busid" to groupFile.busId
         )
     )!!["url"]!!
 }

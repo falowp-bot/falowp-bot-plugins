@@ -7,6 +7,7 @@ import tools.jackson.databind.node.ArrayNode
 /**
  * API结果
  */
+@Suppress("SpellCheckingInspection")
 data class NapCatQQApiResult<T>(
     /**
      * 状态
@@ -16,7 +17,6 @@ data class NapCatQQApiResult<T>(
     /**
      * 状态码
      */
-    @Suppress("SpellCheckingInspection")
     @field:JsonProperty("retcode")
     val retCode: Int,
     /**
@@ -253,8 +253,8 @@ data class ProfileLike(
 /**
  * nc rKey
  */
+@Suppress("SpellCheckingInspection")
 data class NCRKey(
-    @Suppress("SpellCheckingInspection")
     @field:JsonProperty("rkey")
     val rKey: String,
     val ttl: String,

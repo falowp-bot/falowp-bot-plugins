@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package com.blr19c.falowp.bot.adapter.cq.expand
 
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -14,7 +16,6 @@ data class GoCqApiResult<T>(
     /**
      * 状态码
      */
-    @Suppress("SpellCheckingInspection")
     @field:JsonProperty("retcode")
     val retCode: Int,
     /**
@@ -219,7 +220,6 @@ data class GroupFile(
     /**
      * 文件类型
      */
-    @Suppress("SpellCheckingInspection")
     @field:JsonProperty("busid")
     val busId: Int,
     /**
