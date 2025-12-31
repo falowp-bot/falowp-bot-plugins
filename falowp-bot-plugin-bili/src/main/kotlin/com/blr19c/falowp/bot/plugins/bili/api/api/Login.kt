@@ -10,16 +10,16 @@ suspend fun BiliClient.login(push: suspend (url: String) -> Unit) {
     val qrcode = get(QRCODE_GENERATE) {
         // ...
     }
-    push(qrcode["url"].asText())
+    push(qrcode["url"].asString())
     withTimeout(300_000) {
         while (isActive) {
             delay(3_000)
             val status = get(QRCODE_POLL) {
-                parameter("qrcode_key", qrcode["key"].asText())
+                parameter("qrcode_key", qrcode["key"].asString())
             }
             when (status["code"].asInt()) {
                 0 -> return@withTimeout status
-                86038 -> throw IllegalStateException(status["message"].asText())
+                86038 -> throw IllegalStateException(status["message"].asString())
                 else -> Unit
             }
         }

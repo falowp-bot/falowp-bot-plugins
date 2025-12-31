@@ -63,7 +63,7 @@ class Repeater {
                 newRepeaterData = newRepeaterData.copy(count = Int.MIN_VALUE)
             }
             newRepeaterData
-        } ?: return
+        } ?: return@withLock
         if (repeaterData.count < 0 && !repeaterData.repeat) {
             botApi.sendReply(buildReplyMessage(repeaterData.content))
         }
