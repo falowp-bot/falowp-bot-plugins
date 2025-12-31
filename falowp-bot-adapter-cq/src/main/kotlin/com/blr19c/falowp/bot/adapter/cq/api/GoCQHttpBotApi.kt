@@ -10,7 +10,7 @@ import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.systemConfigProperty
-import com.fasterxml.jackson.databind.node.ArrayNode
+import tools.jackson.databind.node.ArrayNode
 import java.net.URI
 import kotlin.math.min
 import kotlin.reflect.KClass

@@ -1,8 +1,8 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.ArrayNode
 
 /**
  * API结果
@@ -16,6 +16,7 @@ data class NapCatQQApiResult<T>(
     /**
      * 状态码
      */
+    @Suppress("SpellCheckingInspection")
     @field:JsonProperty("retcode")
     val retCode: Int,
     /**
@@ -253,6 +254,7 @@ data class ProfileLike(
  * nc rKey
  */
 data class NCRKey(
+    @Suppress("SpellCheckingInspection")
     @field:JsonProperty("rkey")
     val rKey: String,
     val ttl: String,

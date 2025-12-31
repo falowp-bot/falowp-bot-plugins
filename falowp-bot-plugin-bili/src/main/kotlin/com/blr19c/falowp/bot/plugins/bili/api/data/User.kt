@@ -12,6 +12,7 @@ data class BiliUserInfo(
 )
 
 data class LiveRoom(
+    @Suppress("SpellCheckingInspection")
     @field:JsonProperty("roomid")
     val roomId: String,
     @field:JsonProperty("roomStatus")

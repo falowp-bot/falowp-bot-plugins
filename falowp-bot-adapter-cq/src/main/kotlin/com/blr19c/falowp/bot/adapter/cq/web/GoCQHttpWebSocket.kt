@@ -17,8 +17,8 @@ import com.blr19c.falowp.bot.system.listener.events.*
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
 import com.google.common.base.Strings
 import io.ktor.server.application.*
+import io.ktor.server.cio.*
 import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference
 class GoCQHttpWebSocket(onload: () -> Unit) : Log {
 
     fun configure() {
-        embeddedServer(Netty, port = adapterConfigProperty("cq.port").toInt()) {
+        embeddedServer(CIO, port = adapterConfigProperty("cq.port").toInt()) {
             config()
         }.start(wait = false)
     }
@@ -46,6 +46,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
     private val onload by lazy { onload() }
     private val executor = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
+    @Suppress("UNUSED")
     fun webSocketSession(): GoCqHttpWebSocketSession {
         return webSocketSession.get()
     }
@@ -72,18 +73,18 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
     private suspend fun websocketFrame(frame: Frame) {
         if (frame !is Frame.Text) return
         val jsonNode = Json.readJsonNode(frame.readText())
-        val postType = jsonNode.findPath("post_type").asText()
+        val postType = jsonNode.findPath("post_type").asString()
         //心跳
         if (postType.isNullOrBlank() || postType == "meta_event") {
             return
         }
         //消息
-        if (jsonNode.findPath("post_type").asText().isNotBlank()) {
+        if (jsonNode.findPath("post_type").asString().isNotBlank()) {
             processMessages(Json.readObj(frame.readText()))
         }
         //回执
-        if (jsonNode.findPath("echo").asText().isNotBlank()) {
-            processEcho(Json.readObj(frame.readText()));
+        if (jsonNode.findPath("echo").asString().isNotBlank()) {
+            processEcho(Json.readObj(frame.readText()))
         }
     }
 

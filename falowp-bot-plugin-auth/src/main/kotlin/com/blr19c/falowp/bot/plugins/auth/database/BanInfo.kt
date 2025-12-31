@@ -1,8 +1,8 @@
 package com.blr19c.falowp.bot.plugins.auth.database
 
 import com.blr19c.falowp.bot.plugins.db.multiTransaction
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 
 /**
  * 禁用用户

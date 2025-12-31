@@ -2,11 +2,11 @@ package com.blr19c.falowp.bot.plugins.bili.database
 
 import com.blr19c.falowp.bot.plugins.bili.vo.BiliSubscriptionVo
 import com.blr19c.falowp.bot.plugins.db.multiTransaction
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 /**
  * b站订阅

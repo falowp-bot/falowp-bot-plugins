@@ -12,10 +12,10 @@ import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.web.bodyAsJsonNode
 import com.blr19c.falowp.bot.system.web.webclient
-import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import tools.jackson.databind.JsonNode
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 

@@ -1,15 +1,16 @@
 package com.blr19c.falowp.bot.adapter.qq.op.channel.serializer
 
 import com.blr19c.falowp.bot.adapter.qq.op.channel.OpChannelMessageContent
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.JsonSerializer
-import com.fasterxml.jackson.databind.SerializerProvider
+import tools.jackson.core.JsonGenerator
+import tools.jackson.databind.SerializationContext
+import tools.jackson.databind.ValueSerializer
 
 /**
  * 频道消息内容序列化
  */
-class OpChannelMessageContentJsonSerializer : JsonSerializer<OpChannelMessageContent>() {
-    override fun serialize(value: OpChannelMessageContent, gen: JsonGenerator, serializers: SerializerProvider) {
+class OpChannelMessageContentJsonSerializer : ValueSerializer<OpChannelMessageContent>() {
+
+    override fun serialize(value: OpChannelMessageContent, gen: JsonGenerator, ctxt: SerializationContext) {
         gen.writeString(value.fullMessage())
     }
 }

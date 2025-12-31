@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED")
+@file:Suppress("UNUSED", "UnusedReceiverParameter")
 
 package com.blr19c.falowp.bot.adapter.tg.expand
 

@@ -1,9 +1,9 @@
 package com.blr19c.falowp.bot.plugins.wordcloud
 
 import com.blr19c.falowp.bot.plugins.db.multiTransaction
-import com.blr19c.falowp.bot.plugins.wordcloud.database.WordcloudTextInfo
-import com.blr19c.falowp.bot.plugins.wordcloud.event.WordcloudEvent
-import com.blr19c.falowp.bot.plugins.wordcloud.hook.WordcloudSegmentHook
+import com.blr19c.falowp.bot.plugins.wordcloud.database.WordCloudTextInfo
+import com.blr19c.falowp.bot.plugins.wordcloud.event.WordCloudEvent
+import com.blr19c.falowp.bot.plugins.wordcloud.hook.WordCloudSegmentHook
 import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.listener.events.GreetingEvent
@@ -21,7 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jsoup.Jsoup
 import java.time.LocalDate
 
@@ -29,17 +29,17 @@ import java.time.LocalDate
  * 词云
  */
 @Plugin(name = "词云", desc = "在晚安事件时生成今日词云")
-class Wordcloud {
+class WordCloud {
 
     private val executor = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     private val greetingEvent = eventListener<GreetingEvent> { (_, goodNight) ->
         if (!goodNight) return@eventListener
-        this.publishEvent(WordcloudEvent())
+        this.publishEvent(WordCloudEvent())
     }
 
-    private val wordcloud = eventListener<WordcloudEvent> {
-        this.generateWordcloud(it.date)
+    private val wordCloud = eventListener<WordCloudEvent> {
+        this.generateWordCloud(it.date)
     }
 
 
@@ -58,7 +58,7 @@ class Wordcloud {
     }
 
     private val sendMessage = eventListener<SendMessageEvent> { (sendMessage) ->
-        for (textSendMessage in sendMessage.filterIsInstance<TextSendMessage>()) {
+        for (textSendMessage in sendMessage.flatMap { it.messageList }.filterIsInstance<TextSendMessage>()) {
             if (this@eventListener.receiveMessage.sender.id.isBlank()) continue
             if (this@eventListener.receiveMessage.source.id.isBlank()) continue
             if (textSendMessage.content.isBlank()) continue
@@ -71,18 +71,18 @@ class Wordcloud {
         }
     }
 
-    private suspend fun BotApi.generateWordcloud(date: LocalDate) {
-        val html = readPluginResource("wordcloud.html") { inputStream ->
+    private suspend fun BotApi.generateWordCloud(date: LocalDate) {
+        val html = readPluginResource("wordCloud.html") { inputStream ->
             inputStream.bufferedReader().use { Jsoup.parse(it.readText()) }
         }
-        for (sourceId in WordcloudTextInfo.queryAllSourceId(date)) {
+        for (sourceId in WordCloudTextInfo.queryAllSourceId(date)) {
 
             val segmentCountMap = mutableMapOf<String, Int>()
             lateinit var sourceType: String
 
-            for (wordcloudTextInfoVo in WordcloudTextInfo.queryBySourceId(sourceId, date)) {
-                sourceType = wordcloudTextInfoVo.sourceType
-                HanLP.segment(wordcloudTextInfoVo.text)
+            for (wordCloudTextInfoVo in WordCloudTextInfo.queryBySourceId(sourceId, date)) {
+                sourceType = wordCloudTextInfoVo.sourceType
+                HanLP.segment(wordCloudTextInfoVo.text)
                     .map { it.word.replace(Regex("[\\pP\\p{Punct}]"), "") }
                     .filter { it.isNotBlank() }
                     .forEach { segmentCountMap.compute(it) { _, v -> v?.plus(1) ?: 1 } }
@@ -90,7 +90,7 @@ class Wordcloud {
 
             if (segmentCountMap.isEmpty()) continue
 
-            withPluginHook(this, WordcloudSegmentHook(segmentCountMap)) {
+            withPluginHook(this, WordCloudSegmentHook(segmentCountMap)) {
                 val blockWords = pluginConfigListProperty("blockWords")
                 blockWords.forEach { segmentCountMap.remove(it) }
             }
@@ -105,11 +105,11 @@ class Wordcloud {
 
     private fun addMessage(text: String, userId: String, sourceId: String, sourceType: SourceTypeEnum) {
         multiTransaction {
-            WordcloudTextInfo.insert {
-                it[WordcloudTextInfo.text] = text
-                it[WordcloudTextInfo.userId] = userId
-                it[WordcloudTextInfo.sourceId] = sourceId
-                it[WordcloudTextInfo.sourceType] = sourceType.name
+            WordCloudTextInfo.insert {
+                it[WordCloudTextInfo.text] = text
+                it[WordCloudTextInfo.userId] = userId
+                it[WordCloudTextInfo.sourceId] = sourceId
+                it[WordCloudTextInfo.sourceType] = sourceType.name
                 it[createDate] = LocalDate.now()
             }
         }
@@ -130,7 +130,7 @@ class Wordcloud {
 
     init {
         greetingEvent.register()
-        wordcloud.register()
+        wordCloud.register()
         receiveMessage.register()
         sendMessage.register()
     }

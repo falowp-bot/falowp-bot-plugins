@@ -3,7 +3,7 @@ package com.blr19c.falowp.bot.plugins.wordcloud.vo
 /**
  * 词云消息记录
  */
-data class WordcloudTextInfoVo(
+data class WordCloudTextInfoVo(
     val id: Int,
     /**
      * 发送的消息

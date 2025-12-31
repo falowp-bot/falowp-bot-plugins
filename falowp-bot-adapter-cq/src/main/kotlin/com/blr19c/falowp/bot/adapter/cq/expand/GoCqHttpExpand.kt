@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED")
+@file:Suppress("UNUSED", "UnusedReceiverParameter")
 
 package com.blr19c.falowp.bot.adapter.cq.expand
 
@@ -471,7 +471,7 @@ suspend fun BotApi.cqDeleteGroupFile(groupFile: GroupFile) {
         mapOf(
             "group_id" to groupFile.groupId,
             "file_id" to groupFile.fileId,
-            "busid" to groupFile.busId
+            @Suppress("SpellCheckingInspection") "busid" to groupFile.busId
         )
     )
 }
@@ -555,7 +555,7 @@ suspend fun BotApi.cqGetGroupFileUrl(groupFile: GroupFile): String {
         mapOf(
             "group_id" to groupFile.groupId,
             "file_id" to groupFile.fileId,
-            "busid" to groupFile.busId
+            @Suppress("SpellCheckingInspection") "busid" to groupFile.busId
         )
     )!!["url"]!!
 }
@@ -795,7 +795,7 @@ suspend fun BotApi.cqGetRecord(file: String, outFormat: String = "mp3"): String 
  *
  * @param file 文件缓存名
  */
-suspend fun BotApi.cqGetImage(file: String): Image? {
+suspend fun BotApi.cqGetImage(file: String): Image {
     return apiRequest("get_image", mapOf("file" to file))!!
 }
 

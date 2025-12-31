@@ -1,17 +1,17 @@
 package com.blr19c.falowp.bot.adapter.qq.op.qq.serializer
 
 import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQMessageTypeEnum
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.JsonSerializer
-import com.fasterxml.jackson.databind.SerializerProvider
+import tools.jackson.core.JsonGenerator
+import tools.jackson.databind.SerializationContext
+import tools.jackson.databind.ValueSerializer
 
 /**
  * OpQQMessageTypeEnum序列化时改为使用code
  */
-class OpQQMessageTypeEnumJsonSerialize : JsonSerializer<OpQQMessageTypeEnum>() {
+class OpQQMessageTypeEnumJsonSerialize : ValueSerializer<OpQQMessageTypeEnum>() {
 
-    override fun serialize(value: OpQQMessageTypeEnum, gen: JsonGenerator, serializers: SerializerProvider) {
-        gen.writeObject(value.code)
+    override fun serialize(value: OpQQMessageTypeEnum, gen: JsonGenerator, ctxt: SerializationContext) {
+        gen.writeNumber(value.code)
     }
 
 }

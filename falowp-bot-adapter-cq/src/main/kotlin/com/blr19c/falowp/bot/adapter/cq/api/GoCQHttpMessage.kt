@@ -6,7 +6,7 @@ import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.json.Json
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.JsonNode
+import tools.jackson.databind.JsonNode
 import java.net.URI
 import java.util.*
 import kotlin.time.Duration.Companion.minutes
@@ -207,7 +207,7 @@ data class GoCQHttpMessage(
      */
     private fun imageList(): List<ImageUrl> {
         val cqMessage = this.message ?: return emptyList()
-        val imageRegex = Regex("\\[CQ:image.+,url=(https?://[^\\s/\$.?#].\\S*)]")
+        val imageRegex = Regex("\\[CQ:image.+,url=(https?://[^\\s/$.?#].\\S*)]")
         return imageRegex.findAll(cqMessage).map { it.groupValues[1] }.map { ImageUrl(it) }.toList()
     }
 
@@ -240,41 +240,42 @@ data class GoCQHttpMessage(
     }
 
     private fun shareInfo(jsonNode: JsonNode): ReceiveMessage.Share? {
-        return if (jsonNode["app"].asText().startsWith("com.tencent.miniapp"))
+        return if (jsonNode["app"].asString().startsWith("com.tencent.miniapp"))
             shareMiniAppStandard(jsonNode)
-        else if (jsonNode["app"].asText().startsWith("com.tencent.structmsg"))
+        else if (jsonNode["app"].asString().startsWith("com.tencent.structmsg"))
             shareStandard(jsonNode)
-        else if (jsonNode["app"].asText().startsWith("com.tencent.troopsharecard"))
+        else if (jsonNode["app"].asString().startsWith("com.tencent.troopsharecard"))
             shareCard(jsonNode)
         else null
     }
 
+
     private fun shareMiniAppStandard(jsonNode: JsonNode): ReceiveMessage.Share {
-        val appInfo = jsonNode["meta"].elements().next()
+        val appInfo = jsonNode["meta"].iterator().next()
         return ReceiveMessage.Share(
-            appInfo["title"].asText(),
-            appInfo["desc"].asText(),
-            ImageUrl(appInfo["preview"].asText()),
-            appInfo["qqdocurl"].asText(),
+            appInfo["title"].asString(),
+            appInfo["desc"].asString(),
+            ImageUrl(appInfo["preview"].asString()),
+            @Suppress("SpellCheckingInspection") appInfo["qqdocurl"].asString(),
         )
     }
 
     private fun shareStandard(jsonNode: JsonNode): ReceiveMessage.Share {
-        val view = jsonNode["view"].asText()
+        val view = jsonNode["view"].asString()
         return ReceiveMessage.Share(
-            jsonNode["meta"][view]["tag"].asText(),
-            jsonNode["meta"][view]["title"].asText(),
-            ImageUrl(jsonNode["meta"][view]["preview"].asText()),
-            jsonNode["meta"][view]["jumpUrl"].asText(),
+            jsonNode["meta"][view]["tag"].asString(),
+            jsonNode["meta"][view]["title"].asString(),
+            ImageUrl(jsonNode["meta"][view]["preview"].asString()),
+            jsonNode["meta"][view]["jumpUrl"].asString(),
         )
     }
 
     private fun shareCard(jsonNode: JsonNode): ReceiveMessage.Share {
         return ReceiveMessage.Share(
-            jsonNode["meta"]["contact"]["tag"].asText(),
-            jsonNode["meta"]["contact"]["nickname"].asText(),
-            ImageUrl(jsonNode["meta"]["contact"]["avatar"].asText()),
-            jsonNode["meta"]["contact"]["jumpUrl"].asText(),
+            jsonNode["meta"]["contact"]["tag"].asString(),
+            jsonNode["meta"]["contact"]["nickname"].asString(),
+            ImageUrl(jsonNode["meta"]["contact"]["avatar"].asString()),
+            jsonNode["meta"]["contact"]["jumpUrl"].asString(),
         )
     }
 

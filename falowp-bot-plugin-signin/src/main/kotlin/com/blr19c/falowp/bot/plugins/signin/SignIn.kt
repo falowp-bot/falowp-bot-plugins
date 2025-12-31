@@ -25,15 +25,15 @@ import kotlin.random.Random
  * 签到
  */
 @Plugin(name = "签到", desc = "每日一签,能增加金币&好感度")
-class Signin {
+class SignIn {
 
-    private val signin = message(Regex("签到")) {
+    private val signIn = message(Regex("签到")) {
         val currentUser = this.currentUser()
         val addCoins = Random.nextDouble(10.0, 50.0).toBigDecimal().setScale(2, RoundingMode.HALF_UP)
         val addImpression = Random.nextDouble(0.5, 5.0).toBigDecimal().setScale(2, RoundingMode.HALF_UP)
         try {
             //签到&增加金币和好感度
-            currentUser.signin()
+            currentUser.signIn()
             currentUser.incrementCoins(addCoins)
             currentUser.incrementImpression(addImpression)
 
@@ -41,28 +41,28 @@ class Signin {
                 readPluginResource("background.png").encodeToBase64String()
             }
 
-            val html = readPluginResource("signin.html") { inputStream ->
+            val html = readPluginResource("signIn.html") { inputStream ->
                 inputStream.bufferedReader().use { Jsoup.parse(it.readText()) }
             }
 
-            val monthSignin = currentUser.queryCurrentMonthSignin().map { it.signinDate }
+            val monthSignIn = currentUser.queryCurrentMonthSignIn().map { it.signInDate }
 
             html.select("#app").backgroundUrl(backgroundImg)
             html.select("#nickname").html(currentUser.nickname)
             html.select("#uid").html(currentUser.userId)
             html.select("#qqAvatar").attr("src", "data:image/png;base64,${currentUser.avatar.toHtmlBase64()}")
-            html.select("#signin-day").html(currentUser.queryCumulativeSignin().toString())
+            html.select("#signin-day").html(currentUser.queryCumulativeSignIn().toString())
             html.select("#signin-impression").html(addImpression.toString())
             html.select("#signin-coins").html(addCoins.toString())
             html.select("#impression").html((currentUser.impression + addImpression).toString())
             html.select("#coins").html((currentUser.coins + addCoins).toPlainString())
             html.select("#by").html(systemConfigProperty("nickname") + LocalDate.now())
-            html.select("#selectDate").`val`(Json.toJsonString(monthSignin))
+            html.select("#selectDate").`val`(Json.toJsonString(monthSignIn))
 
             val replyImgBase64 = htmlToImageBase64(html.html(), "#app")
 
             this.sendReply(SendMessage.builder().image(replyImgBase64).build())
-        } catch (e: SQLException) {
+        } catch (_: SQLException) {
             this.sendReply("你今天已经签到过了", reference = true)
         }
     }
@@ -80,7 +80,7 @@ class Signin {
     }
 
     init {
-        signin.register()
+        signIn.register()
     }
 
 }

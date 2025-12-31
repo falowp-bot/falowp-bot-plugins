@@ -2,14 +2,15 @@ package com.blr19c.falowp.bot.adapter.qq.op
 
 import com.blr19c.falowp.bot.adapter.qq.op.serializer.OpTypeEnumJsonDeserializer
 import com.blr19c.falowp.bot.adapter.qq.op.serializer.OpTypeEnumJsonSerialize
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import tools.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonSerialize
 
 /**
  * 消息事件类型
  */
 @JsonSerialize(using = OpTypeEnumJsonSerialize::class)
 @JsonDeserialize(using = OpTypeEnumJsonDeserializer::class)
+@Suppress("UNUSED")
 enum class OpTypeEnum {
     /**
      * QQ-用户单聊发消息给机器人时候

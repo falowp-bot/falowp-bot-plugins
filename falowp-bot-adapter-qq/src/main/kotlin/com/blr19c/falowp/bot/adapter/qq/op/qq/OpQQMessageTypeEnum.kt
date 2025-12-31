@@ -2,8 +2,8 @@ package com.blr19c.falowp.bot.adapter.qq.op.qq
 
 import com.blr19c.falowp.bot.adapter.qq.op.qq.serializer.OpQQMessageTypeEnumJsonDeserializer
 import com.blr19c.falowp.bot.adapter.qq.op.qq.serializer.OpQQMessageTypeEnumJsonSerialize
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import tools.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonSerialize
 
 /**
  * QQ发送消息类型

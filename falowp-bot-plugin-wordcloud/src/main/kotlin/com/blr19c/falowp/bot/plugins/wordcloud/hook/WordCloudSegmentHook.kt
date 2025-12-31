@@ -7,4 +7,4 @@ import com.blr19c.falowp.bot.system.plugin.Plugin
  *
  * @param segmentCountMap 分词内容
  */
-data class WordcloudSegmentHook(val segmentCountMap: MutableMap<String, Int>) : Plugin.Listener.Hook
+data class WordCloudSegmentHook(val segmentCountMap: MutableMap<String, Int>) : Plugin.Listener.Hook

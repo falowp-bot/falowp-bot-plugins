@@ -8,4 +8,4 @@ import java.time.LocalDate
  *
  * @param date 日期
  */
-data class WordcloudEvent(val date: LocalDate = LocalDate.now()) : Plugin.Listener.Event
+data class WordCloudEvent(val date: LocalDate = LocalDate.now()) : Plugin.Listener.Event

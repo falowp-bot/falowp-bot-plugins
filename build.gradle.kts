@@ -2,9 +2,9 @@ val kotlinVersion: String by project
 val falowpBotVersion: String by project
 
 plugins {
-    kotlin("jvm") version "2.1.20"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20"
-    id("com.github.ben-manes.versions") version "0.52.0"
+    kotlin("jvm") version "2.3.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.0"
+    id("com.github.ben-manes.versions") version "0.53.0"
     id("maven-publish")
     signing
 }
@@ -19,7 +19,7 @@ repositories {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
 dependencies {
@@ -32,7 +32,7 @@ subprojects {
 
     kotlin {
         version = kotlinVersion
-        jvmToolchain(21)
+        jvmToolchain(25)
     }
 
     apply(plugin = "maven-publish")

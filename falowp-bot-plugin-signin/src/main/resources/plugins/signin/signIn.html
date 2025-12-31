@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--suppress CssUnusedSymbol, HtmlUnknownTag, HtmlUnknownAttribute -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -71,7 +72,7 @@
             flex-wrap: wrap;
         }
 
-        .signin-footer {
+        .sign-in-footer {
             background: white;
             width: 100%;
             opacity: 0.8;
@@ -115,19 +116,19 @@
             UID: <span id="uid"></span>
         </div>
     </div>
-    <div class="signin-footer">
+    <div class="sign-in-footer">
         <div class="desc">
             <img id="qqAvatar" style="width: 100px" src="" alt="">
             <el-divider></el-divider>
             <div class="desc-value">
                 <div class="desc-item">
-                    累计签到天数: <span id="signin-day"></span>
+                    累计签到天数: <span id="sign-in-day"></span>
                 </div>
                 <div class="desc-item">
-                    签到获得好感度: <span id="signin-impression"></span>
+                    签到获得好感度: <span id="sign-in-impression"></span>
                 </div>
                 <div class="desc-item">
-                    签到获得金币: <span id="signin-coins"></span>
+                    签到获得金币: <span id="sign-in-coins"></span>
                 </div>
                 <div class="desc-item">
                     当前好感度: <span id="impression"></span>
@@ -153,6 +154,7 @@
     </div>
 </div>
 <script type="text/javascript">
+    // noinspection JSUnusedGlobalSymbols
     const main = {
         data() {
             return {
@@ -167,7 +169,9 @@
             },
         }
     };
+    // noinspection JSUnresolvedReference
     const Ctor = Vue.extend(main);
+    // noinspection JSUnresolvedReference
     new Ctor().$mount('#app')
 </script>
 </body>

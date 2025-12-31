@@ -2,8 +2,8 @@ package com.blr19c.falowp.bot.adapter.qq.op.channel
 
 import com.blr19c.falowp.bot.adapter.qq.op.channel.serializer.OpChannelMessageContentJsonDeserializer
 import com.blr19c.falowp.bot.adapter.qq.op.channel.serializer.OpChannelMessageContentJsonSerializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import tools.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonSerialize
 
 /**
  * 频道消息内容

@@ -3,25 +3,27 @@ package com.blr19c.falowp.bot.plugins.db
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.plugin.PluginUtils
 import com.blr19c.falowp.bot.system.pluginConfigList
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.Transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 @PluginUtils
 object Database : Log {
 
     init {
         log().info("初始化Database")
-        pluginConfigList("").flatMap { it.toMap().entries }.forEach { (name, dbConfig) ->
-            dbConfig as Map<*, *>
-            val db = org.jetbrains.exposed.sql.Database.connect(
-                url = dbConfig["url"].toString(),
-                user = dbConfig["username"].toString(),
-                password = dbConfig["password"].toString(),
-                driver = dbConfig["driver"].toString()
-            )
-            factory[name] = db
-            if (dbConfig["primary"].toString().toBoolean()) {
-                primary = db
+        pluginConfigList("").forEach { config ->
+            config.toMap().forEach { (name, dbConfig) ->
+                dbConfig as Map<*, *>
+                val db = org.jetbrains.exposed.v1.jdbc.Database.connect(
+                    url = dbConfig["url"].toString(),
+                    user = dbConfig["username"].toString(),
+                    password = dbConfig["password"].toString(),
+                    driver = dbConfig["driver"].toString()
+                )
+                factory[name] = db
+                if (dbConfig["primary"].toString().toBoolean()) {
+                    primary = db
+                }
             }
         }
         if (!::primary.isInitialized && factory.size == 1) {
@@ -35,9 +37,9 @@ object Database : Log {
     }
 }
 
-private lateinit var primary: org.jetbrains.exposed.sql.Database
+private lateinit var primary: org.jetbrains.exposed.v1.jdbc.Database
 
-private val factory: MutableMap<String, org.jetbrains.exposed.sql.Database> = mutableMapOf()
+private val factory: MutableMap<String, org.jetbrains.exposed.v1.jdbc.Database> = mutableMapOf()
 
 /**
  * 多数据源
@@ -49,13 +51,13 @@ fun <T> multiTransaction(name: String? = null, statement: Transaction.() -> T): 
 /**
  * 主要数据源
  */
-fun primaryDatabase(): org.jetbrains.exposed.sql.Database {
+fun primaryDatabase(): org.jetbrains.exposed.v1.jdbc.Database {
     return primary
 }
 
 /**
  * 数据源map
  */
-fun databaseMap(): Map<String, org.jetbrains.exposed.sql.Database> {
+fun databaseMap(): Map<String, org.jetbrains.exposed.v1.jdbc.Database> {
     return factory
 }

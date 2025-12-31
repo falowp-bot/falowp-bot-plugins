@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package com.blr19c.falowp.bot.plugins.bili
 
 import com.blr19c.falowp.bot.plugins.bili.api.DatabaseCookiesStorage
@@ -33,6 +35,7 @@ import kotlin.time.Duration.Companion.days
 /**
  * b站获取信息工具
  */
+@Suppress("SpellCheckingInspection")
 object BLiveUtils : Log {
 
     private val ticket by CacheReference(1.days) { genWebTicket() }
@@ -54,7 +57,7 @@ object BLiveUtils : Log {
             for (cookie in DatabaseCookiesStorage.getAll()) {
                 cookie(cookie.name, cookie.value)
             }
-        }.bodyAsJsonNode()["data"]["ticket"].asText()
+        }.bodyAsJsonNode()["data"]["ticket"].asString()
     }
 
 

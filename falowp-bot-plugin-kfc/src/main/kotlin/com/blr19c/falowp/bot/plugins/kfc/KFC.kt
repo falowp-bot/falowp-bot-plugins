@@ -5,7 +5,7 @@ import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.Plugin.Task.cronScheduling
 import com.blr19c.falowp.bot.system.readPluginResource
-import com.fasterxml.jackson.databind.node.ArrayNode
+import tools.jackson.databind.node.ArrayNode
 import kotlin.random.Random
 
 /**
@@ -24,7 +24,7 @@ class KFC {
         val message = readPluginResource("kfc.json") {
             val jsonNode = Json.readJsonNode(it.readBytes().decodeToString()) as ArrayNode
             val randomIndex = Random.nextInt(jsonNode.size())
-            jsonNode[randomIndex].asText()
+            jsonNode[randomIndex].asString()
         }
         this.sendAllGroup(SendMessage.builder(message).build())
     }

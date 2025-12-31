@@ -16,6 +16,7 @@ import java.nio.file.Files
 import java.util.*
 
 @PluginUtils
+@Suppress("UNUSED")
 object MinIO {
 
     init {

@@ -3,7 +3,11 @@ package com.blr19c.falowp.bot.adapter.tg.database
 import com.blr19c.falowp.bot.adapter.tg.api.TGBotApiSupport
 import com.blr19c.falowp.bot.adapter.tg.vo.TGUserInfoVo
 import com.blr19c.falowp.bot.plugins.db.multiTransaction
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.jdbc.*
 import org.telegram.telegrambots.meta.api.objects.Message
 
 /**

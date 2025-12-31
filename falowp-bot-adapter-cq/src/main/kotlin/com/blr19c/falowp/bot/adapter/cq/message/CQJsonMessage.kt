@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED")
+
 package com.blr19c.falowp.bot.adapter.cq.message
 
 import com.blr19c.falowp.bot.system.api.SendMessage

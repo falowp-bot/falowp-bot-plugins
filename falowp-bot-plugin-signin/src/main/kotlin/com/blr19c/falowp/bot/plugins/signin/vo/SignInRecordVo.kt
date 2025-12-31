@@ -5,7 +5,7 @@ import java.time.LocalDate
 /**
  * 签到记录
  */
-data class SigninRecordVo(
+data class SignInRecordVo(
     val id: Int,
 
     /**
@@ -16,5 +16,5 @@ data class SigninRecordVo(
     /**
      * 签到时间
      */
-    val signinDate: LocalDate,
+    val signInDate: LocalDate,
 )

@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED")
+@file:Suppress("UNUSED", "UnusedReceiverParameter")
 
 package com.blr19c.falowp.bot.adapter.nc.expand
 
@@ -9,10 +9,10 @@ import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.web.longTimeoutWebclient
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.ArrayNode
 
 /**
  * 群打卡

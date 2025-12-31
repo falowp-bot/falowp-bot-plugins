@@ -5,15 +5,16 @@ import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.pluginConfigProperty
 import com.blr19c.falowp.bot.system.web.bodyAsJsonNode
 import com.blr19c.falowp.bot.system.web.webclient
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
 import io.ktor.client.request.*
 import io.ktor.http.*
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.ArrayNode
 import kotlin.time.Duration.Companion.days
 
 /**
  * 百度文本审查
  */
+@Suppress("UNUSED")
 object BaiduTextCensor : Log {
     private val token by CacheReference(1.days) {
         getToken()
@@ -57,8 +58,8 @@ object BaiduTextCensor : Log {
         val items = (item["hits"] as ArrayNode).mapNotNull { hit ->
             if (!hit.hasArrayNode("words"))
                 return@mapNotNull null
-            val words = (hit["words"] as ArrayNode).map { it.asText() }.toList()
-            val probability = hit["probability"]?.asText()?.toDouble()
+            val words = (hit["words"] as ArrayNode).map { it.asString() }.toList()
+            val probability = hit["probability"]?.asString()?.toDouble()
             CensorResultItemHit(words, probability)
         }.toList()
         return CensorResultItem(type, subType, items)
@@ -95,6 +96,6 @@ object BaiduTextCensor : Log {
             parameter("client_id", pluginConfigProperty("baidu.clientId"))
             parameter("client_secret", pluginConfigProperty("baidu.clientSecret"))
             parameter("grant_type", "client_credentials")
-        }.bodyAsJsonNode()["access_token"].asText()
+        }.bodyAsJsonNode()["access_token"].asString()
     }
 }

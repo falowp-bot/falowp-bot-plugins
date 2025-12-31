@@ -28,6 +28,7 @@ data class GoCQHttpEchoMessage(
     /**
      * 状态码
      */
+    @Suppress("SpellCheckingInspection")
     @field:JsonProperty("retcode")
     var retCode: String? = null,
     /**

@@ -1,8 +1,12 @@
+@file:Suppress("SpellCheckingInspection")
+
 package com.blr19c.falowp.bot.plugins.bili.api
 
 import com.blr19c.falowp.bot.plugins.bili.api.api.WBI_NAV
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.http.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -36,7 +40,7 @@ object WBI {
             }
 
         suspend fun enc(params: Map<String, String>): Map<String, String> {
-            val map = mutableMapOf<String, String>(
+            val map = mutableMapOf(
                 "dm_img_list" to "[]",
                 "dm_img_str" to "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ",
                 "dm_cover_img_str" to "QU5HTEUgKEFwcGxlLCBBTkdMRSBNZXRhbCBSZW5kZXJlcjogQXBwbGUgTTEgUHJvLCBVbnNwZWNpZmllZCBWZXJzaW9uKUdvb2dsZSBJbmMuIChBcHBsZS",
@@ -72,15 +76,15 @@ object WBI {
         }
 
         fun Map<String, String>.toQueryString() = this.entries.joinToString("&") { (k, v) ->
-            "${k.encodeURLParameter()}=${v.toString().encodeURLParameter()}"
+            "${k.encodeURLParameter()}=${v.encodeURLParameter()}"
         }
 
     }
 
     private suspend fun BiliClient.getWbiImg(): WbiImg {
         val wbiNode = this.get(WBI_NAV)
-        val imgUrl = wbiNode["wbi_img"]["img_url"].asText()
-        val subUrl = wbiNode["wbi_img"]["sub_url"].asText()
+        val imgUrl = wbiNode["wbi_img"]["img_url"].asString()
+        val subUrl = wbiNode["wbi_img"]["sub_url"].asString()
         return WbiImg(imgUrl, subUrl)
     }
 
@@ -88,12 +92,13 @@ object WBI {
         val uid = DatabaseCookiesStorage.getAll().find { it.name == "DedeUserID" }!!.value
         val dynamicUrl = "https://space.bilibili.com/$uid/dynamic"
         val client = BiliClient()
-        val dynamicResponse = client.getText(dynamicUrl)
-        val dynamicText = dynamicResponse
+        val dynamicText = client.getText(dynamicUrl)
         val pattern = """<script id="__RENDER_DATA__" type="application/json">(.*?)</script>"""
         val regex = Regex(pattern, RegexOption.DOT_MATCHES_ALL)
         val renderData = regex.find(dynamicText)?.groupValues?.get(1) ?: ""
-        val decodedData = URLDecoder.decode(renderData, "UTF-8")
+        val decodedData = withContext(Dispatchers.IO) {
+            URLDecoder.decode(renderData, "UTF-8")
+        }
         val json = Json.decodeFromString<JsonObject>(decodedData)
         val accessId = json["access_id"]?.jsonPrimitive?.content ?: ""
         return accessId
