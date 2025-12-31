@@ -250,13 +250,14 @@ data class GoCQHttpMessage(
     }
 
 
+    @Suppress("SpellCheckingInspection")
     private fun shareMiniAppStandard(jsonNode: JsonNode): ReceiveMessage.Share {
         val appInfo = jsonNode["meta"].iterator().next()
         return ReceiveMessage.Share(
             appInfo["title"].asString(),
             appInfo["desc"].asString(),
             ImageUrl(appInfo["preview"].asString()),
-            @Suppress("SpellCheckingInspection") appInfo["qqdocurl"].asString(),
+            appInfo["qqdocurl"].asString(),
         )
     }
 
