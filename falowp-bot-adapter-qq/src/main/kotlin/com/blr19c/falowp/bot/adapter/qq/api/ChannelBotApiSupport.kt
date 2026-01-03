@@ -13,6 +13,7 @@ import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.json.Json
+import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
 import com.blr19c.falowp.bot.system.scheduling.api.SchedulingBotApiSupport
 import com.blr19c.falowp.bot.system.systemConfigListProperty
@@ -133,7 +134,7 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
         return webclient().get(adapterConfigProperty("qq.apiUrl") + "/users/@me/guilds") {
             header(HttpHeaders.Authorization, token)
         }.bodyAsArrayNode()
-            .map { it["id"].asString() }
+            .map { it["id"].safeString() }
             .toList()
     }
 
@@ -141,7 +142,7 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
         return guildIdList.map {
             webclient().get(adapterConfigProperty("qq.apiUrl") + "/guilds/${it}/channels") {
                 header(HttpHeaders.Authorization, token)
-            }.bodyAsArrayNode().map { data -> data["id"].asString() }
+            }.bodyAsArrayNode().map { data -> data["id"].safeString() }
         }.flatMap { it.stream().asSequence() }.toList()
     }
 
@@ -149,7 +150,7 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
     private suspend fun selfId(): String {
         return webclient().get(adapterConfigProperty("qq.apiUrl") + "/users/@me") {
             header(HttpHeaders.Authorization, token)
-        }.bodyAsJsonNode()["id"].asString()
+        }.bodyAsJsonNode()["id"].safeString()
     }
 
     private suspend fun loadUserInfo(guildId: String, userId: String): OpChannelUser {
@@ -158,8 +159,8 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
                 header(HttpHeaders.Authorization, token)
             }.bodyAsJsonNode()
         val opUser = Json.readObj<OpChannelUser>(jsonNode["user"])
-        val nick = jsonNode["nick"].asString()
-        val roles = (jsonNode["roles"] as ArrayNode).map { it.asString() }
+        val nick = jsonNode["nick"].safeString()
+        val roles = (jsonNode["roles"] as ArrayNode).map { it.safeString() }
         return opUser.copy(nick = nick, roles = roles)
     }
 }

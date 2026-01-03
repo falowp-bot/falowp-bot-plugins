@@ -10,6 +10,7 @@ import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
+import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.readPluginResource
 import com.blr19c.falowp.bot.system.systemConfigProperty
 import com.blr19c.falowp.bot.system.web.*
@@ -57,7 +58,7 @@ object BLiveUtils : Log {
             for (cookie in DatabaseCookiesStorage.getAll()) {
                 cookie(cookie.name, cookie.value)
             }
-        }.bodyAsJsonNode()["data"]["ticket"].asString()
+        }.bodyAsJsonNode()["data"]["ticket"].safeString()
     }
 
 

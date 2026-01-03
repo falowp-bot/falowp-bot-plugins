@@ -3,6 +3,7 @@
 package com.blr19c.falowp.bot.plugins.bili.api
 
 import com.blr19c.falowp.bot.plugins.bili.api.api.WBI_NAV
+import com.blr19c.falowp.bot.system.json.safeString
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
@@ -83,8 +84,8 @@ object WBI {
 
     private suspend fun BiliClient.getWbiImg(): WbiImg {
         val wbiNode = this.get(WBI_NAV)
-        val imgUrl = wbiNode["wbi_img"]["img_url"].asString()
-        val subUrl = wbiNode["wbi_img"]["sub_url"].asString()
+        val imgUrl = wbiNode["wbi_img"]["img_url"].safeString()
+        val subUrl = wbiNode["wbi_img"]["sub_url"].safeString()
         return WbiImg(imgUrl, subUrl)
     }
 

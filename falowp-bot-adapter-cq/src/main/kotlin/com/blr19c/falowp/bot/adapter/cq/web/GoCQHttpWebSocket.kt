@@ -13,6 +13,7 @@ import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.json.Json
+import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.listener.events.*
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
 import com.google.common.base.Strings
@@ -73,17 +74,17 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
     private suspend fun websocketFrame(frame: Frame) {
         if (frame !is Frame.Text) return
         val jsonNode = Json.readJsonNode(frame.readText())
-        val postType = jsonNode.findPath("post_type").asString()
+        val postType = jsonNode.findPath("post_type").safeString()
         //心跳
-        if (postType.isNullOrBlank() || postType == "meta_event") {
+        if (postType.isBlank() || postType == "meta_event") {
             return
         }
         //消息
-        if (jsonNode.findPath("post_type").asString().isNotBlank()) {
+        if (jsonNode.findPath("post_type").safeString().isNotBlank()) {
             processMessages(Json.readObj(frame.readText()))
         }
         //回执
-        if (jsonNode.findPath("echo").asString().isNotBlank()) {
+        if (jsonNode.findPath("echo").safeString().isNotBlank()) {
             processEcho(Json.readObj(frame.readText()))
         }
     }

@@ -2,6 +2,7 @@ package com.blr19c.falowp.bot.plugins.censor
 
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.cache.CacheReference
+import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.pluginConfigProperty
 import com.blr19c.falowp.bot.system.web.bodyAsJsonNode
 import com.blr19c.falowp.bot.system.web.webclient
@@ -58,8 +59,8 @@ object BaiduTextCensor : Log {
         val items = (item["hits"] as ArrayNode).mapNotNull { hit ->
             if (!hit.hasArrayNode("words"))
                 return@mapNotNull null
-            val words = (hit["words"] as ArrayNode).map { it.asString() }.toList()
-            val probability = hit["probability"]?.asString()?.toDouble()
+            val words = (hit["words"] as ArrayNode).map { it.safeString() }.toList()
+            val probability = hit["probability"]?.safeString()?.toDouble()
             CensorResultItemHit(words, probability)
         }.toList()
         return CensorResultItem(type, subType, items)
@@ -96,6 +97,6 @@ object BaiduTextCensor : Log {
             parameter("client_id", pluginConfigProperty("baidu.clientId"))
             parameter("client_secret", pluginConfigProperty("baidu.clientSecret"))
             parameter("grant_type", "client_credentials")
-        }.bodyAsJsonNode()["access_token"].asString()
+        }.bodyAsJsonNode()["access_token"].safeString()
     }
 }
