@@ -1,11 +1,14 @@
-package com.blr19c.falowp.bot.adapter.nc.expand
+package com.blr19c.falowp.bot.adapter.nc.expand.bak
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.json.Json
 import com.fasterxml.jackson.annotation.JsonProperty
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.ArrayNode
 
 /**
  * 群聊类扩展
@@ -321,7 +324,7 @@ suspend fun NapCatBotApi.setGroupSpecialTitle(
  */
 suspend fun NapCatBotApi.getGroupDetailInfo(
     groupId: String = this.receiveMessage.source.id
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "get_group_detail_info",
         mapOf("group_id" to groupId)
@@ -355,7 +358,7 @@ suspend fun NapCatBotApi.setGroupKick(
  *
  * @return 群系统消息
  */
-suspend fun NapCatBotApi.getGroupSystemMsg(): NapCatRawData? {
+suspend fun NapCatBotApi.getGroupSystemMsg(): JsonNode? {
     return apiRequest("get_group_system_msg")
 }
 
@@ -609,7 +612,7 @@ suspend fun NapCatBotApi.setGroupSearch(
  */
 suspend fun NapCatBotApi.getGroupNotice(
     groupId: String = this.receiveMessage.source.id
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "_get_group_notice",
         mapOf("group_id" to groupId)
@@ -651,7 +654,7 @@ suspend fun NapCatBotApi.handleGroupAddRequest(
 suspend fun NapCatBotApi.getGroupInfo(
     groupId: String = this.receiveMessage.source.id,
     noCache: Boolean = false
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "get_group_info",
         mapOf(
@@ -719,7 +722,7 @@ suspend fun NapCatBotApi.getGroupMemberList(
 suspend fun NapCatBotApi.getGroupHonorInfo(
     groupId: String = this.receiveMessage.source.id,
     type: String
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "get_group_honor_info",
         mapOf(
@@ -737,7 +740,7 @@ suspend fun NapCatBotApi.getGroupHonorInfo(
  */
 suspend fun NapCatBotApi.getGroupInfoEx(
     groupId: String = this.receiveMessage.source.id
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "get_group_info_ex",
         mapOf("group_id" to groupId)
@@ -752,7 +755,7 @@ suspend fun NapCatBotApi.getGroupInfoEx(
  */
 suspend fun NapCatBotApi.getGroupAtAllRemain(
     groupId: String = this.receiveMessage.source.id
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "get_group_at_all_remain",
         mapOf("group_id" to groupId)
@@ -767,11 +770,11 @@ suspend fun NapCatBotApi.getGroupAtAllRemain(
  */
 suspend fun NapCatBotApi.getGroupBanList(
     groupId: String = this.receiveMessage.source.id
-): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>(
+): ArrayNode {
+    return apiRequest<ArrayNode>(
         "get_group_ban_list",
         mapOf("group_id" to groupId)
-    ) ?: emptyList()
+    ) ?: Json.objectMapper().createArrayNode()
 }
 
 /**
@@ -779,7 +782,7 @@ suspend fun NapCatBotApi.getGroupBanList(
  *
  * @return 群过滤系统消息
  */
-suspend fun NapCatBotApi.getGroupFilteredSystemMsg(): NapCatRawData? {
+suspend fun NapCatBotApi.getGroupFilteredSystemMsg(): JsonNode? {
     return apiRequest("get_group_filtered_system_msg")
 }
 
@@ -821,3 +824,4 @@ suspend fun NapCatBotApi.setGroupTodo(
         )
     )
 }
+

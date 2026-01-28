@@ -1,7 +1,10 @@
-package com.blr19c.falowp.bot.adapter.nc.expand
+package com.blr19c.falowp.bot.adapter.nc.expand.bak
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
+import com.blr19c.falowp.bot.system.json.Json
 import com.fasterxml.jackson.annotation.JsonProperty
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.ArrayNode
 import java.net.URI
 
 /**
@@ -86,7 +89,7 @@ suspend fun NapCatBotApi.uploadPrivateFile(
  */
 suspend fun NapCatBotApi.getGroupRootFiles(
     groupId: String = this.receiveMessage.source.id
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "get_group_root_files",
         mapOf("group_id" to groupId)
@@ -103,7 +106,7 @@ suspend fun NapCatBotApi.getGroupRootFiles(
 suspend fun NapCatBotApi.getGroupFilesByFolder(
     groupId: String = this.receiveMessage.source.id,
     folderId: String
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "get_group_files_by_folder",
         mapOf(
@@ -121,7 +124,7 @@ suspend fun NapCatBotApi.getGroupFilesByFolder(
  */
 suspend fun NapCatBotApi.getGroupFileSystemInfo(
     groupId: String = this.receiveMessage.source.id
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "get_group_file_system_info",
         mapOf("group_id" to groupId)
@@ -134,7 +137,7 @@ suspend fun NapCatBotApi.getGroupFileSystemInfo(
  * @param fileId 文件id
  * @return 文件信息
  */
-suspend fun NapCatBotApi.getFileInfo(fileId: String): NapCatRawData? {
+suspend fun NapCatBotApi.getFileInfo(fileId: String): JsonNode? {
     return apiRequest(
         "get_file_info",
         mapOf("file_id" to fileId)
@@ -175,7 +178,7 @@ suspend fun NapCatBotApi.getGroupFileUrl(
 suspend fun NapCatBotApi.getPrivateFileUrl(
     userId: String = this.receiveMessage.sender.id,
     fileId: String
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "get_private_file_url",
         mapOf(
@@ -300,7 +303,7 @@ suspend fun NapCatBotApi.renameGroupFile(
  */
 suspend fun NapCatBotApi.saveFileToPermanent(
     fileId: String
-): NapCatRawData? {
+): JsonNode {
     return apiRequest(
         "save_file_to_permanent",
         mapOf("file_id" to fileId)
@@ -317,7 +320,7 @@ suspend fun NapCatBotApi.saveFileToPermanent(
 suspend fun NapCatBotApi.downloadFileToCache(
     url: String,
     name: String? = null
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "download_file_to_cache",
         mapOf(
@@ -393,15 +396,15 @@ suspend fun NapCatBotApi.getGroupAlbumComments(
     groupId: String = this.receiveMessage.source.id,
     albumId: String,
     fileId: String
-): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>(
+): ArrayNode {
+    return apiRequest<ArrayNode>(
         "get_group_album_comments",
         mapOf(
             "group_id" to groupId,
             "album_id" to albumId,
             "file_id" to fileId
         )
-    ) ?: emptyList()
+    ) ?: Json.objectMapper().createArrayNode()
 }
 
 /**
@@ -412,11 +415,11 @@ suspend fun NapCatBotApi.getGroupAlbumComments(
  */
 suspend fun NapCatBotApi.getGroupAlbumList(
     groupId: String = this.receiveMessage.source.id
-): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>(
+): ArrayNode {
+    return apiRequest<ArrayNode>(
         "get_group_album_list",
         mapOf("group_id" to groupId)
-    ) ?: emptyList()
+    ) ?: Json.objectMapper().createArrayNode()
 }
 
 /**
@@ -449,6 +452,6 @@ suspend fun NapCatBotApi.uploadImageToGroupAlbum(
  *
  * @return 群相册总列表
  */
-suspend fun NapCatBotApi.getGroupAlbumTotalList(): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>("get_group_album_total_list") ?: emptyList()
+suspend fun NapCatBotApi.getGroupAlbumTotalList(): ArrayNode {
+    return apiRequest<ArrayNode>("get_group_album_total_list")
 }

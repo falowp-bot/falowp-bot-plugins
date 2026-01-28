@@ -5,6 +5,8 @@ import com.blr19c.falowp.bot.adapter.nc.web.NapCatWebSocket
 import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.web.longTimeoutWebclient
+import com.fasterxml.jackson.annotation.JsonAnyGetter
+import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -16,6 +18,19 @@ import kotlin.time.Duration.Companion.minutes
  */
 @Suppress("unused")
 class NapCatExpandApi
+
+/**
+ * NapCat 通用数据承载
+ */
+data class NapCatRawData(
+    @get:JsonAnyGetter
+    val attributes: MutableMap<String, Any?> = mutableMapOf()
+) {
+    @JsonAnySetter
+    fun set(key: String, value: Any?) {
+        attributes[key] = value
+    }
+}
 
 data class NapCatApiResult<T>(
     /**
@@ -104,5 +119,4 @@ internal suspend fun NapCatBotApi.apiRequestUnit(type: String, body: Any? = null
     if (result.success()) return
     throw IllegalStateException("NapCat-API-请求失败:${result.msg ?: ""}${result.wording ?: ""}")
 }
-
 

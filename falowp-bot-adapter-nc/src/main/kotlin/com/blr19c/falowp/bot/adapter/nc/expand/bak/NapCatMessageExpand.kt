@@ -1,7 +1,10 @@
-package com.blr19c.falowp.bot.adapter.nc.expand
+package com.blr19c.falowp.bot.adapter.nc.expand.bak
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
+import com.blr19c.falowp.bot.system.json.Json
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.ArrayNode
 
 /**
  * 消息类扩展
@@ -68,11 +71,11 @@ suspend fun NapCatBotApi.deleteMsg(messageId: String) {
  */
 suspend fun NapCatBotApi.getGroupMsgHistory(
     groupId: String = this.receiveMessage.source.id, messageSeq: Long? = null, count: Int = 20
-): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>(
+): ArrayNode {
+    return apiRequest<ArrayNode>(
         "get_group_msg_history",
         mapOf("group_id" to groupId, "message_seq" to messageSeq, "count" to count)
-    ) ?: emptyList()
+    ) ?: Json.objectMapper().createArrayNode()
 }
 
 /**
@@ -91,7 +94,7 @@ suspend fun NapCatBotApi.getMsg(messageId: String): NapCatMessage {
  * @param id 合并转发id
  * @return 合并转发消息内容
  */
-suspend fun NapCatBotApi.getForwardMsg(id: String): NapCatRawData? {
+suspend fun NapCatBotApi.getForwardMsg(id: String): JsonNode? {
     return apiRequest("get_forward_msg", mapOf("id" to id))
 }
 
@@ -121,11 +124,11 @@ suspend fun NapCatBotApi.getFriendMsgHistory(
     userId: String = this.receiveMessage.sender.id,
     messageSeq: Long? = null,
     count: Int = 20
-): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>(
+): ArrayNode {
+    return apiRequest<ArrayNode>(
         "get_friend_msg_history",
         mapOf("user_id" to userId, "message_seq" to messageSeq, "count" to count)
-    ) ?: emptyList()
+    ) ?: Json.objectMapper().createArrayNode()
 }
 
 /**
@@ -134,11 +137,11 @@ suspend fun NapCatBotApi.getFriendMsgHistory(
  * @param messageId 消息id
  * @return 贴表情详情列表
  */
-suspend fun NapCatBotApi.getMsgEmojiLike(messageId: Long): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>(
+suspend fun NapCatBotApi.getMsgEmojiLike(messageId: Long): ArrayNode {
+    return apiRequest<ArrayNode>(
         "get_msg_emoji_like",
         mapOf("message_id" to messageId)
-    ) ?: emptyList()
+    ) ?: Json.objectMapper().createArrayNode()
 }
 
 /**
@@ -151,7 +154,7 @@ suspend fun NapCatBotApi.getMsgEmojiLike(messageId: Long): List<NapCatRawData> {
 suspend fun NapCatBotApi.sendGroupForwardMsg(
     groupId: String = this.receiveMessage.source.id,
     nodes: String
-): NapCatRawData? {
+): JsonNode? {
     return apiRequest(
         "send_forward_msg",
         mapOf(
@@ -168,7 +171,7 @@ suspend fun NapCatBotApi.sendGroupForwardMsg(
  * @param outFormat 输出格式（默认mp3）
  * @return 语音详情（通常包含url/file等）
  */
-suspend fun NapCatBotApi.getRecord(file: String, outFormat: String = "mp3"): NapCatRawData? {
+suspend fun NapCatBotApi.getRecord(file: String, outFormat: String = "mp3"): JsonNode? {
     return apiRequest("get_record", mapOf("file" to file, "out_format" to outFormat))
 }
 
@@ -178,7 +181,7 @@ suspend fun NapCatBotApi.getRecord(file: String, outFormat: String = "mp3"): Nap
  * @param file 图片file标识
  * @return 图片详情（通常包含url/size等）
  */
-suspend fun NapCatBotApi.getImage(file: String): NapCatRawData? {
+suspend fun NapCatBotApi.getImage(file: String): JsonNode? {
     return apiRequest("get_image", mapOf("file" to file))
 }
 

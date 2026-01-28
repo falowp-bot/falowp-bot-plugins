@@ -1,10 +1,13 @@
-package com.blr19c.falowp.bot.adapter.nc.expand
+package com.blr19c.falowp.bot.adapter.nc.expand.bak
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.json.Json
 import com.fasterxml.jackson.annotation.JsonProperty
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.ArrayNode
 
 /**
  * 账号类扩展
@@ -116,8 +119,8 @@ suspend fun NapCatBotApi.markAllAsRead() {
 /**
  * 获取最近的聊天记录
  */
-suspend fun NapCatBotApi.getRecentContact(): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>("get_recent_contact") ?: emptyList()
+suspend fun NapCatBotApi.getRecentContact(): ArrayNode {
+    return apiRequest<ArrayNode>("get_recent_contact") ?: Json.objectMapper().createArrayNode()
 }
 
 /**
@@ -147,7 +150,7 @@ suspend fun NapCatBotApi.handleFriendRequest(flag: String, approve: Boolean, rem
 /**
  * 获取账号信息
  */
-suspend fun NapCatBotApi.getAccountInfo(): NapCatRawData? {
+suspend fun NapCatBotApi.getAccountInfo(): JsonNode? {
     return apiRequest("get_account_info")
 }
 
@@ -161,8 +164,8 @@ suspend fun NapCatBotApi.getFriendList(): List<NapCatAccountExpand.FriendUser> {
 /**
  * 获取好友分组列表
  */
-suspend fun NapCatBotApi.getFriendGroupList(): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>("get_friend_group_list") ?: emptyList()
+suspend fun NapCatBotApi.getFriendGroupList(): ArrayNode {
+    return apiRequest<ArrayNode>("get_friend_group_list") ?: Json.objectMapper().createArrayNode()
 }
 
 /**
@@ -190,15 +193,15 @@ suspend fun NapCatBotApi.deleteFriend(userId: String = this.receiveMessage.sende
 /**
  * 获取推荐好友/群聊卡片
  */
-suspend fun NapCatBotApi.getRecommendContact(): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>("get_recommend_contact") ?: emptyList()
+suspend fun NapCatBotApi.getRecommendContact(): ArrayNode {
+    return apiRequest<ArrayNode>("get_recommend_contact") ?: Json.objectMapper().createArrayNode()
 }
 
 /**
  * 获取推荐群聊卡片
  */
-suspend fun NapCatBotApi.getRecommendGroup(): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>("get_recommend_group") ?: emptyList()
+suspend fun NapCatBotApi.getRecommendGroup(): ArrayNode {
+    return apiRequest<ArrayNode>("get_recommend_group") ?: Json.objectMapper().createArrayNode()
 }
 
 /**
@@ -256,15 +259,15 @@ suspend fun NapCatBotApi.setSignature(signature: String) {
 /**
  * 获取收藏表情
  */
-suspend fun NapCatBotApi.getCollectionEmoji(): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>("get_collection_emoji") ?: emptyList()
+suspend fun NapCatBotApi.getCollectionEmoji(): ArrayNode {
+    return apiRequest<ArrayNode>("get_collection_emoji") ?: Json.objectMapper().createArrayNode()
 }
 
 /**
  * 获取点赞列表
  */
-suspend fun NapCatBotApi.getLikeList(): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>("get_like_list") ?: emptyList()
+suspend fun NapCatBotApi.getLikeList(): ArrayNode {
+    return apiRequest<ArrayNode>("get_like_list") ?: Json.objectMapper().createArrayNode()
 }
 
 /**
@@ -272,7 +275,7 @@ suspend fun NapCatBotApi.getLikeList(): List<NapCatRawData> {
  *
  * @param userId 用户id
  */
-suspend fun NapCatBotApi.getUserStatus(userId: String = this.receiveMessage.sender.id): NapCatRawData? {
+suspend fun NapCatBotApi.getUserStatus(userId: String = this.receiveMessage.sender.id): JsonNode? {
     return apiRequest("get_user_status", mapOf("user_id" to userId))
 }
 
@@ -281,42 +284,42 @@ suspend fun NapCatBotApi.getUserStatus(userId: String = this.receiveMessage.send
  *
  * @param appId 小程序appid
  */
-suspend fun NapCatBotApi.getMiniAppCard(appId: String): NapCatRawData? {
+suspend fun NapCatBotApi.getMiniAppCard(appId: String): JsonNode? {
     return apiRequest("get_mini_app_card", mapOf("app_id" to appId))
 }
 
 /**
  * 获取单向好友列表
  */
-suspend fun NapCatBotApi.getUnidirectionalFriendList(): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>("get_unidirectional_friend_list") ?: emptyList()
+suspend fun NapCatBotApi.getUnidirectionalFriendList(): ArrayNode {
+    return apiRequest<ArrayNode>("get_unidirectional_friend_list") ?: Json.objectMapper().createArrayNode()
 }
 
 /**
  * 获取登录号信息
  */
-suspend fun NapCatBotApi.getLoginInfo(): NapCatRawData? {
+suspend fun NapCatBotApi.getLoginInfo(): JsonNode? {
     return apiRequest("get_login_info")
 }
 
 /**
  * 获取状态
  */
-suspend fun NapCatBotApi.getStatus(): NapCatRawData? {
+suspend fun NapCatBotApi.getStatus(): JsonNode? {
     return apiRequest("get_status")
 }
 
 /**
  * 获取当前账号在线客户端列表
  */
-suspend fun NapCatBotApi.getOnlineClients(): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>("get_online_clients") ?: emptyList()
+suspend fun NapCatBotApi.getOnlineClients(): ArrayNode {
+    return apiRequest<ArrayNode>("get_online_clients") ?: Json.objectMapper().createArrayNode()
 }
 
 /**
  * 获取在线机型
  */
-suspend fun NapCatBotApi.getOnlineModel(): NapCatRawData? {
+suspend fun NapCatBotApi.getOnlineModel(): JsonNode? {
     return apiRequest("_get_online_model")
 }
 
@@ -332,8 +335,8 @@ suspend fun NapCatBotApi.setOnlineModel(model: String) {
 /**
  * 获取被过滤好友请求
  */
-suspend fun NapCatBotApi.getFilteredFriendRequest(): List<NapCatRawData> {
-    return apiRequest<List<NapCatRawData>>("get_filtered_friend_request") ?: emptyList()
+suspend fun NapCatBotApi.getFilteredFriendRequest(): ArrayNode {
+    return apiRequest<ArrayNode>("get_filtered_friend_request") ?: Json.objectMapper().createArrayNode()
 }
 
 /**
