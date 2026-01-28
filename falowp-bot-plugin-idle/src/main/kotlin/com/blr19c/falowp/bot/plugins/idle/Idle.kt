@@ -3,7 +3,7 @@ package com.blr19c.falowp.bot.plugins.idle
 
 import com.blr19c.falowp.bot.system.api.SendMessage
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Task.cronScheduling
+import com.blr19c.falowp.bot.system.plugin.task.cronScheduling
 import com.blr19c.falowp.bot.system.systemConfigProperty
 import com.blr19c.falowp.bot.system.web.webclient
 import io.ktor.client.request.*

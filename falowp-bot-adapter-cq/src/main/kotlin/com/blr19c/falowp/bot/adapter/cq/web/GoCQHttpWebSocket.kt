@@ -150,21 +150,22 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
                 val sender = parseSender(goCQHttpMessage)
                 val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.cqGetMsg(it) }
                 val message = cqMessage?.let { parseMessage(it) } ?: ReceiveMessage.empty()
-                parseEventBotApi(goCQHttpMessage).publishEvent(WithdrawMessageEvent(message, sender))
+                val source = ReceiveMessage.Source(goCQHttpMessage.groupId!!, SourceTypeEnum.GROUP)
+                parseEventBotApi(goCQHttpMessage).publishEvent(WithdrawMessageEvent(message, sender, source))
                 return true
             }
 
             "group_increase" -> {
                 val sender = parseSender(goCQHttpMessage)
                 val source = parseSource(goCQHttpMessage)
-                parseEventBotApi(goCQHttpMessage).publishEvent(GroupIncreaseEvent(sender, source))
+                parseEventBotApi(goCQHttpMessage).publishEvent(GroupIncreaseEvent(sender, source, sender, ""))
                 return true
             }
 
             "group_decrease" -> {
                 val sender = parseSender(goCQHttpMessage)
                 val source = parseSource(goCQHttpMessage)
-                parseEventBotApi(goCQHttpMessage).publishEvent(GroupDecreaseEvent(sender, source))
+                parseEventBotApi(goCQHttpMessage).publishEvent(GroupDecreaseEvent(sender, source, sender, ""))
                 return true
             }
 
@@ -212,8 +213,10 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             goCQHttpMessage.voice.orElse(null),
             goCQHttpMessage.atList,
             goCQHttpMessage.imageList,
+            emptyList(),
             goCQHttpMessage.video.orElse(null),
-            goCQHttpMessage.shareList
+            goCQHttpMessage.shareList,
+            emptyList()
         ) {
             val cqMessage = goCQHttpMessage.message ?: return@Content null
             //处理引用

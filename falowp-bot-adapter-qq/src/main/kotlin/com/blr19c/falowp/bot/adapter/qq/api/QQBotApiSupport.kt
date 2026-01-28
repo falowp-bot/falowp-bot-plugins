@@ -37,8 +37,10 @@ object QQBotApiSupport : SchedulingBotApiSupport, Log {
             null,
             listOf(ReceiveMessage.User.empty().copy(id = "qq-self")),
             emptyList(),
+            emptyList(),
             null,
-            emptyList()
+            emptyList(),
+            emptyList(),
         ) { null }
         val sender = ReceiveMessage.User(
             opReceiveMessage.d.author.id,

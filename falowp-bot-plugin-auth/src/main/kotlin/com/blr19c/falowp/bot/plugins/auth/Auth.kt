@@ -4,7 +4,7 @@ import com.blr19c.falowp.bot.plugins.auth.hook.NoAuthorizationHook
 import com.blr19c.falowp.bot.system.api.SendMessage
 import com.blr19c.falowp.bot.system.listener.hooks.MessagePluginExecutionHook
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Hook.Companion.beforeHook
+import com.blr19c.falowp.bot.system.plugin.hook.beforeHook
 import com.blr19c.falowp.bot.system.plugin.hook.withPluginHook
 
 /**

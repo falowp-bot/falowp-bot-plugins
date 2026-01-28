@@ -1,10 +1,10 @@
-package com.blr19c.falowp.bot.adapter.nc.expand.enums
+package com.blr19c.falowp.bot.adapter.nc.message.enums
 
 /**
  * 在线状态
  */
 @Suppress("UNUSED")
-enum class BotOnlineStatusEnum(val status: Int, val extStatus: Int) {
+enum class NapCatBotOnlineStatus(val status: Int, val extStatus: Int) {
 
     /**
      * 在线

@@ -7,8 +7,8 @@ import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Hook.Companion.beforeHook
-import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
+import com.blr19c.falowp.bot.system.plugin.hook.beforeHook
+import com.blr19c.falowp.bot.system.plugin.message.message
 import io.ktor.util.collections.*
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq

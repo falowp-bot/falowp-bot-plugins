@@ -10,8 +10,8 @@ import com.blr19c.falowp.bot.system.listener.events.GreetingEvent
 import com.blr19c.falowp.bot.system.listener.events.SendMessageEvent
 import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Event.Companion.eventListener
-import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Hook.Companion.beforeHook
+import com.blr19c.falowp.bot.system.plugin.event.eventListener
+import com.blr19c.falowp.bot.system.plugin.hook.beforeHook
 import com.blr19c.falowp.bot.system.plugin.hook.withPluginHook
 import com.blr19c.falowp.bot.system.pluginConfigListProperty
 import com.blr19c.falowp.bot.system.readPluginResource

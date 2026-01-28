@@ -2,10 +2,10 @@ package com.blr19c.falowp.bot.plugins.repeat
 
 import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.listener.events.SendMessageEvent
-import com.blr19c.falowp.bot.system.plugin.MessagePluginRegisterMatch
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Event.Companion.eventListener
-import com.blr19c.falowp.bot.system.plugin.Plugin.Message.queueMessage
+import com.blr19c.falowp.bot.system.plugin.event.eventListener
+import com.blr19c.falowp.bot.system.plugin.message.MessagePluginRegisterMatch
+import com.blr19c.falowp.bot.system.plugin.message.queueMessage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -89,7 +89,16 @@ class Repeater {
                 .map { it.image }
                 .toList()
             val text = sendMessageChain.messageList.filterIsInstance<TextSendMessage>().joinToString { it.content }
-            val content = ReceiveMessage.Content(text, null, atList, imageList, null, emptyList()) { null }
+            val content = ReceiveMessage.Content(
+                text,
+                null,
+                atList,
+                imageList,
+                emptyList(),
+                null,
+                emptyList(),
+                emptyList()
+            ) { null }
             addMessage(this, RepeaterData(content, repeat = true), this.receiveMessage.source.id)
         }
     }

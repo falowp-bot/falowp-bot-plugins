@@ -114,8 +114,10 @@ class TGApplication : BotAdapterInterface, Log {
                 voiceMessage(message),
                 atList,
                 imageMessage(message),
+                emptyList(),
                 videoMessage(message),
-                emptyList()
+                emptyList(),
+                emptyList(),
             ) { null }
         }
 

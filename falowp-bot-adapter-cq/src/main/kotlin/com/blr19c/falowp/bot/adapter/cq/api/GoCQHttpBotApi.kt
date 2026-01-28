@@ -105,7 +105,7 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
                 is VoiceSendMessage -> voiceCQ(sendMessage.voice)
                 is ImageSendMessage -> imageCQ(sendMessage.image)
                 is VideoSendMessage -> videoCQ(sendMessage.video)
-                is PokeSendMessage -> pokeCQ(receiveMessage.sender.id)
+                is PokeSendMessage -> pokeCQ(sendMessage.poke)
                 is CqFaceMessage -> faceCQ(sendMessage.faceId)
                 is CqMusicMessage -> musicCQ(sendMessage)
                 is CqCustomMusicMessage -> customMusicCQ(sendMessage)

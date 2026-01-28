@@ -170,9 +170,6 @@ data class GoCQHttpMessage(
 
 
     fun toMessageType(): MessageTypeEnum {
-        if (this.subType == "poke") {
-            return MessageTypeEnum.POKE
-        }
         if (voice.isPresent) {
             return MessageTypeEnum.VOICE
         }

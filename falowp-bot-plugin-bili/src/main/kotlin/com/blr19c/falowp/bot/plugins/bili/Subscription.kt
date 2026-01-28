@@ -13,10 +13,10 @@ import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
-import com.blr19c.falowp.bot.system.plugin.MessagePluginRegisterMatch
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
-import com.blr19c.falowp.bot.system.plugin.Plugin.Task.periodicScheduling
+import com.blr19c.falowp.bot.system.plugin.message.MessagePluginRegisterMatch
+import com.blr19c.falowp.bot.system.plugin.message.message
+import com.blr19c.falowp.bot.system.plugin.task.periodicScheduling
 import com.blr19c.falowp.bot.system.web.urlToRedirectUrl
 import com.blr19c.falowp.bot.system.web.webclient
 import com.google.zxing.BarcodeFormat

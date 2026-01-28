@@ -4,6 +4,7 @@ package com.blr19c.falowp.bot.adapter.cq.expand
 
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCqHttpBotApiSupport.messageIdToCQMessageIdMap
+import com.blr19c.falowp.bot.adapter.cq.web.GoCQHttpWebSocket
 import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.expand.ImageUrl

@@ -8,7 +8,7 @@ import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
+import com.blr19c.falowp.bot.system.plugin.message.message
 import com.blr19c.falowp.bot.system.readPluginResource
 import com.blr19c.falowp.bot.system.systemConfigProperty
 import com.blr19c.falowp.bot.system.web.htmlToImageBase64

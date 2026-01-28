@@ -4,7 +4,7 @@ import com.blr19c.falowp.bot.system.api.SendMessage
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Task.cronScheduling
+import com.blr19c.falowp.bot.system.plugin.task.cronScheduling
 import com.blr19c.falowp.bot.system.readPluginResource
 import tools.jackson.databind.node.ArrayNode
 import kotlin.random.Random

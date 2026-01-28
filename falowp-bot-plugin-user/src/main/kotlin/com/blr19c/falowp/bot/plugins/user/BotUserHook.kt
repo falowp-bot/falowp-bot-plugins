@@ -9,7 +9,7 @@ import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Listener.Hook.Companion.beforeHook
+import com.blr19c.falowp.bot.system.plugin.hook.beforeHook
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertIgnore

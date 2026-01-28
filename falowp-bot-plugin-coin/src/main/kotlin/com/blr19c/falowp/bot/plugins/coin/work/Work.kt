@@ -2,10 +2,10 @@ package com.blr19c.falowp.bot.plugins.coin.work
 
 import com.blr19c.falowp.bot.plugins.user.currentUser
 import com.blr19c.falowp.bot.plugins.user.incrementCoins
-import com.blr19c.falowp.bot.system.plugin.MessagePluginRegisterMatch
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
 import com.blr19c.falowp.bot.system.plugin.hook.awaitReply
+import com.blr19c.falowp.bot.system.plugin.message.MessagePluginRegisterMatch
+import com.blr19c.falowp.bot.system.plugin.message.message
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds

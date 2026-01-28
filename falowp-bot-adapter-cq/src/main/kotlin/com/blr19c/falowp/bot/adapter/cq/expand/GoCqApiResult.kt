@@ -429,22 +429,22 @@ data class GroupInfo(
      * 群创建时间
      */
     @field:JsonProperty("group_create_time")
-    val groupCreateTime: Long,
+    val groupCreateTime: Long?,
     /**
      * 群等级
      */
     @field:JsonProperty("group_level")
-    val groupLevel: Int,
+    val groupLevel: Int?,
     /**
      * 成员数
      */
     @field:JsonProperty("member_count")
-    val memberCount: Int,
+    val memberCount: Int?,
     /**
      * 最大成员数(群容量)
      */
     @field:JsonProperty("max_member_count")
-    val maxMemberCount: Int
+    val maxMemberCount: Int?
 )
 
 /**

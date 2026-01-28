@@ -75,7 +75,9 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
             null,
             atList(guildId, atList),
             imageList(imageList),
+            emptyList(),
             null,
+            emptyList(),
             emptyList()
         ) { null }
         val sender = ReceiveMessage.User(

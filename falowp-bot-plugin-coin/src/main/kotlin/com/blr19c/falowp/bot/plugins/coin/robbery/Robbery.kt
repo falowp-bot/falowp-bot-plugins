@@ -8,7 +8,7 @@ import com.blr19c.falowp.bot.plugins.user.incrementCoins
 import com.blr19c.falowp.bot.plugins.user.queryByUserId
 import com.blr19c.falowp.bot.plugins.user.vo.BotUserVo
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
+import com.blr19c.falowp.bot.system.plugin.message.message
 import org.jetbrains.exposed.v1.jdbc.insert
 import java.math.BigDecimal
 import java.math.RoundingMode
