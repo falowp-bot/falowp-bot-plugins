@@ -104,5 +104,3 @@ internal suspend fun NapCatBotApi.apiRequestUnit(type: String, body: Any? = null
     if (result.success()) return
     throw IllegalStateException("NapCat-API-请求失败:${result.msg ?: ""}${result.wording ?: ""}")
 }
-
-

@@ -1,0 +1,48 @@
+@file:Suppress("UNUSED", "UnusedReceiverParameter")
+
+package com.blr19c.falowp.bot.adapter.nc.expand
+
+import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
+import tools.jackson.databind.JsonNode
+
+/**
+ * NapCatStreamTransferExpand
+ */
+class NapCatStreamTransferExpand {
+}
+
+/**
+ * 清理流式传输临时文件
+ */
+suspend fun NapCatBotApi.cleanStreamTempFile() {
+    apiRequestUnit("clean_stream_temp_file")
+}
+
+/**
+ * 下载图片文件流
+ * @param file 文件路径或 URL
+ * @param fileId 文件 ID
+ * @param chunkSize 分块大小 (字节)
+ */
+suspend fun NapCatBotApi.downloadFileImageStream(file: String? = null, fileId: String? = null, chunkSize: Long? = null): NapCatStreamTransferExpand.String {
+    return apiRequest("download_file_image_stream", mapOf("file" to file, "file_id" to fileId, "chunk_size" to chunkSize))
+}
+
+/**
+ * 下载语音文件流
+ * @param file 文件路径或 URL
+ * @param fileId 文件 ID
+ * @param chunkSize 分块大小 (字节)
+ * @param outFormat 输出格式
+ */
+suspend fun NapCatBotApi.downloadFileRecordStream(file: String? = null, fileId: String? = null, chunkSize: Long? = null, outFormat: String? = null): NapCatStreamTransferExpand.String {
+    return apiRequest("download_file_record_stream", mapOf("file" to file, "file_id" to fileId, "chunk_size" to chunkSize, "out_format" to outFormat))
+}
+
+/**
+ * 测试下载流
+ * @param error 是否触发测试错误
+ */
+suspend fun NapCatBotApi.testDownloadStream(error: Boolean? = null): NapCatStreamTransferExpand.String {
+    return apiRequest("test_download_stream", mapOf("error" to error))
+}
