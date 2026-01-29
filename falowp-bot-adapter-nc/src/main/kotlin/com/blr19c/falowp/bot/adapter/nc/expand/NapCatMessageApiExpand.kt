@@ -131,26 +131,22 @@ suspend fun NapCatBotApi.deleteMsg(messageId: Long) {
 }
 
 /**
- * 转发单条消息
- *
- * 转发单条消息
+ * 转发单条消息-私聊
  */
-suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, groupId: String? = null, userId: String? = null) {
+suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, userId: String) {
     apiRequestUnit(
         "forward_friend_single_msg",
-        mapOf("message_id" to messageId, "group_id" to groupId, "user_id" to userId)
+        mapOf("message_id" to messageId, "user_id" to userId)
     )
 }
 
 /**
- * 转发单条消息
- *
- * 转发单条消息
+ * 转发单条消息-群聊
  */
-suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: Long, groupId: String? = null, userId: String? = null) {
+suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: Long, groupId: String) {
     apiRequestUnit(
         "forward_group_single_msg",
-        mapOf("message_id" to messageId, "group_id" to groupId, "user_id" to userId)
+        mapOf("message_id" to messageId, "group_id" to groupId)
     )
 }
 
