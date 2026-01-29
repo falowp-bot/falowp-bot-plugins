@@ -3,9 +3,11 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
+import com.fasterxml.jackson.annotation.JsonProperty
+import tools.jackson.databind.JsonNode
 
 /**
- * NapCatStreamApiExpand
+ * NapCatStreamApiExpand 流式API
  */
 class NapCatStreamApiExpand {
     /**
@@ -26,6 +28,17 @@ class NapCatStreamApiExpand {
          * 分块大小（字节）
          */
         val chunkSize: Long
+    )
+
+    /**
+     * 文件
+     */
+    data class File(
+        /**
+         * 路径
+         */
+        @field:JsonProperty("file")
+        val file: String
     )
 }
 
@@ -92,4 +105,58 @@ suspend fun NapCatBotApi.uploadFileStream(
             "file_retention" to fileRetention
         )
     )
+}
+
+/**
+ * 清理流式传输临时文件
+ */
+suspend fun NapCatBotApi.cleanStreamTempFile() {
+    apiRequestUnit("clean_stream_temp_file")
+}
+
+/**
+ * 下载图片文件流
+ *
+ * @param file 文件路径或URL
+ * @param fileId 文件ID
+ * @param chunkSize 分块大小
+ */
+suspend fun NapCatBotApi.downloadFileImageStream(
+    file: String? = null,
+    fileId: String? = null,
+    chunkSize: Long? = null
+): NapCatStreamApiExpand.File {
+    return apiRequest(
+        "download_file_image_stream",
+        mapOf("file" to file, "file_id" to fileId, "chunk_size" to chunkSize)
+    )
+}
+
+/**
+ * 下载语音文件流
+ *
+ * @param file 文件路径或URL
+ * @param fileId 文件ID
+ * @param chunkSize 分块大小
+ * @param outFormat 输出格式
+ */
+suspend fun NapCatBotApi.downloadFileRecordStream(
+    file: String? = null,
+    fileId: String? = null,
+    chunkSize: Long? = null,
+    outFormat: String? = null
+): NapCatStreamApiExpand.File {
+    return apiRequest(
+        "download_file_record_stream",
+        mapOf("file" to file, "file_id" to fileId, "chunk_size" to chunkSize, "out_format" to outFormat)
+    )
+}
+
+/**
+ * 测试下载流
+ *
+ * @param error 是否触发错误
+ */
+suspend fun NapCatBotApi.testDownloadStream(error: Boolean = false): JsonNode {
+    return apiRequest("test_download_stream", mapOf("error" to error))
 }

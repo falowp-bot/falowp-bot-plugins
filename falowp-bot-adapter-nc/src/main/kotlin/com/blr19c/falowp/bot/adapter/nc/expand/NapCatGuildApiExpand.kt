@@ -6,7 +6,7 @@ import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
 import tools.jackson.databind.JsonNode
 
 /**
- * NapCatGuildApiExpand
+ * NapCatGuildApiExpand 频道API
  */
 class NapCatGuildApiExpand {
 }

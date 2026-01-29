@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
 
 /**
- * NapCatGoCqHttpExpand
+ * NapCatGoCqHttpExpand Go-CQHTTP API
  */
 class NapCatGoCqHttpExpand {
     /**
