@@ -3,7 +3,6 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
-import tools.jackson.databind.JsonNode
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
@@ -101,7 +100,7 @@ class NapCatMessageExtraExpand {
  *
  * 获取群分享的 Ark 内容
  */
-suspend fun NapCatBotApi.ArkShareGroup(groupId: String) {
+suspend fun NapCatBotApi.arkShareGroup(groupId: String) {
     apiRequestUnit("ArkShareGroup", mapOf("group_id" to groupId))
 }
 
@@ -110,29 +109,74 @@ suspend fun NapCatBotApi.ArkShareGroup(groupId: String) {
  *
  * 获取用户推荐的 Ark 内容
  */
-suspend fun NapCatBotApi.ArkSharePeer(userId: String? = null, groupId: String? = null, phoneNumber: String) {
+suspend fun NapCatBotApi.arkSharePeer(userId: String? = null, groupId: String? = null, phoneNumber: String) {
     apiRequestUnit("ArkSharePeer", mapOf("user_id" to userId, "group_id" to groupId, "phone_number" to phoneNumber))
 }
 
 /**
  * 点击内联键盘按钮
  */
-suspend fun NapCatBotApi.clickInlineKeyboardButton(groupId: String, botAppid: String, buttonId: String, callbackData: String, msgSeq: String) {
-    apiRequestUnit("click_inline_keyboard_button", mapOf("group_id" to groupId, "bot_appid" to botAppid, "button_id" to buttonId, "callback_data" to callbackData, "msg_seq" to msgSeq))
+suspend fun NapCatBotApi.clickInlineKeyboardButton(
+    groupId: String,
+    botAppid: String,
+    buttonId: String,
+    callbackData: String,
+    msgSeq: String
+) {
+    apiRequestUnit(
+        "click_inline_keyboard_button",
+        mapOf(
+            "group_id" to groupId,
+            "bot_appid" to botAppid,
+            "button_id" to buttonId,
+            "callback_data" to callbackData,
+            "msg_seq" to msgSeq
+        )
+    )
 }
 
 /**
  * 获取表情点赞详情
  */
-suspend fun NapCatBotApi.fetchEmojiLike(messageId: Long, emojiId: Long, emojiType: Long, count: Long, cookie: String): NapCatMessageExtraExpand.FetchEmojiLike {
-    return apiRequest("fetch_emoji_like", mapOf("message_id" to messageId, "emojiId" to emojiId, "emojiType" to emojiType, "count" to count, "cookie" to cookie))
+suspend fun NapCatBotApi.fetchEmojiLike(
+    messageId: Long,
+    emojiId: Long,
+    emojiType: Long,
+    count: Long,
+    cookie: String
+): NapCatMessageExtraExpand.FetchEmojiLike {
+    return apiRequest(
+        "fetch_emoji_like",
+        mapOf(
+            "message_id" to messageId,
+            "emojiId" to emojiId,
+            "emojiType" to emojiType,
+            "count" to count,
+            "cookie" to cookie
+        )
+    )
 }
 
 /**
  * 获取消息表情点赞列表
  */
-suspend fun NapCatBotApi.getEmojiLikes(groupId: String? = null, messageId: String, emojiId: String, emojiType: String? = null, count: Long): NapCatMessageExtraExpand.EmojiLikes {
-    return apiRequest("get_emoji_likes", mapOf("group_id" to groupId, "message_id" to messageId, "emoji_id" to emojiId, "emoji_type" to emojiType, "count" to count))
+suspend fun NapCatBotApi.getEmojiLikes(
+    groupId: String? = null,
+    messageId: String,
+    emojiId: String,
+    emojiType: String? = null,
+    count: Long
+): NapCatMessageExtraExpand.EmojiLikes {
+    return apiRequest(
+        "get_emoji_likes",
+        mapOf(
+            "group_id" to groupId,
+            "message_id" to messageId,
+            "emoji_id" to emojiId,
+            "emoji_type" to emojiType,
+            "count" to count
+        )
+    )
 }
 
 /**

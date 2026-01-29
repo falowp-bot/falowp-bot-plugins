@@ -3,7 +3,6 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
-import tools.jackson.databind.JsonNode
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
@@ -48,25 +47,16 @@ class NapCatExtraApiExpand {
     )
 
     /**
-     * Clientkey
+     * ClientKey
      */
-    data class Clientkey(
+    data class ClientKey(
         /**
          * 客户端Key
          */
         @field:JsonProperty("clientkey")
-        val clientkey: String?
+        val clientKey: String?
     )
 
-}
-
-/**
- * 图片 OCR 识别 (内部)
- *
- * 识别图片中的文字内容(仅Windows端支持)
- */
-suspend fun NapCatBotApi..ocrImage(image: String) {
-    apiRequestUnit(".ocr_image", mapOf("image" to image))
 }
 
 /**
@@ -81,7 +71,10 @@ suspend fun NapCatBotApi.createCollection(rawData: String, brief: String) {
  *
  * 获取群聊中的AI角色列表
  */
-suspend fun NapCatBotApi.getAiCharacters(groupId: String, chatType: Long): NapCatExtraApiExpand.List<AiCharactersItemItem> {
+suspend fun NapCatBotApi.getAiCharacters(
+    groupId: String,
+    chatType: Long
+): List<NapCatExtraApiExpand.AiCharactersItemItem> {
     return apiRequest("get_ai_characters", mapOf("group_id" to groupId, "chat_type" to chatType))
 }
 
@@ -90,7 +83,7 @@ suspend fun NapCatBotApi.getAiCharacters(groupId: String, chatType: Long): NapCa
  *
  * 获取当前登录帐号的ClientKey
  */
-suspend fun NapCatBotApi.getClientkey(): NapCatExtraApiExpand.Clientkey {
+suspend fun NapCatBotApi.getClientKey(): NapCatExtraApiExpand.ClientKey {
     return apiRequest("get_clientkey")
 }
 
@@ -109,7 +102,10 @@ suspend fun NapCatBotApi.ocrImage(image: String) {
  * 从指定群聊中批量踢出多个成员
  */
 suspend fun NapCatBotApi.setGroupKickMembers(groupId: String, userId: List<String>, rejectAddRequest: Boolean? = null) {
-    apiRequestUnit("set_group_kick_members", mapOf("group_id" to groupId, "user_id" to userId, "reject_add_request" to rejectAddRequest))
+    apiRequestUnit(
+        "set_group_kick_members",
+        mapOf("group_id" to groupId, "user_id" to userId, "reject_add_request" to rejectAddRequest)
+    )
 }
 
 /**
@@ -118,7 +114,10 @@ suspend fun NapCatBotApi.setGroupKickMembers(groupId: String, userId: List<Strin
  * 设置群聊中指定成员的专属头衔
  */
 suspend fun NapCatBotApi.setGroupSpecialTitle(groupId: String, userId: String, specialTitle: String) {
-    apiRequestUnit("set_group_special_title", mapOf("group_id" to groupId, "user_id" to userId, "special_title" to specialTitle))
+    apiRequestUnit(
+        "set_group_special_title",
+        mapOf("group_id" to groupId, "user_id" to userId, "special_title" to specialTitle)
+    )
 }
 
 /**

@@ -14,7 +14,7 @@ class NapCatGuildApiExpand {
 /**
  * 获取频道列表
  *
- * 获取当前帐号已加入的频道列表
+ * 获取当前账号已加入的频道列表
  */
 suspend fun NapCatBotApi.getGuildList(): JsonNode {
     return apiRequest("get_guild_list")
@@ -23,7 +23,7 @@ suspend fun NapCatBotApi.getGuildList(): JsonNode {
 /**
  * 获取频道个人信息
  *
- * 获取当前帐号在频道中的个人资料
+ * 获取当前账号在频道中的个人资料
  */
 suspend fun NapCatBotApi.getGuildServiceProfile(): JsonNode {
     return apiRequest("get_guild_service_profile")

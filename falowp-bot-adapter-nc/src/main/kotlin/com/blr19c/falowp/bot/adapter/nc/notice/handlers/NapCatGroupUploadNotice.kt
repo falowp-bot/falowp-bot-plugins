@@ -1,7 +1,7 @@
 package com.blr19c.falowp.bot.adapter.nc.notice.handlers
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
-import com.blr19c.falowp.bot.adapter.nc.expand.NapCatFileExpand
+import com.blr19c.falowp.bot.adapter.nc.expand.NapCatFileApiExpand
 import com.blr19c.falowp.bot.adapter.nc.expand.getGroupFileUrl
 import com.blr19c.falowp.bot.adapter.nc.notice.NapCatNotice
 import com.blr19c.falowp.bot.adapter.nc.notice.event.NapCatGroupUploadEvent
@@ -29,7 +29,7 @@ object NapCatGroupUploadNotice : NapCatNotice.NapCatNoticeInterface {
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
         val user = NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
         val groupFileUrl = NapCatBotApiSupport.tempBot.getGroupFileUrl(groupId, fileId, busid.toInt())
-        val groupFileInfo = NapCatFileExpand.GroupFileInfo(fileId, fileName, fileSize.toLong())
+        val groupFileInfo = NapCatFileApiExpand.FileInfo(fileId, fileName, fileSize.toLong())
 
         return NapCatGroupUploadEvent(source, user, groupFileUrl, groupFileInfo)
     }

@@ -3,13 +3,128 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
-import tools.jackson.databind.JsonNode
+import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
+import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
+import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * NapCatGroupApiExpand
  */
 class NapCatGroupApiExpand {
+
+    /**
+     * 群成员信息
+     */
+    data class GroupMember(
+        /**
+         * 群ID
+         */
+        @field:JsonProperty("group_id")
+        val groupId: String,
+
+        /**
+         * 用户ID
+         */
+        @field:JsonProperty("user_id")
+        val userId: String,
+
+        /**
+         * 昵称
+         */
+        @field:JsonProperty("nickname")
+        val nickname: String,
+
+        /**
+         * 群成员角色
+         */
+        @field:JsonProperty("role")
+        val role: String,
+
+        /**
+         * 群头衔
+         */
+        @field:JsonProperty("title")
+        val title: String? = null,
+
+        /**
+         * 群名片
+         */
+        @field:JsonProperty("card")
+        val card: String? = null,
+
+        /**
+         * 性别
+         */
+        @field:JsonProperty("sex")
+        val sex: String? = null,
+
+        /**
+         * 年龄
+         */
+        @field:JsonProperty("age")
+        val age: Int? = null,
+
+        /**
+         * 地区
+         */
+        @field:JsonProperty("area")
+        val area: String? = null,
+
+        /**
+         * 群等级
+         */
+        @field:JsonProperty("level")
+        val level: Int? = null,
+
+        /**
+         * QQ 等级
+         */
+        @field:JsonProperty("qq_level")
+        val qqLevel: Int? = null,
+
+        /**
+         * 加群时间
+         */
+        @field:JsonProperty("join_time")
+        val joinTime: Long? = null,
+
+        /**
+         * 最后发言时间
+         */
+        @field:JsonProperty("last_sent_time")
+        val lastSentTime: Long? = null,
+
+        /**
+         * 头衔过期时间
+         */
+        @field:JsonProperty("title_expire_time")
+        val titleExpireTime: Long? = null,
+
+        /**
+         * 是否机器人
+         */
+        @field:JsonProperty("is_robot")
+        val isRobot: Boolean,
+
+        /**
+         * 禁言到期时间戳
+         * 0 表示未禁言
+         */
+        @field:JsonProperty("shut_up_timestamp")
+        val shutUpTimestamp: Long,
+    ) {
+
+        fun toUser(): ReceiveMessage.User {
+            return ReceiveMessage.User(
+                userId,
+                if (card.isNullOrBlank()) nickname else card,
+                NapCatBotApiSupport.apiAuth(userId, role),
+                NapCatBotApiSupport.avatar(userId)
+            )
+        }
+    }
+
     /**
      * GroupNoticeItemItemMessage
      */
@@ -68,55 +183,40 @@ class NapCatGroupApiExpand {
     )
 
     /**
-     * EssenceMsgItem
+     * 精华消息
      */
-    data class EssenceMsgItem(
+    data class EssenceMsg(
         /**
-         * 消息序号
-         */
-        @field:JsonProperty("msg_seq")
-        val msgSeq: Long,
-        /**
-         * 消息随机数
-         */
-        @field:JsonProperty("msg_random")
-        val msgRandom: Long,
-        /**
-         * 发送者QQ
-         */
-        @field:JsonProperty("sender_id")
-        val senderId: Long,
-        /**
-         * 发送者昵称
-         */
-        @field:JsonProperty("sender_nick")
-        val senderNick: String,
-        /**
-         * 操作者QQ
-         */
-        @field:JsonProperty("operator_id")
-        val operatorId: Long,
-        /**
-         * 操作者昵称
-         */
-        @field:JsonProperty("operator_nick")
-        val operatorNick: String,
-        /**
-         * 消息ID
+         * 消息 ID
          */
         @field:JsonProperty("message_id")
-        val messageId: Long,
+        val messageId: String,
+
+        /**
+         * 发送人
+         */
+        @field:JsonProperty("sender_id")
+        val senderId: String,
+
+        /**
+         * 操作人
+         */
+        @field:JsonProperty("operator_id")
+        val operatorId: String,
+
         /**
          * 操作时间
          */
         @field:JsonProperty("operator_time")
         val operatorTime: Long,
+
         /**
          * 消息内容
          */
         @field:JsonProperty("content")
-        val content: List<String>
+        val content: List<NapCatMessage.Message>
     )
+
 
     /**
      * GroupDetailInfo
@@ -215,11 +315,6 @@ class NapCatGroupApiExpand {
         @field:JsonProperty("invited_requests")
         val invitedRequests: List<String>,
         /**
-         * 邀请请求列表
-         */
-        @field:JsonProperty("InvitedRequest")
-        val InvitedRequest: List<String>,
-        /**
          * 加入请求列表
          */
         @field:JsonProperty("join_requests")
@@ -280,7 +375,7 @@ class NapCatGroupApiExpand {
          * 群号
          */
         @field:JsonProperty("group_id")
-        val groupId: Long,
+        val groupId: String,
         /**
          * 群名称
          */
@@ -298,106 +393,28 @@ class NapCatGroupApiExpand {
         val maxMemberCount: Long?
     )
 
+
     /**
-     * GroupMemberInfo
+     * 群禁言信息
      */
-    data class GroupMemberInfo(
+    data class GroupShut(
         /**
-         * 群号
-         */
-        @field:JsonProperty("group_id")
-        val groupId: Long,
-        /**
-         * QQ号
+         * 用户 ID
          */
         @field:JsonProperty("user_id")
         val userId: Long,
         /**
-         * 昵称
+         * 用户昵称
          */
         @field:JsonProperty("nickname")
         val nickname: String,
         /**
-         * 名片
+         * 禁言截止时间
          */
-        @field:JsonProperty("card")
-        val card: String?,
-        /**
-         * 性别
-         */
-        @field:JsonProperty("sex")
-        val sex: String?,
-        /**
-         * 年龄
-         */
-        @field:JsonProperty("age")
-        val age: Long?,
-        /**
-         * 入群时间戳
-         */
-        @field:JsonProperty("join_time")
-        val joinTime: Long?,
-        /**
-         * 最后发言时间戳
-         */
-        @field:JsonProperty("last_sent_time")
-        val lastSentTime: Long?,
-        /**
-         * 等级
-         */
-        @field:JsonProperty("level")
-        val level: String?,
-        /**
-         * QQ等级
-         */
-        @field:JsonProperty("qq_level")
-        val qqLevel: Long?,
-        /**
-         * 角色 (owner/admin/member)
-         */
-        @field:JsonProperty("role")
-        val role: String?,
-        /**
-         * 头衔
-         */
-        @field:JsonProperty("title")
-        val title: String?,
-        /**
-         * 地区
-         */
-        @field:JsonProperty("area")
-        val area: String?,
-        /**
-         * 是否不良记录
-         */
-        @field:JsonProperty("unfriendly")
-        val unfriendly: Boolean?,
-        /**
-         * 头衔过期时间
-         */
-        @field:JsonProperty("title_expire_time")
-        val titleExpireTime: Long?,
-        /**
-         * 是否允许修改名片
-         */
-        @field:JsonProperty("card_changeable")
-        val cardChangeable: Boolean?,
-        /**
-         * 禁言截止时间戳
-         */
-        @field:JsonProperty("shut_up_timestamp")
-        val shutUpTimestamp: Long?,
-        /**
-         * 是否为机器人
-         */
-        @field:JsonProperty("is_robot")
-        val isRobot: Boolean?,
-        /**
-         * Q龄
-         */
-        @field:JsonProperty("qage")
-        val qage: Long?
+        @field:JsonProperty("shut_up_time")
+        val shutUpTime: Long
     )
+
 
 }
 
@@ -415,7 +432,7 @@ suspend fun NapCatBotApi.delGroupNotice(groupId: String, noticeId: String) {
  *
  * 获取指定群聊中的公告列表
  */
-suspend fun NapCatBotApi.getGroupNotice(groupId: String): NapCatGroupApiExpand.List<GroupNoticeItemItem> {
+suspend fun NapCatBotApi.getGroupNotice(groupId: String): List<NapCatGroupApiExpand.GroupNoticeItemItem> {
     return apiRequest("_get_group_notice", mapOf("group_id" to groupId))
 }
 
@@ -424,8 +441,16 @@ suspend fun NapCatBotApi.getGroupNotice(groupId: String): NapCatGroupApiExpand.L
  *
  * 将一条消息从群精华消息列表中移出
  */
-suspend fun NapCatBotApi.deleteEssenceMsg(messageId: Long? = null, msgSeq: String? = null, msgRandom: String? = null, groupId: String? = null) {
-    apiRequestUnit("delete_essence_msg", mapOf("message_id" to messageId, "msg_seq" to msgSeq, "msg_random" to msgRandom, "group_id" to groupId))
+suspend fun NapCatBotApi.deleteEssenceMsg(
+    messageId: Long? = null,
+    msgSeq: String? = null,
+    msgRandom: String? = null,
+    groupId: String? = null
+) {
+    apiRequestUnit(
+        "delete_essence_msg",
+        mapOf("message_id" to messageId, "msg_seq" to msgSeq, "msg_random" to msgRandom, "group_id" to groupId)
+    )
 }
 
 /**
@@ -433,7 +458,7 @@ suspend fun NapCatBotApi.deleteEssenceMsg(messageId: Long? = null, msgSeq: Strin
  *
  * 获取指定群聊中的精华消息列表
  */
-suspend fun NapCatBotApi.getEssenceMsgList(groupId: String): NapCatGroupApiExpand.List<EssenceMsgItem> {
+suspend fun NapCatBotApi.getEssenceMsgList(groupId: String): List<NapCatGroupApiExpand.EssenceMsg> {
     return apiRequest("get_essence_msg_list", mapOf("group_id" to groupId))
 }
 
@@ -449,7 +474,7 @@ suspend fun NapCatBotApi.getGroupDetailInfo(groupId: String): NapCatGroupApiExpa
 /**
  * 获取群被忽略的加群请求
  */
-suspend fun NapCatBotApi.getGroupIgnoreAddRequest(): NapCatGroupApiExpand.List<GroupIgnoreAddRequestItemItem> {
+suspend fun NapCatBotApi.getGroupIgnoreAddRequest(): List<NapCatGroupApiExpand.GroupIgnoreAddRequestItemItem> {
     return apiRequest("get_group_ignore_add_request")
 }
 
@@ -474,9 +499,9 @@ suspend fun NapCatBotApi.getGroupInfo(groupId: String): NapCatGroupApiExpand.Gro
 /**
  * 获取群列表
  *
- * 获取当前帐号的群聊列表
+ * 获取当前账号的群聊列表
  */
-suspend fun NapCatBotApi.getGroupList(noCache: Boolean? = null): NapCatGroupApiExpand.List<GroupItem> {
+suspend fun NapCatBotApi.getGroupList(noCache: Boolean? = null): List<NapCatGroupApiExpand.GroupItem> {
     return apiRequest("get_group_list", mapOf("no_cache" to noCache))
 }
 
@@ -485,7 +510,11 @@ suspend fun NapCatBotApi.getGroupList(noCache: Boolean? = null): NapCatGroupApiE
  *
  * 获取群聊中指定成员的信息
  */
-suspend fun NapCatBotApi.getGroupMemberInfo(groupId: String, userId: String, noCache: Boolean? = null): NapCatGroupApiExpand.GroupMemberInfo {
+suspend fun NapCatBotApi.getGroupMemberInfo(
+    groupId: String,
+    userId: String,
+    noCache: Boolean? = null
+): NapCatGroupApiExpand.GroupMember {
     return apiRequest("get_group_member_info", mapOf("group_id" to groupId, "user_id" to userId, "no_cache" to noCache))
 }
 
@@ -494,14 +523,30 @@ suspend fun NapCatBotApi.getGroupMemberInfo(groupId: String, userId: String, noC
  *
  * 获取群聊中的所有成员列表
  */
-suspend fun NapCatBotApi.getGroupMemberList(groupId: String, noCache: Boolean? = null): NapCatGroupApiExpand.List<String> {
+suspend fun NapCatBotApi.getGroupMemberList(
+    groupId: String,
+    noCache: Boolean? = null
+): List<NapCatGroupApiExpand.GroupMember> {
     return apiRequest("get_group_member_list", mapOf("group_id" to groupId, "no_cache" to noCache))
+}
+
+
+/**
+ * 设置群待办
+ *
+ * 将指定消息设置为群待办
+ */
+suspend fun NapCatBotApi.setGroupTodo(groupId: String, messageId: String? = null, messageSeq: String? = null) {
+    apiRequestUnit(
+        "set_group_todo",
+        mapOf("group_id" to groupId, "message_id" to messageId, "message_seq" to messageSeq)
+    )
 }
 
 /**
  * 获取群禁言列表
  */
-suspend fun NapCatBotApi.getGroupShutList(groupId: String): NapCatGroupApiExpand.List<String> {
+suspend fun NapCatBotApi.getGroupShutList(groupId: String): List<NapCatGroupApiExpand.GroupShut> {
     return apiRequest("get_group_shut_list", mapOf("group_id" to groupId))
 }
 
@@ -519,8 +564,16 @@ suspend fun NapCatBotApi.setEssenceMsg(messageId: Long) {
  *
  * 同意或拒绝加群请求或邀请
  */
-suspend fun NapCatBotApi.setGroupAddRequest(flag: String, approve: Boolean? = null, reason: String? = null, count: Long? = null) {
-    apiRequestUnit("set_group_add_request", mapOf("flag" to flag, "approve" to approve, "reason" to reason, "count" to count))
+suspend fun NapCatBotApi.setGroupAddRequest(
+    flag: String,
+    approve: Boolean? = null,
+    reason: String? = null,
+    count: Long? = null
+) {
+    apiRequestUnit(
+        "set_group_add_request",
+        mapOf("flag" to flag, "approve" to approve, "reason" to reason, "count" to count)
+    )
 }
 
 /**
@@ -556,7 +609,10 @@ suspend fun NapCatBotApi.setGroupCard(groupId: String, userId: String, card: Str
  * 将指定成员踢出群聊
  */
 suspend fun NapCatBotApi.setGroupKick(groupId: String, userId: String, rejectAddRequest: Boolean? = null) {
-    apiRequestUnit("set_group_kick", mapOf("group_id" to groupId, "user_id" to userId, "reject_add_request" to rejectAddRequest))
+    apiRequestUnit(
+        "set_group_kick",
+        mapOf("group_id" to groupId, "user_id" to userId, "reject_add_request" to rejectAddRequest)
+    )
 }
 
 /**

@@ -43,7 +43,7 @@ enum class NapCatPostType(@get:JsonValue val value: String) {
         @JvmStatic
         @JsonCreator
         fun fromValue(value: String): NapCatPostType {
-          return entries.firstOrNull { it.value == value } ?: UNKNOWN
+            return entries.firstOrNull { it.value == value } ?: UNKNOWN
         }
 
     }

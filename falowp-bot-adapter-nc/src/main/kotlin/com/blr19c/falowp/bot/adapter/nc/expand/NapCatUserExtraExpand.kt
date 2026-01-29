@@ -3,7 +3,6 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
-import tools.jackson.databind.JsonNode
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
@@ -89,11 +88,6 @@ class NapCatUserExtraExpand {
          */
         @field:JsonProperty("categoryName")
         val categoryName: String?,
-        /**
-         * 分组ID
-         */
-        @field:JsonProperty("categoryId")
-        val categoryId: Long?
     )
 
     /**
@@ -241,21 +235,25 @@ class NapCatUserExtraExpand {
 /**
  * 获取带分组的好友列表
  */
-suspend fun NapCatBotApi.getFriendsWithCategory(): NapCatUserExtraExpand.List<FriendsWithCategoryItemItem> {
+suspend fun NapCatBotApi.getFriendsWithCategory(): List<NapCatUserExtraExpand.FriendsWithCategoryItemItem> {
     return apiRequest("get_friends_with_category")
 }
 
 /**
  * 获取资料点赞
  */
-suspend fun NapCatBotApi.getProfileLike(userId: String? = null, start: Long, count: Long): NapCatUserExtraExpand.ProfileLike {
+suspend fun NapCatBotApi.getProfileLike(
+    userId: String? = null,
+    start: Long,
+    count: Long
+): NapCatUserExtraExpand.ProfileLike {
     return apiRequest("get_profile_like", mapOf("user_id" to userId, "start" to start, "count" to count))
 }
 
 /**
  * 获取单向好友列表
  */
-suspend fun NapCatBotApi.getUnidirectionalFriendList(): NapCatUserExtraExpand.List<UnidirectionalFriendItem> {
+suspend fun NapCatBotApi.getUnidirectionalFriendList(): List<NapCatUserExtraExpand.UnidirectionalFriendItem> {
     return apiRequest("get_unidirectional_friend_list")
 }
 

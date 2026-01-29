@@ -3,7 +3,6 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
-import tools.jackson.databind.JsonNode
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
@@ -24,7 +23,7 @@ class NapCatSystemExtraExpand {
     /**
      * RkeyItemItem
      */
-    data class RkeyItemItem(
+    data class RKeyItemItem(
         /**
          * 类型 (private/group)
          */
@@ -34,7 +33,7 @@ class NapCatSystemExtraExpand {
          * RKey
          */
         @field:JsonProperty("rkey")
-        val rkey: String,
+        val rKey: String,
         /**
          * 创建时间
          */
@@ -55,12 +54,12 @@ class NapCatSystemExtraExpand {
          * 私聊 RKey
          */
         @field:JsonProperty("private_rkey")
-        val privateRkey: String?,
+        val privateRKey: String?,
         /**
          * 群聊 RKey
          */
         @field:JsonProperty("group_rkey")
-        val groupRkey: String?,
+        val groupRKey: String?,
         /**
          * 过期时间
          */
@@ -101,14 +100,14 @@ suspend fun NapCatBotApi.botExit() {
 /**
  * 获取自定义表情
  */
-suspend fun NapCatBotApi.fetchCustomFace(count: Long): NapCatSystemExtraExpand.List<String> {
+suspend fun NapCatBotApi.fetchCustomFace(count: Long): List<String> {
     return apiRequest("fetch_custom_face", mapOf("count" to count))
 }
 
 /**
  * 获取收藏列表
  */
-suspend fun NapCatBotApi.getCollectionList(category: String, count: String): NapCatSystemExtraExpand.String {
+suspend fun NapCatBotApi.getCollectionList(category: String, count: String): String {
     return apiRequest("get_collection_list", mapOf("category" to category, "count" to count))
 }
 
@@ -122,28 +121,28 @@ suspend fun NapCatBotApi.getMiniAppArk(): NapCatSystemExtraExpand.MiniAppArk {
 /**
  * 获取扩展 RKey
  */
-suspend fun NapCatBotApi.getRkey(): NapCatSystemExtraExpand.List<RkeyItemItem> {
+suspend fun NapCatBotApi.getRKey(): List<NapCatSystemExtraExpand.RKeyItemItem> {
     return apiRequest("get_rkey")
 }
 
 /**
  * 获取 RKey 服务器
  */
-suspend fun NapCatBotApi.getRkeyServer(): NapCatSystemExtraExpand.RkeyServer {
+suspend fun NapCatBotApi.getRKeyServer(): NapCatSystemExtraExpand.RkeyServer {
     return apiRequest("get_rkey_server")
 }
 
 /**
  * 获取机器人 UIN 范围
  */
-suspend fun NapCatBotApi.getRobotUinRange(): NapCatSystemExtraExpand.List<String> {
+suspend fun NapCatBotApi.getRobotUinRange(): List<String> {
     return apiRequest("get_robot_uin_range")
 }
 
 /**
  * 获取 RKey
  */
-suspend fun NapCatBotApi.ncGetRkey(): NapCatSystemExtraExpand.List<String> {
+suspend fun NapCatBotApi.ncGetRKey(): List<String> {
     return apiRequest("nc_get_rkey")
 }
 

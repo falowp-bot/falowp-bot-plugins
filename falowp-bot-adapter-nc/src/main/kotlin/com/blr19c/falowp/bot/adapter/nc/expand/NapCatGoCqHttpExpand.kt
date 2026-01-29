@@ -3,8 +3,8 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
-import tools.jackson.databind.JsonNode
 import com.fasterxml.jackson.annotation.JsonProperty
+import tools.jackson.databind.JsonNode
 
 /**
  * NapCatGoCqHttpExpand
@@ -222,11 +222,6 @@ class NapCatGoCqHttpExpand {
         @field:JsonProperty("user_id")
         val userId: Long,
         /**
-         * UID
-         */
-        @field:JsonProperty("uid")
-        val uid: String,
-        /**
          * 昵称
          */
         @field:JsonProperty("nickname")
@@ -300,7 +295,7 @@ class NapCatGoCqHttpExpand {
  *
  * 处理来自事件上报的快速操作请求
  */
-suspend fun NapCatBotApi..handleQuickOperation(context: Context, operation: Operation) {
+suspend fun NapCatBotApi.handleQuickOperation(context: JsonNode, operation: JsonNode) {
     apiRequestUnit(".handle_quick_operation", mapOf("context" to context, "operation" to operation))
 }
 
@@ -309,7 +304,7 @@ suspend fun NapCatBotApi..handleQuickOperation(context: Context, operation: Oper
  *
  * 获取当前账号可用的设备机型显示名称列表
  */
-suspend fun NapCatBotApi.getModelShow(model: String? = null): NapCatGoCqHttpExpand.List<ModelShowItemItem> {
+suspend fun NapCatBotApi.getModelShow(model: String? = null): List<NapCatGoCqHttpExpand.ModelShowItemItem> {
     return apiRequest("_get_model_show", mapOf("model" to model))
 }
 
@@ -318,8 +313,29 @@ suspend fun NapCatBotApi.getModelShow(model: String? = null): NapCatGoCqHttpExpa
  *
  * 在指定群聊中发布新的公告
  */
-suspend fun NapCatBotApi.sendGroupNotice(groupId: String, content: String, image: String? = null, pinned: Long, type: Long, confirmRequired: Long, isShowEditCard: Long, tipWindowType: Long) {
-    apiRequestUnit("_send_group_notice", mapOf("group_id" to groupId, "content" to content, "image" to image, "pinned" to pinned, "type" to type, "confirm_required" to confirmRequired, "is_show_edit_card" to isShowEditCard, "tip_window_type" to tipWindowType))
+suspend fun NapCatBotApi.sendGroupNotice(
+    groupId: String,
+    content: String,
+    image: String? = null,
+    pinned: Long,
+    type: Long,
+    confirmRequired: Long,
+    isShowEditCard: Long,
+    tipWindowType: Long
+) {
+    apiRequestUnit(
+        "_send_group_notice",
+        mapOf(
+            "group_id" to groupId,
+            "content" to content,
+            "image" to image,
+            "pinned" to pinned,
+            "type" to type,
+            "confirm_required" to confirmRequired,
+            "is_show_edit_card" to isShowEditCard,
+            "tip_window_type" to tipWindowType
+        )
+    )
 }
 
 /**
@@ -346,7 +362,10 @@ suspend fun NapCatBotApi.checkUrlSafely(url: String): NapCatGoCqHttpExpand.Check
  * 在群文件系统中创建新的文件夹
  */
 suspend fun NapCatBotApi.createGroupFileFolder(groupId: String, folderName: String? = null, name: String? = null) {
-    apiRequestUnit("create_group_file_folder", mapOf("group_id" to groupId, "folder_name" to folderName, "name" to name))
+    apiRequestUnit(
+        "create_group_file_folder",
+        mapOf("group_id" to groupId, "folder_name" to folderName, "name" to name)
+    )
 }
 
 /**
@@ -354,8 +373,16 @@ suspend fun NapCatBotApi.createGroupFileFolder(groupId: String, folderName: Stri
  *
  * 从好友列表中删除指定用户
  */
-suspend fun NapCatBotApi.deleteFriend(friendId: String? = null, userId: String? = null, tempBlock: Boolean? = null, tempBothDel: Boolean? = null) {
-    apiRequestUnit("delete_friend", mapOf("friend_id" to friendId, "user_id" to userId, "temp_block" to tempBlock, "temp_both_del" to tempBothDel))
+suspend fun NapCatBotApi.deleteFriend(
+    friendId: String? = null,
+    userId: String? = null,
+    tempBlock: Boolean? = null,
+    tempBothDel: Boolean? = null
+) {
+    apiRequestUnit(
+        "delete_friend",
+        mapOf("friend_id" to friendId, "user_id" to userId, "temp_block" to tempBlock, "temp_both_del" to tempBothDel)
+    )
 }
 
 /**
@@ -381,7 +408,12 @@ suspend fun NapCatBotApi.deleteGroupFolder(groupId: String, folderId: String? = 
  *
  * 下载网络文件到本地临时目录
  */
-suspend fun NapCatBotApi.downloadFile(url: String? = null, base64: String? = null, name: String? = null, headers: String? = null): NapCatGoCqHttpExpand.DownloadFile {
+suspend fun NapCatBotApi.downloadFile(
+    url: String? = null,
+    base64: String? = null,
+    name: String? = null,
+    headers: String? = null
+): NapCatGoCqHttpExpand.DownloadFile {
     return apiRequest("download_file", mapOf("url" to url, "base64" to base64, "name" to name, "headers" to headers))
 }
 
@@ -399,8 +431,28 @@ suspend fun NapCatBotApi.getForwardMsg(messageId: String? = null, id: String? = 
  *
  * 获取指定好友的历史聊天记录
  */
-suspend fun NapCatBotApi.getFriendMsgHistory(userId: String, messageSeq: String? = null, count: Long, reverseOrder: Boolean, disableGetUrl: Boolean, parseMultMsg: Boolean, quickReply: Boolean, reverseOrder: Boolean): NapCatGoCqHttpExpand.FriendMsgHistory {
-    return apiRequest("get_friend_msg_history", mapOf("user_id" to userId, "message_seq" to messageSeq, "count" to count, "reverse_order" to reverseOrder, "disable_get_url" to disableGetUrl, "parse_mult_msg" to parseMultMsg, "quick_reply" to quickReply, "reverseOrder" to reverseOrder))
+suspend fun NapCatBotApi.getFriendMsgHistory(
+    userId: String,
+    messageSeq: String? = null,
+    count: Long,
+    disableGetUrl: Boolean,
+    parseMultMsg: Boolean,
+    quickReply: Boolean,
+    reverseOrder: Boolean
+): NapCatGoCqHttpExpand.FriendMsgHistory {
+    return apiRequest(
+        "get_friend_msg_history",
+        mapOf(
+            "user_id" to userId,
+            "message_seq" to messageSeq,
+            "count" to count,
+            "reverse_order" to reverseOrder,
+            "disable_get_url" to disableGetUrl,
+            "parse_mult_msg" to parseMultMsg,
+            "quick_reply" to quickReply,
+            "reverseOrder" to reverseOrder
+        )
+    )
 }
 
 /**
@@ -426,8 +478,16 @@ suspend fun NapCatBotApi.getGroupFileSystemInfo(groupId: String): NapCatGoCqHttp
  *
  * 获取指定群文件夹下的文件及子文件夹列表
  */
-suspend fun NapCatBotApi.getGroupFilesByFolder(groupId: String, folderId: String? = null, folder: String? = null, fileCount: Long): NapCatGoCqHttpExpand.GroupFilesByFolder {
-    return apiRequest("get_group_files_by_folder", mapOf("group_id" to groupId, "folder_id" to folderId, "folder" to folder, "file_count" to fileCount))
+suspend fun NapCatBotApi.getGroupFilesByFolder(
+    groupId: String,
+    folderId: String? = null,
+    folder: String? = null,
+    fileCount: Long
+): NapCatGoCqHttpExpand.GroupFilesByFolder {
+    return apiRequest(
+        "get_group_files_by_folder",
+        mapOf("group_id" to groupId, "folder_id" to folderId, "folder" to folder, "file_count" to fileCount)
+    )
 }
 
 /**
@@ -444,8 +504,28 @@ suspend fun NapCatBotApi.getGroupHonorInfo(groupId: String, type: String? = null
  *
  * 获取指定群聊的历史聊天记录
  */
-suspend fun NapCatBotApi.getGroupMsgHistory(groupId: String, messageSeq: String? = null, count: Long, reverseOrder: Boolean, disableGetUrl: Boolean, parseMultMsg: Boolean, quickReply: Boolean, reverseOrder: Boolean): NapCatGoCqHttpExpand.GroupMsgHistory {
-    return apiRequest("get_group_msg_history", mapOf("group_id" to groupId, "message_seq" to messageSeq, "count" to count, "reverse_order" to reverseOrder, "disable_get_url" to disableGetUrl, "parse_mult_msg" to parseMultMsg, "quick_reply" to quickReply, "reverseOrder" to reverseOrder))
+suspend fun NapCatBotApi.getGroupMsgHistory(
+    groupId: String,
+    messageSeq: String? = null,
+    count: Long,
+    disableGetUrl: Boolean,
+    parseMultMsg: Boolean,
+    quickReply: Boolean,
+    reverseOrder: Boolean
+): NapCatGoCqHttpExpand.GroupMsgHistory {
+    return apiRequest(
+        "get_group_msg_history",
+        mapOf(
+            "group_id" to groupId,
+            "message_seq" to messageSeq,
+            "count" to count,
+            "reverse_order" to reverseOrder,
+            "disable_get_url" to disableGetUrl,
+            "parse_mult_msg" to parseMultMsg,
+            "quick_reply" to quickReply,
+            "reverseOrder" to reverseOrder
+        )
+    )
 }
 
 /**
@@ -462,7 +542,7 @@ suspend fun NapCatBotApi.getGroupRootFiles(groupId: String, fileCount: Long): Na
  *
  * 获取当前登录账号的在线客户端列表
  */
-suspend fun NapCatBotApi.getOnlineClients(): NapCatGoCqHttpExpand.List<String> {
+suspend fun NapCatBotApi.getOnlineClients(): List<String> {
     return apiRequest("get_online_clients")
 }
 
@@ -480,22 +560,91 @@ suspend fun NapCatBotApi.getStrangerInfo(userId: String, noCache: Boolean): NapC
  *
  * 发送合并转发消息
  */
-suspend fun NapCatBotApi.sendForwardMsg(messageType: String? = null, userId: String? = null, groupId: String? = null, message: List<MessageItem>, autoEscape: Boolean? = null, source: String? = null, news: List<NewsItem>? = null, summary: String? = null, prompt: String? = null) {
-    apiRequestUnit("send_forward_msg", mapOf("message_type" to messageType, "user_id" to userId, "group_id" to groupId, "message" to message, "auto_escape" to autoEscape, "source" to source, "news" to news, "summary" to summary, "prompt" to prompt))
+suspend fun NapCatBotApi.sendForwardMsg(
+    messageType: String? = null,
+    userId: String? = null,
+    groupId: String? = null,
+    message: List<JsonNode>,
+    autoEscape: Boolean? = null,
+    source: String? = null,
+    news: List<JsonNode>? = null,
+    summary: String? = null,
+    prompt: String? = null
+) {
+    apiRequestUnit(
+        "send_forward_msg",
+        mapOf(
+            "message_type" to messageType,
+            "user_id" to userId,
+            "group_id" to groupId,
+            "message" to message,
+            "auto_escape" to autoEscape,
+            "source" to source,
+            "news" to news,
+            "summary" to summary,
+            "prompt" to prompt
+        )
+    )
 }
 
 /**
  * 发送群合并转发消息
  */
-suspend fun NapCatBotApi.sendGroupForwardMsg(messageType: String? = null, userId: String? = null, groupId: String? = null, message: List<MessageItem>, autoEscape: Boolean? = null, source: String? = null, news: List<NewsItem>? = null, summary: String? = null, prompt: String? = null) {
-    apiRequestUnit("send_group_forward_msg", mapOf("message_type" to messageType, "user_id" to userId, "group_id" to groupId, "message" to message, "auto_escape" to autoEscape, "source" to source, "news" to news, "summary" to summary, "prompt" to prompt))
+suspend fun NapCatBotApi.sendGroupForwardMsg(
+    messageType: String? = null,
+    userId: String? = null,
+    groupId: String? = null,
+    message: List<JsonNode>,
+    autoEscape: Boolean? = null,
+    source: String? = null,
+    news: List<JsonNode>? = null,
+    summary: String? = null,
+    prompt: String? = null
+) {
+    apiRequestUnit(
+        "send_group_forward_msg",
+        mapOf(
+            "message_type" to messageType,
+            "user_id" to userId,
+            "group_id" to groupId,
+            "message" to message,
+            "auto_escape" to autoEscape,
+            "source" to source,
+            "news" to news,
+            "summary" to summary,
+            "prompt" to prompt
+        )
+    )
 }
 
 /**
  * 发送私聊合并转发消息
  */
-suspend fun NapCatBotApi.sendPrivateForwardMsg(messageType: String? = null, userId: String? = null, groupId: String? = null, message: List<MessageItem>, autoEscape: Boolean? = null, source: String? = null, news: List<NewsItem>? = null, summary: String? = null, prompt: String? = null) {
-    apiRequestUnit("send_private_forward_msg", mapOf("message_type" to messageType, "user_id" to userId, "group_id" to groupId, "message" to message, "auto_escape" to autoEscape, "source" to source, "news" to news, "summary" to summary, "prompt" to prompt))
+suspend fun NapCatBotApi.sendPrivateForwardMsg(
+    messageType: String? = null,
+    userId: String? = null,
+    groupId: String? = null,
+    message: List<JsonNode>,
+    autoEscape: Boolean? = null,
+    source: String? = null,
+    news: List<JsonNode>? = null,
+    summary: String? = null,
+    prompt: String? = null
+) {
+    apiRequestUnit(
+        "send_private_forward_msg",
+        mapOf(
+            "message_type" to messageType,
+            "user_id" to userId,
+            "group_id" to groupId,
+            "message" to message,
+            "auto_escape" to autoEscape,
+            "source" to source,
+            "news" to news,
+            "summary" to summary,
+            "prompt" to prompt
+        )
+    )
 }
 
 /**
@@ -521,8 +670,25 @@ suspend fun NapCatBotApi.setQqProfile(nickname: String, personalNote: String? = 
  *
  * 上传资源路径或URL指定的文件到指定群聊的文件系统中
  */
-suspend fun NapCatBotApi.uploadGroupFile(groupId: String, file: String, name: String, folder: String? = null, folderId: String? = null, uploadFile: Boolean) {
-    apiRequestUnit("upload_group_file", mapOf("group_id" to groupId, "file" to file, "name" to name, "folder" to folder, "folder_id" to folderId, "upload_file" to uploadFile))
+suspend fun NapCatBotApi.uploadGroupFile(
+    groupId: String,
+    file: String,
+    name: String,
+    folder: String? = null,
+    folderId: String? = null,
+    uploadFile: Boolean
+) {
+    apiRequestUnit(
+        "upload_group_file",
+        mapOf(
+            "group_id" to groupId,
+            "file" to file,
+            "name" to name,
+            "folder" to folder,
+            "folder_id" to folderId,
+            "upload_file" to uploadFile
+        )
+    )
 }
 
 /**
@@ -531,5 +697,8 @@ suspend fun NapCatBotApi.uploadGroupFile(groupId: String, file: String, name: St
  * 上传本地文件到指定私聊会话中
  */
 suspend fun NapCatBotApi.uploadPrivateFile(userId: String, file: String, name: String, uploadFile: Boolean) {
-    apiRequestUnit("upload_private_file", mapOf("user_id" to userId, "file" to file, "name" to name, "upload_file" to uploadFile))
+    apiRequestUnit(
+        "upload_private_file",
+        mapOf("user_id" to userId, "file" to file, "name" to name, "upload_file" to uploadFile)
+    )
 }

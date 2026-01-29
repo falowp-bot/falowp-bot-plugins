@@ -3,7 +3,8 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
-import tools.jackson.databind.JsonNode
+import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
+import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
@@ -27,44 +28,19 @@ class NapCatUserApiExpand {
     )
 
     /**
-     * FriendItem
+     * 好友信息
      */
-    data class FriendItem(
+    data class FriendUser(
         /**
-         * 出生年份
-         */
-        @field:JsonProperty("birthday_year")
-        val birthdayYear: Long?,
-        /**
-         * 出生月份
-         */
-        @field:JsonProperty("birthday_month")
-        val birthdayMonth: Long?,
-        /**
-         * 出生日期
-         */
-        @field:JsonProperty("birthday_day")
-        val birthdayDay: Long?,
-        /**
-         * 手机号
-         */
-        @field:JsonProperty("phone_num")
-        val phoneNum: String?,
-        /**
-         * 邮箱
-         */
-        @field:JsonProperty("email")
-        val email: String?,
-        /**
-         * 分组ID
-         */
-        @field:JsonProperty("category_id")
-        val categoryId: Long?,
-        /**
-         * QQ号
+         * 用户ID
          */
         @field:JsonProperty("user_id")
-        val userId: Long,
+        val userId: String,
+        /**
+         * 好友分组ID
+         */
+        @field:JsonProperty("category_id")
+        val categoryId: Int,
         /**
          * 昵称
          */
@@ -76,41 +52,56 @@ class NapCatUserApiExpand {
         @field:JsonProperty("remark")
         val remark: String?,
         /**
-         * 性别
+         * 出生年份
          */
-        @field:JsonProperty("sex")
-        val sex: String?,
+        @field:JsonProperty("birthday_year")
+        val birthdayYear: Int?,
         /**
-         * 等级
+         * 出生月份
          */
-        @field:JsonProperty("level")
-        val level: Long?,
+        @field:JsonProperty("birthday_month")
+        val birthdayMonth: Int?,
+        /**
+         * 出生日
+         */
+        @field:JsonProperty("birthday_day")
+        val birthdayDay: Int?,
         /**
          * 年龄
          */
         @field:JsonProperty("age")
-        val age: Long?,
+        val age: Int?,
         /**
-         * QID
+         * 手机号
          */
-        @field:JsonProperty("qid")
-        val qid: String?,
+        @field:JsonProperty("phone_num")
+        val phoneNum: String?,
         /**
-         * 登录天数
+         * 邮箱
          */
-        @field:JsonProperty("login_days")
-        val loginDays: Long?,
+        @field:JsonProperty("email")
+        val email: String?,
         /**
-         * 分组名称
+         * 性别
          */
-        @field:JsonProperty("categoryName")
-        val categoryName: String?,
+        @field:JsonProperty("sex")
+        val sex: String,
         /**
-         * 分组ID
+         * 等级
          */
-        @field:JsonProperty("categoryId")
-        val categoryId: Long?
-    )
+        @field:JsonProperty("level")
+        val level: Int
+    ) {
+
+        fun toUser(): ReceiveMessage.User {
+            return ReceiveMessage.User(
+                userId,
+                if (remark.isNullOrBlank()) nickname else remark,
+                NapCatBotApiSupport.apiAuth(userId),
+                NapCatBotApiSupport.avatar(userId)
+            )
+        }
+    }
 
     /**
      * RecentContactItemItem
@@ -179,7 +170,7 @@ suspend fun NapCatBotApi.getCookies(domain: String): NapCatUserApiExpand.Cookies
  *
  * 获取当前帐号的好友列表
  */
-suspend fun NapCatBotApi.getFriendList(noCache: Boolean? = null): NapCatUserApiExpand.List<FriendItem> {
+suspend fun NapCatBotApi.getFriendList(noCache: Boolean? = null): List<NapCatUserApiExpand.FriendUser> {
     return apiRequest("get_friend_list", mapOf("no_cache" to noCache))
 }
 
@@ -188,7 +179,7 @@ suspend fun NapCatBotApi.getFriendList(noCache: Boolean? = null): NapCatUserApiE
  *
  * 获取最近会话
  */
-suspend fun NapCatBotApi.getRecentContact(count: Long): NapCatUserApiExpand.List<RecentContactItemItem> {
+suspend fun NapCatBotApi.getRecentContact(count: Long): List<NapCatUserApiExpand.RecentContactItemItem> {
     return apiRequest("get_recent_contact", mapOf("count" to count))
 }
 

@@ -3,13 +3,22 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
-import tools.jackson.databind.JsonNode
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * NapCatFileApiExpand
  */
 class NapCatFileApiExpand {
+
+    /**
+     * FileInfo
+     */
+    data class FileInfo(
+        val fileId: String,
+        val fileName: String,
+        val size: Long,
+    )
+
     /**
      * File
      */
@@ -141,8 +150,19 @@ suspend fun NapCatBotApi.getFile(file: String? = null, fileId: String? = null): 
  *
  * 获取指定群文件的下载链接
  */
-suspend fun NapCatBotApi.getGroupFileUrl(groupId: String, fileId: String): NapCatFileApiExpand.GroupFileUrl {
-    return apiRequest("get_group_file_url", mapOf("group_id" to groupId, "file_id" to fileId))
+suspend fun NapCatBotApi.getGroupFileUrl(
+    groupId: String = this.receiveMessage.source.id,
+    fileId: String,
+    busid: Int? = null
+): NapCatFileApiExpand.GroupFileUrl {
+    return apiRequest(
+        "get_group_file_url",
+        mapOf(
+            "group_id" to groupId,
+            "file_id" to fileId,
+            "busid" to busid
+        )
+    )
 }
 
 /**
@@ -168,6 +188,10 @@ suspend fun NapCatBotApi.getPrivateFileUrl(fileId: String): NapCatFileApiExpand.
  *
  * 获取指定语音文件的信息，并支持格式转换
  */
-suspend fun NapCatBotApi.getRecord(file: String? = null, fileId: String? = null, outFormat: String): NapCatFileApiExpand.Record {
+suspend fun NapCatBotApi.getRecord(
+    file: String? = null,
+    fileId: String? = null,
+    outFormat: String
+): NapCatFileApiExpand.Record {
     return apiRequest("get_record", mapOf("file" to file, "file_id" to fileId, "out_format" to outFormat))
 }

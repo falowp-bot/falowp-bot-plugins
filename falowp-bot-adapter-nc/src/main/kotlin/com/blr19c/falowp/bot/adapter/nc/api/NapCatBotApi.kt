@@ -79,8 +79,8 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
 
                 is PokeSendMessage -> {
                     when (messageType) {
-                        GROUP -> this.sendPoke(sendMessage.poke, sourceId)
-                        PRIVATE -> this.sendPoke(sendMessage.poke)
+                        GROUP -> this.sendPoke(sourceId, sendMessage.poke)
+                        PRIVATE -> this.sendPoke(userId = sendMessage.poke)
                         else -> {}
                     }
                     null

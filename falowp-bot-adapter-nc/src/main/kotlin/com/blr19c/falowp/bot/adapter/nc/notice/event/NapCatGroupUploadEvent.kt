@@ -1,6 +1,6 @@
 package com.blr19c.falowp.bot.adapter.nc.notice.event
 
-import com.blr19c.falowp.bot.adapter.nc.expand.NapCatFileExpand
+import com.blr19c.falowp.bot.adapter.nc.expand.NapCatFileApiExpand
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.plugin.Plugin
 
@@ -19,9 +19,9 @@ data class NapCatGroupUploadEvent(
     /**
      * 文件链接
      */
-    val fileUrl: NapCatFileExpand.GroupFileUrl,
+    val fileUrl: NapCatFileApiExpand.GroupFileUrl,
     /**
      * 文件信息
      */
-    val fileInfo: NapCatFileExpand.GroupFileInfo
+    val fileInfo: NapCatFileApiExpand.FileInfo
 ) : Plugin.Listener.Event

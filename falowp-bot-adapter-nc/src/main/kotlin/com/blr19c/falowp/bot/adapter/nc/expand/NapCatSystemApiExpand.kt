@@ -3,8 +3,8 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
-import tools.jackson.databind.JsonNode
 import com.fasterxml.jackson.annotation.JsonProperty
+import tools.jackson.databind.JsonNode
 
 /**
  * NapCatSystemApiExpand
@@ -38,60 +38,30 @@ class NapCatSystemApiExpand {
     )
 
     /**
-     * GroupSystemMsgInvitedRequestsItem
+     * DoubtFriends
      */
-    data class GroupSystemMsgInvitedRequestsItem(
+    data class DoubtFriends(
         /**
-         * 请求ID
+         * 用户QQ
          */
-        @field:JsonProperty("request_id")
-        val requestId: Long,
+        @field:JsonProperty("user_id")
+        val userId: Long,
         /**
-         * 邀请者QQ
+         * 昵称
          */
-        @field:JsonProperty("invitor_uin")
-        val invitorUin: Long,
+        @field:JsonProperty("nickname")
+        val nickname: String,
         /**
-         * 邀请者昵称
+         * 性别
          */
-        @field:JsonProperty("invitor_nick")
-        val invitorNick: String,
-        /**
-         * 群号
-         */
-        @field:JsonProperty("group_id")
-        val groupId: Long,
-        /**
-         * 群名称
-         */
-        @field:JsonProperty("group_name")
-        val groupName: String,
-        /**
-         * 附言
-         */
-        @field:JsonProperty("message")
-        val message: String,
-        /**
-         * 是否已处理
-         */
-        @field:JsonProperty("checked")
-        val checked: Boolean,
-        /**
-         * 操作者QQ
-         */
-        @field:JsonProperty("actor")
-        val actor: Long,
-        /**
-         * 申请者昵称
-         */
-        @field:JsonProperty("requester_nick")
-        val requesterNick: String
+        @field:JsonProperty("sex")
+        val sex: String,
     )
 
     /**
-     * GroupSystemMsgInvitedRequestItem
+     * GroupSystemMsgInvitedRequestsItem
      */
-    data class GroupSystemMsgInvitedRequestItem(
+    data class GroupSystemMsgInvitedRequestsItem(
         /**
          * 请求ID
          */
@@ -200,11 +170,6 @@ class NapCatSystemApiExpand {
         @field:JsonProperty("invited_requests")
         val invitedRequests: List<GroupSystemMsgInvitedRequestsItem>,
         /**
-         * 进群邀请列表 (兼容)
-         */
-        @field:JsonProperty("InvitedRequest")
-        val InvitedRequest: List<GroupSystemMsgInvitedRequestItem>,
-        /**
          * 进群申请列表
          */
         @field:JsonProperty("join_requests")
@@ -290,11 +255,6 @@ class NapCatSystemApiExpand {
          */
         @field:JsonProperty("categoryName")
         val categoryName: String?,
-        /**
-         * 分组ID
-         */
-        @field:JsonProperty("categoryId")
-        val categoryId: Long?
     )
 
     /**
@@ -391,7 +351,7 @@ suspend fun NapCatBotApi.getCsrfToken(): NapCatSystemApiExpand.CsrfToken {
  *
  * 获取系统的可疑好友申请列表
  */
-suspend fun NapCatBotApi.getDoubtFriendsAddRequest(count: Long): NapCatSystemApiExpand.String {
+suspend fun NapCatBotApi.getDoubtFriendsAddRequest(count: Long): List<NapCatSystemApiExpand.DoubtFriends> {
     return apiRequest("get_doubt_friends_add_request", mapOf("count" to count))
 }
 
@@ -407,7 +367,7 @@ suspend fun NapCatBotApi.getGroupSystemMsg(count: Long): NapCatSystemApiExpand.G
 /**
  * 获取登录号信息
  *
- * 获取当前登录帐号的信息
+ * 获取当前登录账号的信息
  */
 suspend fun NapCatBotApi.getLoginInfo(): NapCatSystemApiExpand.LoginInfo {
     return apiRequest("get_login_info")

@@ -32,7 +32,7 @@ enum class NapCatSubType(@get:JsonValue val value: String) {
         @JvmStatic
         @JsonCreator
         fun fromValue(value: String): NapCatSubType {
-           return entries.firstOrNull { it.value == value } ?: UNKNOWN
+            return entries.firstOrNull { it.value == value } ?: UNKNOWN
         }
 
     }
