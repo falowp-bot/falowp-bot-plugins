@@ -33,6 +33,10 @@ class NapCatStreamApiExpand {
  * 下载文件流
  *
  * 以流式方式从网络或本地下载文件
+ *
+ * @param file 文件路径或URL
+ * @param fileId 文件ID
+ * @param chunkSize 分块大小
  */
 suspend fun NapCatBotApi.downloadFileStream(
     file: String? = null,
@@ -46,6 +50,18 @@ suspend fun NapCatBotApi.downloadFileStream(
  * 上传文件流
  *
  * 以流式方式上传文件数据到机器人
+ *
+ * @param streamId 流ID
+ * @param chunkData 分块数据
+ * @param chunkIndex 分块索引
+ * @param totalChunks 分块总数
+ * @param fileSize 文件大小
+ * @param expectedSha256 期望的SHA256
+ * @param isComplete 是否完成
+ * @param filename 文件名
+ * @param reset 是否重置
+ * @param verifyOnly 是否仅校验
+ * @param fileRetention 文件保留时长
  */
 suspend fun NapCatBotApi.uploadFileStream(
     streamId: String,

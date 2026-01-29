@@ -332,6 +332,8 @@ suspend fun NapCatBotApi.cleanCache() {
  * 获取登录凭证
  *
  * 获取登录凭证
+ *
+ * @param domain 域名
  */
 suspend fun NapCatBotApi.getCredentials(domain: String): NapCatSystemApiExpand.Credentials {
     return apiRequest("get_credentials", mapOf("domain" to domain))
@@ -350,6 +352,8 @@ suspend fun NapCatBotApi.getCsrfToken(): NapCatSystemApiExpand.CsrfToken {
  * 获取可疑好友申请
  *
  * 获取系统的可疑好友申请列表
+ *
+ * @param count 获取数量
  */
 suspend fun NapCatBotApi.getDoubtFriendsAddRequest(count: Long): List<NapCatSystemApiExpand.DoubtFriends> {
     return apiRequest("get_doubt_friends_add_request", mapOf("count" to count))
@@ -359,6 +363,8 @@ suspend fun NapCatBotApi.getDoubtFriendsAddRequest(count: Long): List<NapCatSyst
  * 获取群系统消息
  *
  * 获取群系统消息
+ *
+ * @param count 获取数量
  */
 suspend fun NapCatBotApi.getGroupSystemMsg(count: Long): NapCatSystemApiExpand.GroupSystemMsg {
     return apiRequest("get_group_system_msg", mapOf("count" to count))
@@ -404,6 +410,9 @@ suspend fun NapCatBotApi.ncGetPacketStatus(): JsonNode {
  * 处理可疑好友申请
  *
  * 同意或拒绝系统的可疑好友申请
+ *
+ * @param flag 请求标识
+ * @param approve 是否同意
  */
 suspend fun NapCatBotApi.setDoubtFriendsAddRequest(flag: String, approve: Boolean) {
     apiRequestUnit("set_doubt_friends_add_request", mapOf("flag" to flag, "approve" to approve))

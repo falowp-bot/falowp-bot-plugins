@@ -241,6 +241,10 @@ suspend fun NapCatBotApi.getFriendsWithCategory(): List<NapCatUserExtraExpand.Fr
 
 /**
  * 获取资料点赞
+ *
+ * @param userId 用户ID
+ * @param start 起始位置
+ * @param count 获取数量
  */
 suspend fun NapCatBotApi.getProfileLike(
     userId: String? = null,
@@ -261,6 +265,10 @@ suspend fun NapCatBotApi.getUnidirectionalFriendList(): List<NapCatUserExtraExpa
  * 设置自定义在线状态
  *
  * 设置自定义在线状态
+ *
+ * @param faceId 表情ID
+ * @param faceType 表情类型
+ * @param wording 状态文案
  */
 suspend fun NapCatBotApi.setDiyOnlineStatus(faceId: Long, faceType: Long, wording: String) {
     apiRequestUnit("set_diy_online_status", mapOf("face_id" to faceId, "face_type" to faceType, "wording" to wording))

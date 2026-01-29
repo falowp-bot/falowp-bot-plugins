@@ -61,6 +61,9 @@ class NapCatExtraApiExpand {
 
 /**
  * 创建收藏
+ *
+ * @param rawData 原始数据
+ * @param brief 简要描述
  */
 suspend fun NapCatBotApi.createCollection(rawData: String, brief: String) {
     apiRequestUnit("create_collection", mapOf("rawData" to rawData, "brief" to brief))
@@ -70,6 +73,9 @@ suspend fun NapCatBotApi.createCollection(rawData: String, brief: String) {
  * 获取AI角色列表
  *
  * 获取群聊中的AI角色列表
+ *
+ * @param groupId 群组ID
+ * @param chatType 聊天类型
  */
 suspend fun NapCatBotApi.getAiCharacters(
     groupId: String,
@@ -91,6 +97,8 @@ suspend fun NapCatBotApi.getClientKey(): NapCatExtraApiExpand.ClientKey {
  * 图片 OCR 识别
  *
  * 识别图片中的文字内容(仅Windows端支持)
+ *
+ * @param image 图片数据
  */
 suspend fun NapCatBotApi.ocrImage(image: String) {
     apiRequestUnit("ocr_image", mapOf("image" to image))
@@ -100,6 +108,10 @@ suspend fun NapCatBotApi.ocrImage(image: String) {
  * 批量踢出群成员
  *
  * 从指定群聊中批量踢出多个成员
+ *
+ * @param groupId 群组ID
+ * @param userId 用户ID列表
+ * @param rejectAddRequest 是否拒绝再次申请
  */
 suspend fun NapCatBotApi.setGroupKickMembers(groupId: String, userId: List<String>, rejectAddRequest: Boolean? = null) {
     apiRequestUnit(
@@ -112,6 +124,10 @@ suspend fun NapCatBotApi.setGroupKickMembers(groupId: String, userId: List<Strin
  * 设置专属头衔
  *
  * 设置群聊中指定成员的专属头衔
+ *
+ * @param groupId 群组ID
+ * @param userId 用户ID
+ * @param specialTitle 专属头衔
  */
 suspend fun NapCatBotApi.setGroupSpecialTitle(groupId: String, userId: String, specialTitle: String) {
     apiRequestUnit(
@@ -124,6 +140,8 @@ suspend fun NapCatBotApi.setGroupSpecialTitle(groupId: String, userId: String, s
  * 设置QQ头像
  *
  * 修改当前账号的QQ头像
+ *
+ * @param file 头像文件
  */
 suspend fun NapCatBotApi.setQqAvatar(file: String) {
     apiRequestUnit("set_qq_avatar", mapOf("file" to file))
@@ -133,6 +151,8 @@ suspend fun NapCatBotApi.setQqAvatar(file: String) {
  * 设置个性签名
  *
  * 修改当前登录帐号的个性签名
+ *
+ * @param longNick 个性签名内容
  */
 suspend fun NapCatBotApi.setSelfLongnick(longNick: String) {
     apiRequestUnit("set_self_longnick", mapOf("longNick" to longNick))
@@ -142,6 +162,8 @@ suspend fun NapCatBotApi.setSelfLongnick(longNick: String) {
  * 英文单词翻译
  *
  * 将英文单词列表翻译为中文
+ *
+ * @param words 英文单词列表
  */
 suspend fun NapCatBotApi.translateEn2zh(words: List<String>) {
     apiRequestUnit("translate_en2zh", mapOf("words" to words))

@@ -422,6 +422,9 @@ class NapCatGroupApiExpand {
  * 删除群公告
  *
  * 删除群聊中的公告
+ *
+ * @param groupId 群组ID
+ * @param noticeId 公告ID
  */
 suspend fun NapCatBotApi.delGroupNotice(groupId: String, noticeId: String) {
     apiRequestUnit("_del_group_notice", mapOf("group_id" to groupId, "notice_id" to noticeId))
@@ -431,6 +434,8 @@ suspend fun NapCatBotApi.delGroupNotice(groupId: String, noticeId: String) {
  * 获取群公告
  *
  * 获取指定群聊中的公告列表
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.getGroupNotice(groupId: String): List<NapCatGroupApiExpand.GroupNoticeItemItem> {
     return apiRequest("_get_group_notice", mapOf("group_id" to groupId))
@@ -440,6 +445,11 @@ suspend fun NapCatBotApi.getGroupNotice(groupId: String): List<NapCatGroupApiExp
  * 移出精华消息
  *
  * 将一条消息从群精华消息列表中移出
+ *
+ * @param messageId 消息ID
+ * @param msgSeq 消息序列号
+ * @param msgRandom 随机值
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.deleteEssenceMsg(
     messageId: Long? = null,
@@ -457,6 +467,8 @@ suspend fun NapCatBotApi.deleteEssenceMsg(
  * 获取群精华消息
  *
  * 获取指定群聊中的精华消息列表
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.getEssenceMsgList(groupId: String): List<NapCatGroupApiExpand.EssenceMsg> {
     return apiRequest("get_essence_msg_list", mapOf("group_id" to groupId))
@@ -466,6 +478,8 @@ suspend fun NapCatBotApi.getEssenceMsgList(groupId: String): List<NapCatGroupApi
  * 获取群详细信息
  *
  * 获取群聊的详细信息，包括成员数、最大成员数等
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.getGroupDetailInfo(groupId: String): NapCatGroupApiExpand.GroupDetailInfo {
     return apiRequest("get_group_detail_info", mapOf("group_id" to groupId))
@@ -491,6 +505,8 @@ suspend fun NapCatBotApi.getGroupIgnoredNotifies(): NapCatGroupApiExpand.GroupIg
  * 获取群信息
  *
  * 获取群聊的基本信息
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.getGroupInfo(groupId: String): NapCatGroupApiExpand.GroupInfo {
     return apiRequest("get_group_info", mapOf("group_id" to groupId))
@@ -500,6 +516,8 @@ suspend fun NapCatBotApi.getGroupInfo(groupId: String): NapCatGroupApiExpand.Gro
  * 获取群列表
  *
  * 获取当前账号的群聊列表
+ *
+ * @param noCache 是否禁用缓存
  */
 suspend fun NapCatBotApi.getGroupList(noCache: Boolean? = null): List<NapCatGroupApiExpand.GroupItem> {
     return apiRequest("get_group_list", mapOf("no_cache" to noCache))
@@ -509,6 +527,10 @@ suspend fun NapCatBotApi.getGroupList(noCache: Boolean? = null): List<NapCatGrou
  * 获取群成员信息
  *
  * 获取群聊中指定成员的信息
+ *
+ * @param groupId 群组ID
+ * @param userId 用户ID
+ * @param noCache 是否禁用缓存
  */
 suspend fun NapCatBotApi.getGroupMemberInfo(
     groupId: String,
@@ -522,6 +544,9 @@ suspend fun NapCatBotApi.getGroupMemberInfo(
  * 获取群成员列表
  *
  * 获取群聊中的所有成员列表
+ *
+ * @param groupId 群组ID
+ * @param noCache 是否禁用缓存
  */
 suspend fun NapCatBotApi.getGroupMemberList(
     groupId: String,
@@ -535,6 +560,10 @@ suspend fun NapCatBotApi.getGroupMemberList(
  * 设置群待办
  *
  * 将指定消息设置为群待办
+ *
+ * @param groupId 群组ID
+ * @param messageId 消息ID
+ * @param messageSeq 消息序列号
  */
 suspend fun NapCatBotApi.setGroupTodo(groupId: String, messageId: String? = null, messageSeq: String? = null) {
     apiRequestUnit(
@@ -545,6 +574,8 @@ suspend fun NapCatBotApi.setGroupTodo(groupId: String, messageId: String? = null
 
 /**
  * 获取群禁言列表
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.getGroupShutList(groupId: String): List<NapCatGroupApiExpand.GroupShut> {
     return apiRequest("get_group_shut_list", mapOf("group_id" to groupId))
@@ -554,6 +585,8 @@ suspend fun NapCatBotApi.getGroupShutList(groupId: String): List<NapCatGroupApiE
  * 设置精华消息
  *
  * 将一条消息设置为群精华消息
+ *
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.setEssenceMsg(messageId: Long) {
     apiRequestUnit("set_essence_msg", mapOf("message_id" to messageId))
@@ -563,6 +596,11 @@ suspend fun NapCatBotApi.setEssenceMsg(messageId: Long) {
  * 处理加群请求
  *
  * 同意或拒绝加群请求或邀请
+ *
+ * @param flag 请求标识
+ * @param approve 是否同意
+ * @param reason 拒绝理由
+ * @param count 处理数量
  */
 suspend fun NapCatBotApi.setGroupAddRequest(
     flag: String,
@@ -580,6 +618,10 @@ suspend fun NapCatBotApi.setGroupAddRequest(
  * 设置群管理员
  *
  * 设置或取消群聊中的管理员
+ *
+ * @param groupId 群组ID
+ * @param userId 用户ID
+ * @param enable 是否启用
  */
 suspend fun NapCatBotApi.setGroupAdmin(groupId: String, userId: String, enable: Boolean? = null) {
     apiRequestUnit("set_group_admin", mapOf("group_id" to groupId, "user_id" to userId, "enable" to enable))
@@ -589,6 +631,10 @@ suspend fun NapCatBotApi.setGroupAdmin(groupId: String, userId: String, enable: 
  * 群组禁言
  *
  * 禁言群聊中的指定成员
+ *
+ * @param groupId 群组ID
+ * @param userId 用户ID
+ * @param duration 禁言时长
  */
 suspend fun NapCatBotApi.setGroupBan(groupId: String, userId: String, duration: Long) {
     apiRequestUnit("set_group_ban", mapOf("group_id" to groupId, "user_id" to userId, "duration" to duration))
@@ -598,6 +644,10 @@ suspend fun NapCatBotApi.setGroupBan(groupId: String, userId: String, duration: 
  * 设置群名片
  *
  * 设置群聊中指定成员的群名片
+ *
+ * @param groupId 群组ID
+ * @param userId 用户ID
+ * @param card 群名片
  */
 suspend fun NapCatBotApi.setGroupCard(groupId: String, userId: String, card: String? = null) {
     apiRequestUnit("set_group_card", mapOf("group_id" to groupId, "user_id" to userId, "card" to card))
@@ -607,6 +657,10 @@ suspend fun NapCatBotApi.setGroupCard(groupId: String, userId: String, card: Str
  * 群组踢人
  *
  * 将指定成员踢出群聊
+ *
+ * @param groupId 群组ID
+ * @param userId 用户ID
+ * @param rejectAddRequest 是否拒绝再次申请
  */
 suspend fun NapCatBotApi.setGroupKick(groupId: String, userId: String, rejectAddRequest: Boolean? = null) {
     apiRequestUnit(
@@ -619,6 +673,9 @@ suspend fun NapCatBotApi.setGroupKick(groupId: String, userId: String, rejectAdd
  * 退出群组
  *
  * 退出或解散指定群聊
+ *
+ * @param groupId 群组ID
+ * @param isDismiss 是否解散
  */
 suspend fun NapCatBotApi.setGroupLeave(groupId: String, isDismiss: Boolean? = null) {
     apiRequestUnit("set_group_leave", mapOf("group_id" to groupId, "is_dismiss" to isDismiss))
@@ -628,6 +685,9 @@ suspend fun NapCatBotApi.setGroupLeave(groupId: String, isDismiss: Boolean? = nu
  * 设置群名称
  *
  * 修改指定群聊的名称
+ *
+ * @param groupId 群组ID
+ * @param groupName 群名称
  */
 suspend fun NapCatBotApi.setGroupName(groupId: String, groupName: String) {
     apiRequestUnit("set_group_name", mapOf("group_id" to groupId, "group_name" to groupName))
@@ -637,6 +697,9 @@ suspend fun NapCatBotApi.setGroupName(groupId: String, groupName: String) {
  * 全员禁言
  *
  * 开启或关闭指定群聊的全员禁言
+ *
+ * @param groupId 群组ID
+ * @param enable 是否启用
  */
 suspend fun NapCatBotApi.setGroupWholeBan(groupId: String, enable: Boolean? = null) {
     apiRequestUnit("set_group_whole_ban", mapOf("group_id" to groupId, "enable" to enable))
