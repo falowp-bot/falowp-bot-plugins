@@ -58,6 +58,10 @@ class NapCatGroupExtraExpand {
 
 /**
  * 删除群相册媒体
+ *
+ * @param groupId 群组ID
+ * @param albumId 相册ID
+ * @param lloc 媒体位置标识
  */
 suspend fun NapCatBotApi.delGroupAlbumMedia(groupId: String, albumId: String, lloc: String) {
     apiRequestUnit("del_group_album_media", mapOf("group_id" to groupId, "album_id" to albumId, "lloc" to lloc))
@@ -65,6 +69,11 @@ suspend fun NapCatBotApi.delGroupAlbumMedia(groupId: String, albumId: String, ll
 
 /**
  * 发表群相册评论
+ *
+ * @param groupId 群组ID
+ * @param albumId 相册ID
+ * @param lloc 媒体位置标识
+ * @param content 评论内容
  */
 suspend fun NapCatBotApi.doGroupAlbumComment(groupId: String, albumId: String, lloc: String, content: String) {
     apiRequestUnit(
@@ -75,6 +84,10 @@ suspend fun NapCatBotApi.doGroupAlbumComment(groupId: String, albumId: String, l
 
 /**
  * 获取群相册媒体列表
+ *
+ * @param groupId 群组ID
+ * @param albumId 相册ID
+ * @param attachInfo 附加信息
  */
 suspend fun NapCatBotApi.getGroupAlbumMediaList(
     groupId: String,
@@ -90,6 +103,8 @@ suspend fun NapCatBotApi.getGroupAlbumMediaList(
 
 /**
  * 获取群详细信息 (扩展)
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.getGroupInfoEx(groupId: String): JsonNode {
     return apiRequest("get_group_info_ex", mapOf("group_id" to groupId))
@@ -97,6 +112,8 @@ suspend fun NapCatBotApi.getGroupInfoEx(groupId: String): JsonNode {
 
 /**
  * 获取群相册列表
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.getQunAlbumList(groupId: String): List<NapCatGroupExtraExpand.Album> {
     return apiRequest("get_qun_album_list", mapOf("group_id" to groupId))
@@ -104,6 +121,8 @@ suspend fun NapCatBotApi.getQunAlbumList(groupId: String): List<NapCatGroupExtra
 
 /**
  * 群打卡
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.sendGroupSign(groupId: String) {
     apiRequestUnit("send_group_sign", mapOf("group_id" to groupId))
@@ -111,6 +130,11 @@ suspend fun NapCatBotApi.sendGroupSign(groupId: String) {
 
 /**
  * 设置群加群选项
+ *
+ * @param groupId 群组ID
+ * @param addType 加群方式
+ * @param groupQuestion 验证问题
+ * @param groupAnswer 验证答案
  */
 suspend fun NapCatBotApi.setGroupAddOption(
     groupId: String,
@@ -131,6 +155,12 @@ suspend fun NapCatBotApi.setGroupAddOption(
 
 /**
  * 点赞群相册媒体
+ *
+ * @param groupId 群组ID
+ * @param albumId 相册ID
+ * @param lloc 媒体位置标识
+ * @param id 媒体ID
+ * @param set 是否点赞
  */
 suspend fun NapCatBotApi.setGroupAlbumMediaLike(
     groupId: String,
@@ -149,6 +179,9 @@ suspend fun NapCatBotApi.setGroupAlbumMediaLike(
  * 设置群备注
  *
  * 设置群备注
+ *
+ * @param groupId 群组ID
+ * @param remark 群备注
  */
 suspend fun NapCatBotApi.setGroupRemark(groupId: String, remark: String) {
     apiRequestUnit("set_group_remark", mapOf("group_id" to groupId, "remark" to remark))
@@ -156,6 +189,10 @@ suspend fun NapCatBotApi.setGroupRemark(groupId: String, remark: String) {
 
 /**
  * 设置群机器人加群选项
+ *
+ * @param groupId 群组ID
+ * @param robotMemberSwitch 机器人加群开关
+ * @param robotMemberExamine 机器人加群审核
  */
 suspend fun NapCatBotApi.setGroupRobotAddOption(
     groupId: String,
@@ -174,6 +211,10 @@ suspend fun NapCatBotApi.setGroupRobotAddOption(
 
 /**
  * 设置群搜索选项
+ *
+ * @param groupId 群组ID
+ * @param noCodeFingerOpen 是否开启群号检索
+ * @param noFingerOpen 是否开启群名检索
  */
 suspend fun NapCatBotApi.setGroupSearch(groupId: String, noCodeFingerOpen: Long? = null, noFingerOpen: Long? = null) {
     apiRequestUnit(
@@ -184,6 +225,8 @@ suspend fun NapCatBotApi.setGroupSearch(groupId: String, noCodeFingerOpen: Long?
 
 /**
  * 群打卡
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.setGroupSign(groupId: String) {
     apiRequestUnit("set_group_sign", mapOf("group_id" to groupId))
@@ -191,6 +234,11 @@ suspend fun NapCatBotApi.setGroupSign(groupId: String) {
 
 /**
  * 上传图片到群相册
+ *
+ * @param groupId 群组ID
+ * @param albumId 相册ID
+ * @param albumName 相册名称
+ * @param file 图片文件
  */
 suspend fun NapCatBotApi.uploadImageToQunAlbum(groupId: String, albumId: String, albumName: String, file: String) {
     apiRequestUnit(

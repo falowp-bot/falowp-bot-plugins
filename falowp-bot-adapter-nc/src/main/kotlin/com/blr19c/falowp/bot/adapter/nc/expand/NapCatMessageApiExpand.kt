@@ -82,11 +82,12 @@ class NapCatMessageApiExpand {
 /**
  * 发送群聊消息
  *
- * @param groupId 群聊ID
+ * @param groupId 群组ID
  * @param message 消息内容
  */
 suspend fun NapCatBotApi.sendGroupMsg(
-    groupId: String = this.receiveMessage.source.id, message: List<NapCatMessage.Message>
+    groupId: String,
+    message: List<NapCatMessage.Message>
 ): Long {
     val body = mapOf("group_id" to groupId, "message" to message)
     return apiRequest<Long>("send_group_msg", body)
@@ -99,7 +100,8 @@ suspend fun NapCatBotApi.sendGroupMsg(
  * @param message 消息内容
  */
 suspend fun NapCatBotApi.sendPrivateMsg(
-    userId: String = this.receiveMessage.sender.id, message: List<NapCatMessage.Message>
+    userId: String,
+    message: List<NapCatMessage.Message>
 ): Long {
     val body = mapOf("user_id" to userId, "message" to message)
     return apiRequest<Long>("send_private_msg", body)
@@ -109,6 +111,9 @@ suspend fun NapCatBotApi.sendPrivateMsg(
  * 发送戳一戳
  *
  * 在群聊或私聊中发送戳一戳动作
+ *
+ * @param groupId 群组ID
+ * @param userId 用户ID
  */
 suspend fun NapCatBotApi.sendPoke(groupId: String? = null, userId: String) {
     apiRequestUnit("send_poke", mapOf("group_id" to groupId, "user_id" to userId))
@@ -125,6 +130,8 @@ suspend fun NapCatBotApi.markAllAsRead() {
  * 撤回消息
  *
  * 撤回已发送的消息
+ *
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.deleteMsg(messageId: Long) {
     apiRequestUnit("delete_msg", mapOf("message_id" to messageId))
@@ -132,6 +139,9 @@ suspend fun NapCatBotApi.deleteMsg(messageId: Long) {
 
 /**
  * 转发单条消息-私聊
+ *
+ * @param messageId 消息ID
+ * @param userId 用户ID
  */
 suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, userId: String) {
     apiRequestUnit(
@@ -142,6 +152,9 @@ suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, userId: String)
 
 /**
  * 转发单条消息-群聊
+ *
+ * @param messageId 消息ID
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: Long, groupId: String) {
     apiRequestUnit(
@@ -154,6 +167,8 @@ suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: Long, groupId: String)
  * 获取消息
  *
  * 根据消息 ID 获取消息详细信息
+ *
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.getMsg(messageId: String): NapCatMessage {
     return apiRequest("get_msg", mapOf("message_id" to messageId))
@@ -163,6 +178,10 @@ suspend fun NapCatBotApi.getMsg(messageId: String): NapCatMessage {
  * 标记群聊已读
  *
  * 标记指定渠道的消息为已读
+ *
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.markGroupMsgAsRead(
     userId: String? = null,
@@ -179,6 +198,10 @@ suspend fun NapCatBotApi.markGroupMsgAsRead(
  * 标记消息已读 (Go-CQHTTP)
  *
  * 标记指定渠道的消息为已读
+ *
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.markMsgAsRead(userId: String? = null, groupId: String? = null, messageId: String? = null) {
     apiRequestUnit("mark_msg_as_read", mapOf("user_id" to userId, "group_id" to groupId, "message_id" to messageId))
@@ -188,6 +211,10 @@ suspend fun NapCatBotApi.markMsgAsRead(userId: String? = null, groupId: String? 
  * 标记私聊已读
  *
  * 标记指定渠道的消息为已读
+ *
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.markPrivateMsgAsRead(
     userId: String? = null,

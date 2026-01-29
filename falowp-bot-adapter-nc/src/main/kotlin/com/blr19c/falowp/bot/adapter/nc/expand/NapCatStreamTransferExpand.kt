@@ -32,6 +32,10 @@ suspend fun NapCatBotApi.cleanStreamTempFile() {
 
 /**
  * 下载图片文件流
+ *
+ * @param file 文件路径或URL
+ * @param fileId 文件ID
+ * @param chunkSize 分块大小
  */
 suspend fun NapCatBotApi.downloadFileImageStream(
     file: String? = null,
@@ -46,6 +50,11 @@ suspend fun NapCatBotApi.downloadFileImageStream(
 
 /**
  * 下载语音文件流
+ *
+ * @param file 文件路径或URL
+ * @param fileId 文件ID
+ * @param chunkSize 分块大小
+ * @param outFormat 输出格式
  */
 suspend fun NapCatBotApi.downloadFileRecordStream(
     file: String? = null,
@@ -61,6 +70,8 @@ suspend fun NapCatBotApi.downloadFileRecordStream(
 
 /**
  * 测试下载流
+ *
+ * @param error 是否触发错误
  */
 suspend fun NapCatBotApi.testDownloadStream(error: Boolean = false): JsonNode {
     return apiRequest("test_download_stream", mapOf("error" to error))

@@ -99,6 +99,8 @@ class NapCatMessageExtraExpand {
  * 分享群 (Ark)
  *
  * 获取群分享的 Ark 内容
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.arkShareGroup(groupId: String) {
     apiRequestUnit("ArkShareGroup", mapOf("group_id" to groupId))
@@ -108,6 +110,10 @@ suspend fun NapCatBotApi.arkShareGroup(groupId: String) {
  * 分享用户 (Ark)
  *
  * 获取用户推荐的 Ark 内容
+ *
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param phoneNumber 手机号
  */
 suspend fun NapCatBotApi.arkSharePeer(userId: String? = null, groupId: String? = null, phoneNumber: String) {
     apiRequestUnit("ArkSharePeer", mapOf("user_id" to userId, "group_id" to groupId, "phone_number" to phoneNumber))
@@ -115,6 +121,12 @@ suspend fun NapCatBotApi.arkSharePeer(userId: String? = null, groupId: String? =
 
 /**
  * 点击内联键盘按钮
+ *
+ * @param groupId 群组ID
+ * @param botAppid 机器人AppID
+ * @param buttonId 按钮ID
+ * @param callbackData 回调数据
+ * @param msgSeq 消息序列号
  */
 suspend fun NapCatBotApi.clickInlineKeyboardButton(
     groupId: String,
@@ -137,6 +149,12 @@ suspend fun NapCatBotApi.clickInlineKeyboardButton(
 
 /**
  * 获取表情点赞详情
+ *
+ * @param messageId 消息ID
+ * @param emojiId 表情ID
+ * @param emojiType 表情类型
+ * @param count 获取数量
+ * @param cookie 分页Cookie
  */
 suspend fun NapCatBotApi.fetchEmojiLike(
     messageId: Long,
@@ -159,6 +177,12 @@ suspend fun NapCatBotApi.fetchEmojiLike(
 
 /**
  * 获取消息表情点赞列表
+ *
+ * @param groupId 群组ID
+ * @param messageId 消息ID
+ * @param emojiId 表情ID
+ * @param emojiType 表情类型
+ * @param count 获取数量
  */
 suspend fun NapCatBotApi.getEmojiLikes(
     groupId: String? = null,
@@ -183,6 +207,10 @@ suspend fun NapCatBotApi.getEmojiLikes(
  * 分享用户 (Ark)
  *
  * 获取用户推荐的 Ark 内容
+ *
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param phoneNumber 手机号
  */
 suspend fun NapCatBotApi.sendArkShare(userId: String? = null, groupId: String? = null, phoneNumber: String) {
     apiRequestUnit("send_ark_share", mapOf("user_id" to userId, "group_id" to groupId, "phone_number" to phoneNumber))
@@ -192,6 +220,8 @@ suspend fun NapCatBotApi.sendArkShare(userId: String? = null, groupId: String? =
  * 分享群 (Ark)
  *
  * 获取群分享的 Ark 内容
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.sendGroupArkShare(groupId: String) {
     apiRequestUnit("send_group_ark_share", mapOf("group_id" to groupId))
@@ -199,6 +229,10 @@ suspend fun NapCatBotApi.sendGroupArkShare(groupId: String) {
 
 /**
  * 设置消息表情点赞
+ *
+ * @param messageId 消息ID
+ * @param emojiId 表情ID
+ * @param set 是否点赞
  */
 suspend fun NapCatBotApi.setMsgEmojiLike(messageId: Long, emojiId: Long, set: Boolean? = null) {
     apiRequestUnit("set_msg_emoji_like", mapOf("message_id" to messageId, "emoji_id" to emojiId, "set" to set))

@@ -99,6 +99,8 @@ suspend fun NapCatBotApi.botExit() {
 
 /**
  * 获取自定义表情
+ *
+ * @param count 获取数量
  */
 suspend fun NapCatBotApi.fetchCustomFace(count: Long): List<String> {
     return apiRequest("fetch_custom_face", mapOf("count" to count))
@@ -106,6 +108,9 @@ suspend fun NapCatBotApi.fetchCustomFace(count: Long): List<String> {
 
 /**
  * 获取收藏列表
+ *
+ * @param category 收藏分类
+ * @param count 获取数量
  */
 suspend fun NapCatBotApi.getCollectionList(category: String, count: String): String {
     return apiRequest("get_collection_list", mapOf("category" to category, "count" to count))
@@ -148,6 +153,8 @@ suspend fun NapCatBotApi.ncGetRKey(): List<String> {
 
 /**
  * 获取用户在线状态
+ *
+ * @param userId 用户ID
  */
 suspend fun NapCatBotApi.ncGetUserStatus(userId: String): NapCatSystemExtraExpand.NcGetUserStatus {
     return apiRequest("nc_get_user_status", mapOf("user_id" to userId))
@@ -155,6 +162,10 @@ suspend fun NapCatBotApi.ncGetUserStatus(userId: String): NapCatSystemExtraExpan
 
 /**
  * 发送原始数据包
+ *
+ * @param cmd 命令字
+ * @param data 数据内容
+ * @param rsp 响应配置
  */
 suspend fun NapCatBotApi.sendPacket(cmd: String, data: String, rsp: String) {
     apiRequestUnit("send_packet", mapOf("cmd" to cmd, "data" to data, "rsp" to rsp))
@@ -162,6 +173,9 @@ suspend fun NapCatBotApi.sendPacket(cmd: String, data: String, rsp: String) {
 
 /**
  * 设置输入状态
+ *
+ * @param userId 用户ID
+ * @param eventType 事件类型
  */
 suspend fun NapCatBotApi.setInputStatus(userId: String, eventType: Long) {
     apiRequestUnit("set_input_status", mapOf("user_id" to userId, "event_type" to eventType))

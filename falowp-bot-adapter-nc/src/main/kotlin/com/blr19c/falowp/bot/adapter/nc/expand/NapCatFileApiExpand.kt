@@ -140,6 +140,9 @@ class NapCatFileApiExpand {
  * 获取文件
  *
  * 获取指定文件的详细信息及下载路径
+ *
+ * @param file 文件路径
+ * @param fileId 文件ID
  */
 suspend fun NapCatBotApi.getFile(file: String? = null, fileId: String? = null): NapCatFileApiExpand.File {
     return apiRequest("get_file", mapOf("file" to file, "file_id" to fileId))
@@ -149,9 +152,13 @@ suspend fun NapCatBotApi.getFile(file: String? = null, fileId: String? = null): 
  * 获取群文件URL
  *
  * 获取指定群文件的下载链接
+ *
+ * @param groupId 群组ID
+ * @param fileId 文件ID
+ * @param busid 业务ID
  */
 suspend fun NapCatBotApi.getGroupFileUrl(
-    groupId: String = this.receiveMessage.source.id,
+    groupId: String,
     fileId: String,
     busid: Int? = null
 ): NapCatFileApiExpand.GroupFileUrl {
@@ -169,6 +176,9 @@ suspend fun NapCatBotApi.getGroupFileUrl(
  * 获取图片
  *
  * 获取指定图片的信息及路径
+ *
+ * @param file 文件路径
+ * @param fileId 文件ID
  */
 suspend fun NapCatBotApi.getImage(file: String? = null, fileId: String? = null): NapCatFileApiExpand.Image {
     return apiRequest("get_image", mapOf("file" to file, "file_id" to fileId))
@@ -178,6 +188,8 @@ suspend fun NapCatBotApi.getImage(file: String? = null, fileId: String? = null):
  * 获取私聊文件URL
  *
  * 获取指定私聊文件的下载链接
+ *
+ * @param fileId 文件ID
  */
 suspend fun NapCatBotApi.getPrivateFileUrl(fileId: String): NapCatFileApiExpand.PrivateFileUrl {
     return apiRequest("get_private_file_url", mapOf("file_id" to fileId))
@@ -187,6 +199,10 @@ suspend fun NapCatBotApi.getPrivateFileUrl(fileId: String): NapCatFileApiExpand.
  * 获取语音
  *
  * 获取指定语音文件的信息，并支持格式转换
+ *
+ * @param file 文件路径
+ * @param fileId 文件ID
+ * @param outFormat 输出格式
  */
 suspend fun NapCatBotApi.getRecord(
     file: String? = null,

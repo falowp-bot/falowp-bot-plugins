@@ -160,6 +160,8 @@ class NapCatUserApiExpand {
  * 获取 Cookies
  *
  * 获取指定域名的 Cookies
+ *
+ * @param domain 域名
  */
 suspend fun NapCatBotApi.getCookies(domain: String): NapCatUserApiExpand.Cookies {
     return apiRequest("get_cookies", mapOf("domain" to domain))
@@ -169,6 +171,8 @@ suspend fun NapCatBotApi.getCookies(domain: String): NapCatUserApiExpand.Cookies
  * 获取好友列表
  *
  * 获取当前帐号的好友列表
+ *
+ * @param noCache 是否禁用缓存
  */
 suspend fun NapCatBotApi.getFriendList(noCache: Boolean? = null): List<NapCatUserApiExpand.FriendUser> {
     return apiRequest("get_friend_list", mapOf("no_cache" to noCache))
@@ -178,6 +182,8 @@ suspend fun NapCatBotApi.getFriendList(noCache: Boolean? = null): List<NapCatUse
  * 获取最近会话
  *
  * 获取最近会话
+ *
+ * @param count 获取数量
  */
 suspend fun NapCatBotApi.getRecentContact(count: Long): List<NapCatUserApiExpand.RecentContactItemItem> {
     return apiRequest("get_recent_contact", mapOf("count" to count))
@@ -187,6 +193,9 @@ suspend fun NapCatBotApi.getRecentContact(count: Long): List<NapCatUserApiExpand
  * 点赞
  *
  * 给指定用户点赞
+ *
+ * @param userId 用户ID
+ * @param times 点赞次数
  */
 suspend fun NapCatBotApi.sendLike(userId: String, times: Long) {
     apiRequestUnit("send_like", mapOf("user_id" to userId, "times" to times))
@@ -196,6 +205,10 @@ suspend fun NapCatBotApi.sendLike(userId: String, times: Long) {
  * 处理加好友请求
  *
  * 同意或拒绝加好友请求
+ *
+ * @param flag 请求标识
+ * @param approve 是否同意
+ * @param remark 备注
  */
 suspend fun NapCatBotApi.setFriendAddRequest(flag: String, approve: String? = null, remark: String? = null) {
     apiRequestUnit("set_friend_add_request", mapOf("flag" to flag, "approve" to approve, "remark" to remark))
@@ -205,6 +218,9 @@ suspend fun NapCatBotApi.setFriendAddRequest(flag: String, approve: String? = nu
  * 设置好友备注
  *
  * 设置好友备注
+ *
+ * @param userId 用户ID
+ * @param remark 备注
  */
 suspend fun NapCatBotApi.setFriendRemark(userId: String, remark: String) {
     apiRequestUnit("set_friend_remark", mapOf("user_id" to userId, "remark" to remark))
