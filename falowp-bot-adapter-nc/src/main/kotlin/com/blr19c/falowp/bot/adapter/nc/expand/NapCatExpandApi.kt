@@ -78,6 +78,12 @@ data class NapCatWsEcho(
     val echo: String,
 )
 
+/**
+ * 发起 API 请求并返回原始结果
+ *
+ * @param type 请求类型
+ * @param body 请求体
+ */
 private suspend inline fun <reified T : Any> NapCatBotApi.apiRequestResult(
     type: String,
     body: Any? = null
@@ -93,12 +99,24 @@ private suspend inline fun <reified T : Any> NapCatBotApi.apiRequestResult(
     }
 }
 
+/**
+ * 发起 API 请求并返回数据
+ *
+ * @param type 请求类型
+ * @param body 请求体
+ */
 internal suspend inline fun <reified T : Any> NapCatBotApi.apiRequest(type: String, body: Any? = null): T {
     val result = apiRequestResult<T>(type, body)
     if (result.success()) return result.data ?: throw IllegalStateException("NapCat-API-请求失败-无返回结果")
     throw IllegalStateException("NapCat-API-请求失败:${result.msg ?: ""}${result.wording ?: ""}")
 }
 
+/**
+ * 发起 API 请求并忽略返回值
+ *
+ * @param type 请求类型
+ * @param body 请求体
+ */
 internal suspend fun NapCatBotApi.apiRequestUnit(type: String, body: Any? = null) {
     val result = apiRequestResult<Unit>(type, body)
     if (result.success()) return

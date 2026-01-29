@@ -7,7 +7,7 @@ import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
- * NapCatMessageApiExpand
+ * NapCatMessageApiExpand 消息API
  */
 class NapCatMessageApiExpand {
     /**
@@ -76,17 +76,102 @@ class NapCatMessageApiExpand {
         val emojiLikesList: List<String>?
     )
 
+    /**
+     * FetchEmojiLikeEmojiLikesListItem
+     */
+    data class FetchEmojiLikeEmojiLikesListItem(
+        /**
+         * TinyID
+         */
+        @field:JsonProperty("tinyId")
+        val tinyId: String,
+        /**
+         * 昵称
+         */
+        @field:JsonProperty("nickName")
+        val nickName: String,
+        /**
+         * 头像URL
+         */
+        @field:JsonProperty("headUrl")
+        val headUrl: String
+    )
+
+    /**
+     * FetchEmojiLike
+     */
+    data class FetchEmojiLike(
+        /**
+         * 表情回应列表
+         */
+        @field:JsonProperty("emojiLikesList")
+        val emojiLikesList: List<FetchEmojiLikeEmojiLikesListItem>,
+        /**
+         * 分页Cookie
+         */
+        @field:JsonProperty("cookie")
+        val cookie: String,
+        /**
+         * 是否最后一页
+         */
+        @field:JsonProperty("isLastPage")
+        val isLastPage: Boolean,
+        /**
+         * 是否第一页
+         */
+        @field:JsonProperty("isFirstPage")
+        val isFirstPage: Boolean,
+        /**
+         * 结果状态码
+         */
+        @field:JsonProperty("result")
+        val result: Long,
+        /**
+         * 错 误信息
+         */
+        @field:JsonProperty("errMsg")
+        val errMsg: String
+    )
+
+    /**
+     * EmojiLikesEmojiLikeListItem
+     */
+    data class EmojiLikesEmojiLikeListItem(
+        /**
+         * 点击者QQ号
+         */
+        @field:JsonProperty("user_id")
+        val userId: String,
+        /**
+         * 昵称?
+         */
+        @field:JsonProperty("nick_name")
+        val nickName: String
+    )
+
+    /**
+     * EmojiLikes
+     */
+    data class EmojiLikes(
+        /**
+         * 表情回应列表
+         */
+        @field:JsonProperty("emoji_like_list")
+        val emojiLikeList: List<EmojiLikesEmojiLikeListItem>
+    )
+
 }
 
 
 /**
  * 发送群聊消息
  *
- * @param groupId 群聊ID
+ * @param groupId 群组ID
  * @param message 消息内容
  */
 suspend fun NapCatBotApi.sendGroupMsg(
-    groupId: String = this.receiveMessage.source.id, message: List<NapCatMessage.Message>
+    groupId: String,
+    message: List<NapCatMessage.Message>
 ): Long {
     val body = mapOf("group_id" to groupId, "message" to message)
     return apiRequest<Long>("send_group_msg", body)
@@ -99,7 +184,8 @@ suspend fun NapCatBotApi.sendGroupMsg(
  * @param message 消息内容
  */
 suspend fun NapCatBotApi.sendPrivateMsg(
-    userId: String = this.receiveMessage.sender.id, message: List<NapCatMessage.Message>
+    userId: String,
+    message: List<NapCatMessage.Message>
 ): Long {
     val body = mapOf("user_id" to userId, "message" to message)
     return apiRequest<Long>("send_private_msg", body)
@@ -109,6 +195,9 @@ suspend fun NapCatBotApi.sendPrivateMsg(
  * 发送戳一戳
  *
  * 在群聊或私聊中发送戳一戳动作
+ *
+ * @param groupId 群组ID
+ * @param userId 用户ID
  */
 suspend fun NapCatBotApi.sendPoke(groupId: String? = null, userId: String) {
     apiRequestUnit("send_poke", mapOf("group_id" to groupId, "user_id" to userId))
@@ -125,6 +214,8 @@ suspend fun NapCatBotApi.markAllAsRead() {
  * 撤回消息
  *
  * 撤回已发送的消息
+ *
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.deleteMsg(messageId: Long) {
     apiRequestUnit("delete_msg", mapOf("message_id" to messageId))
@@ -132,6 +223,9 @@ suspend fun NapCatBotApi.deleteMsg(messageId: Long) {
 
 /**
  * 转发单条消息-私聊
+ *
+ * @param messageId 消息ID
+ * @param userId 用户ID
  */
 suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, userId: String) {
     apiRequestUnit(
@@ -142,6 +236,9 @@ suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, userId: String)
 
 /**
  * 转发单条消息-群聊
+ *
+ * @param messageId 消息ID
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: Long, groupId: String) {
     apiRequestUnit(
@@ -154,6 +251,8 @@ suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: Long, groupId: String)
  * 获取消息
  *
  * 根据消息 ID 获取消息详细信息
+ *
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.getMsg(messageId: String): NapCatMessage {
     return apiRequest("get_msg", mapOf("message_id" to messageId))
@@ -163,6 +262,10 @@ suspend fun NapCatBotApi.getMsg(messageId: String): NapCatMessage {
  * 标记群聊已读
  *
  * 标记指定渠道的消息为已读
+ *
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.markGroupMsgAsRead(
     userId: String? = null,
@@ -179,6 +282,10 @@ suspend fun NapCatBotApi.markGroupMsgAsRead(
  * 标记消息已读 (Go-CQHTTP)
  *
  * 标记指定渠道的消息为已读
+ *
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.markMsgAsRead(userId: String? = null, groupId: String? = null, messageId: String? = null) {
     apiRequestUnit("mark_msg_as_read", mapOf("user_id" to userId, "group_id" to groupId, "message_id" to messageId))
@@ -188,6 +295,10 @@ suspend fun NapCatBotApi.markMsgAsRead(userId: String? = null, groupId: String? 
  * 标记私聊已读
  *
  * 标记指定渠道的消息为已读
+ *
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.markPrivateMsgAsRead(
     userId: String? = null,
@@ -198,6 +309,149 @@ suspend fun NapCatBotApi.markPrivateMsgAsRead(
         "mark_private_msg_as_read",
         mapOf("user_id" to userId, "group_id" to groupId, "message_id" to messageId)
     )
+}
+
+/**
+ * 分享群 (Ark)
+ *
+ * 获取群分享的 Ark 内容
+ *
+ * @param groupId 群组ID
+ */
+suspend fun NapCatBotApi.arkShareGroup(groupId: String) {
+    apiRequestUnit("ArkShareGroup", mapOf("group_id" to groupId))
+}
+
+/**
+ * 分享用户 (Ark)
+ *
+ * 获取用户推荐的 Ark 内容
+ *
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param phoneNumber 手机号
+ */
+suspend fun NapCatBotApi.arkSharePeer(userId: String? = null, groupId: String? = null, phoneNumber: String) {
+    apiRequestUnit("ArkSharePeer", mapOf("user_id" to userId, "group_id" to groupId, "phone_number" to phoneNumber))
+}
+
+/**
+ * 点击内联键盘按钮
+ *
+ * @param groupId 群组ID
+ * @param botAppid 机器人AppID
+ * @param buttonId 按钮ID
+ * @param callbackData 回调数据
+ * @param msgSeq 消息序列号
+ */
+suspend fun NapCatBotApi.clickInlineKeyboardButton(
+    groupId: String,
+    botAppid: String,
+    buttonId: String,
+    callbackData: String,
+    msgSeq: String
+) {
+    apiRequestUnit(
+        "click_inline_keyboard_button",
+        mapOf(
+            "group_id" to groupId,
+            "bot_appid" to botAppid,
+            "button_id" to buttonId,
+            "callback_data" to callbackData,
+            "msg_seq" to msgSeq
+        )
+    )
+}
+
+/**
+ * 获取表情点赞详情
+ *
+ * @param messageId 消息ID
+ * @param emojiId 表情ID
+ * @param emojiType 表情类型
+ * @param count 获取数量
+ * @param cookie 分页Cookie
+ */
+suspend fun NapCatBotApi.fetchEmojiLike(
+    messageId: Long,
+    emojiId: Long,
+    emojiType: Long,
+    count: Long,
+    cookie: String
+): NapCatMessageApiExpand.FetchEmojiLike {
+    return apiRequest(
+        "fetch_emoji_like",
+        mapOf(
+            "message_id" to messageId,
+            "emojiId" to emojiId,
+            "emojiType" to emojiType,
+            "count" to count,
+            "cookie" to cookie
+        )
+    )
+}
+
+/**
+ * 获取消息表情点赞列表
+ *
+ * @param groupId 群组ID
+ * @param messageId 消息ID
+ * @param emojiId 表情ID
+ * @param emojiType 表情类型
+ * @param count 获取数量
+ */
+suspend fun NapCatBotApi.getEmojiLikes(
+    groupId: String? = null,
+    messageId: String,
+    emojiId: String,
+    emojiType: String? = null,
+    count: Long
+): NapCatMessageApiExpand.EmojiLikes {
+    return apiRequest(
+        "get_emoji_likes",
+        mapOf(
+            "group_id" to groupId,
+            "message_id" to messageId,
+            "emoji_id" to emojiId,
+            "emoji_type" to emojiType,
+            "count" to count
+        )
+    )
+}
+
+/**
+ * 分享用户 (Ark)
+ *
+ * 获取用户推荐的 Ark 内容
+ *
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param phoneNumber 手机号
+ */
+suspend fun NapCatBotApi.sendArkShare(userId: String? = null, groupId: String? = null, phoneNumber: String) {
+    apiRequestUnit("send_ark_share", mapOf("user_id" to userId, "group_id" to groupId, "phone_number" to phoneNumber))
+}
+
+/**
+ * 分享群 (Ark)
+ *
+ * 获取群分享的 Ark 内容
+ *
+ * @param groupId 群组ID
+ */
+suspend fun NapCatBotApi.sendGroupArkShare(groupId: String) {
+    apiRequestUnit("send_group_ark_share", mapOf("group_id" to groupId))
+}
+
+/**
+ * 设置消息表情点赞
+ *
+ * @param messageId 消息ID
+ * @param emojiId 表情ID
+ * @param set 是否点赞
+ */
+suspend fun NapCatBotApi.setMsgEmojiLike(messageId: Long, emojiId: Long, set: Boolean? = null) {
+    apiRequestUnit("set_msg_emoji_like", mapOf("message_id" to messageId, "emoji_id" to emojiId, "set" to set))
 }
 
 /**

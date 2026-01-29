@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
 
 /**
- * NapCatGoCqHttpExpand
+ * NapCatGoCqHttpExpand Go-CQHTTP API
  */
 class NapCatGoCqHttpExpand {
     /**
@@ -294,6 +294,9 @@ class NapCatGoCqHttpExpand {
  * 处理快速操作
  *
  * 处理来自事件上报的快速操作请求
+ *
+ * @param context 事件上下文
+ * @param operation 操作内容
  */
 suspend fun NapCatBotApi.handleQuickOperation(context: JsonNode, operation: JsonNode) {
     apiRequestUnit(".handle_quick_operation", mapOf("context" to context, "operation" to operation))
@@ -303,6 +306,8 @@ suspend fun NapCatBotApi.handleQuickOperation(context: JsonNode, operation: Json
  * 获取机型显示
  *
  * 获取当前账号可用的设备机型显示名称列表
+ *
+ * @param model 机型名称
  */
 suspend fun NapCatBotApi.getModelShow(model: String? = null): List<NapCatGoCqHttpExpand.ModelShowItemItem> {
     return apiRequest("_get_model_show", mapOf("model" to model))
@@ -312,6 +317,15 @@ suspend fun NapCatBotApi.getModelShow(model: String? = null): List<NapCatGoCqHtt
  * 发送群公告
  *
  * 在指定群聊中发布新的公告
+ *
+ * @param groupId 群组ID
+ * @param content 公告内容
+ * @param image 图片资源
+ * @param pinned 是否置顶
+ * @param type 公告类型
+ * @param confirmRequired 是否需要确认
+ * @param isShowEditCard 是否显示编辑卡片
+ * @param tipWindowType 弹窗类型
  */
 suspend fun NapCatBotApi.sendGroupNotice(
     groupId: String,
@@ -351,6 +365,8 @@ suspend fun NapCatBotApi.setModelShow() {
  * 检查URL安全性
  *
  * 检查指定URL的安全等级
+ *
+ * @param url URL地址
  */
 suspend fun NapCatBotApi.checkUrlSafely(url: String): NapCatGoCqHttpExpand.CheckUrlSafely {
     return apiRequest("check_url_safely", mapOf("url" to url))
@@ -360,6 +376,10 @@ suspend fun NapCatBotApi.checkUrlSafely(url: String): NapCatGoCqHttpExpand.Check
  * 创建群文件目录
  *
  * 在群文件系统中创建新的文件夹
+ *
+ * @param groupId 群组ID
+ * @param folderName 文件夹名称
+ * @param name 文件夹名称
  */
 suspend fun NapCatBotApi.createGroupFileFolder(groupId: String, folderName: String? = null, name: String? = null) {
     apiRequestUnit(
@@ -372,6 +392,11 @@ suspend fun NapCatBotApi.createGroupFileFolder(groupId: String, folderName: Stri
  * 删除好友
  *
  * 从好友列表中删除指定用户
+ *
+ * @param friendId 好友ID
+ * @param userId 用户ID
+ * @param tempBlock 是否临时拉黑
+ * @param tempBothDel 是否双向删除
  */
 suspend fun NapCatBotApi.deleteFriend(
     friendId: String? = null,
@@ -389,6 +414,9 @@ suspend fun NapCatBotApi.deleteFriend(
  * 删除群文件
  *
  * 在群文件系统中删除指定的文件
+ *
+ * @param groupId 群组ID
+ * @param fileId 文件ID
  */
 suspend fun NapCatBotApi.deleteGroupFile(groupId: String, fileId: String) {
     apiRequestUnit("delete_group_file", mapOf("group_id" to groupId, "file_id" to fileId))
@@ -398,6 +426,10 @@ suspend fun NapCatBotApi.deleteGroupFile(groupId: String, fileId: String) {
  * 删除群文件目录
  *
  * 在群文件系统中删除指定的文件夹
+ *
+ * @param groupId 群组ID
+ * @param folderId 文件夹ID
+ * @param folder 文件夹路径
  */
 suspend fun NapCatBotApi.deleteGroupFolder(groupId: String, folderId: String? = null, folder: String? = null) {
     apiRequestUnit("delete_group_folder", mapOf("group_id" to groupId, "folder_id" to folderId, "folder" to folder))
@@ -407,6 +439,11 @@ suspend fun NapCatBotApi.deleteGroupFolder(groupId: String, folderId: String? = 
  * 下载文件
  *
  * 下载网络文件到本地临时目录
+ *
+ * @param url 文件URL
+ * @param base64 Base64内容
+ * @param name 文件名
+ * @param headers 请求头
  */
 suspend fun NapCatBotApi.downloadFile(
     url: String? = null,
@@ -421,6 +458,9 @@ suspend fun NapCatBotApi.downloadFile(
  * 获取合并转发消息
  *
  * 获取合并转发消息的具体内容
+ *
+ * @param messageId 消息ID
+ * @param id 转发ID
  */
 suspend fun NapCatBotApi.getForwardMsg(messageId: String? = null, id: String? = null): NapCatGoCqHttpExpand.ForwardMsg {
     return apiRequest("get_forward_msg", mapOf("message_id" to messageId, "id" to id))
@@ -430,6 +470,14 @@ suspend fun NapCatBotApi.getForwardMsg(messageId: String? = null, id: String? = 
  * 获取好友历史消息
  *
  * 获取指定好友的历史聊天记录
+ *
+ * @param userId 用户ID
+ * @param messageSeq 消息序列号
+ * @param count 获取数量
+ * @param disableGetUrl 是否禁用URL获取
+ * @param parseMultMsg 是否解析合并消息
+ * @param quickReply 是否快速回复
+ * @param reverseOrder 是否倒序
  */
 suspend fun NapCatBotApi.getFriendMsgHistory(
     userId: String,
@@ -459,6 +507,8 @@ suspend fun NapCatBotApi.getFriendMsgHistory(
  * 获取群艾特全体剩余次数
  *
  * 获取指定群聊中艾特全体成员的剩余次数
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.getGroupAtAllRemain(groupId: String): NapCatGoCqHttpExpand.GroupAtAllRemain {
     return apiRequest("get_group_at_all_remain", mapOf("group_id" to groupId))
@@ -468,6 +518,8 @@ suspend fun NapCatBotApi.getGroupAtAllRemain(groupId: String): NapCatGoCqHttpExp
  * 获取群文件系统信息
  *
  * 获取群聊文件系统的空间及状态信息
+ *
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.getGroupFileSystemInfo(groupId: String): NapCatGoCqHttpExpand.GroupFileSystemInfo {
     return apiRequest("get_group_file_system_info", mapOf("group_id" to groupId))
@@ -477,6 +529,11 @@ suspend fun NapCatBotApi.getGroupFileSystemInfo(groupId: String): NapCatGoCqHttp
  * 获取群文件夹文件列表
  *
  * 获取指定群文件夹下的文件及子文件夹列表
+ *
+ * @param groupId 群组ID
+ * @param folderId 文件夹ID
+ * @param folder 文件夹路径
+ * @param fileCount 文件数量
  */
 suspend fun NapCatBotApi.getGroupFilesByFolder(
     groupId: String,
@@ -494,6 +551,9 @@ suspend fun NapCatBotApi.getGroupFilesByFolder(
  * 获取群荣誉信息
  *
  * 获取指定群聊的荣誉信息，如龙王等
+ *
+ * @param groupId 群组ID
+ * @param type 荣誉类型
  */
 suspend fun NapCatBotApi.getGroupHonorInfo(groupId: String, type: String? = null): NapCatGoCqHttpExpand.GroupHonorInfo {
     return apiRequest("get_group_honor_info", mapOf("group_id" to groupId, "type" to type))
@@ -503,6 +563,14 @@ suspend fun NapCatBotApi.getGroupHonorInfo(groupId: String, type: String? = null
  * 获取群历史消息
  *
  * 获取指定群聊的历史聊天记录
+ *
+ * @param groupId 群组ID
+ * @param messageSeq 消息序列号
+ * @param count 获取数量
+ * @param disableGetUrl 是否禁用URL获取
+ * @param parseMultMsg 是否解析合并消息
+ * @param quickReply 是否快速回复
+ * @param reverseOrder 是否倒序
  */
 suspend fun NapCatBotApi.getGroupMsgHistory(
     groupId: String,
@@ -532,6 +600,9 @@ suspend fun NapCatBotApi.getGroupMsgHistory(
  * 获取群根目录文件列表
  *
  * 获取群文件根目录下的所有文件和文件夹
+ *
+ * @param groupId 群组ID
+ * @param fileCount 文件数量
  */
 suspend fun NapCatBotApi.getGroupRootFiles(groupId: String, fileCount: Long): NapCatGoCqHttpExpand.GroupRootFiles {
     return apiRequest("get_group_root_files", mapOf("group_id" to groupId, "file_count" to fileCount))
@@ -550,6 +621,9 @@ suspend fun NapCatBotApi.getOnlineClients(): List<String> {
  * 获取陌生人信息
  *
  * 获取指定非好友用户的信息
+ *
+ * @param userId 用户ID
+ * @param noCache 是否禁用缓存
  */
 suspend fun NapCatBotApi.getStrangerInfo(userId: String, noCache: Boolean): NapCatGoCqHttpExpand.StrangerInfo {
     return apiRequest("get_stranger_info", mapOf("user_id" to userId, "no_cache" to noCache))
@@ -559,6 +633,16 @@ suspend fun NapCatBotApi.getStrangerInfo(userId: String, noCache: Boolean): NapC
  * 发送合并转发消息
  *
  * 发送合并转发消息
+ *
+ * @param messageType 消息类型
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param message 消息列表
+ * @param autoEscape 是否自动转义
+ * @param source 来源
+ * @param news 新闻列表
+ * @param summary 摘要
+ * @param prompt 提示
  */
 suspend fun NapCatBotApi.sendForwardMsg(
     messageType: String? = null,
@@ -589,6 +673,16 @@ suspend fun NapCatBotApi.sendForwardMsg(
 
 /**
  * 发送群合并转发消息
+ *
+ * @param messageType 消息类型
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param message 消息列表
+ * @param autoEscape 是否自动转义
+ * @param source 来源
+ * @param news 新闻列表
+ * @param summary 摘要
+ * @param prompt 提示
  */
 suspend fun NapCatBotApi.sendGroupForwardMsg(
     messageType: String? = null,
@@ -619,6 +713,16 @@ suspend fun NapCatBotApi.sendGroupForwardMsg(
 
 /**
  * 发送私聊合并转发消息
+ *
+ * @param messageType 消息类型
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param message 消息列表
+ * @param autoEscape 是否自动转义
+ * @param source 来源
+ * @param news 新闻列表
+ * @param summary 摘要
+ * @param prompt 提示
  */
 suspend fun NapCatBotApi.sendPrivateForwardMsg(
     messageType: String? = null,
@@ -651,6 +755,9 @@ suspend fun NapCatBotApi.sendPrivateForwardMsg(
  * 设置群头像
  *
  * 修改指定群聊的头像
+ *
+ * @param file 头像文件
+ * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.setGroupPortrait(file: String, groupId: String) {
     apiRequestUnit("set_group_portrait", mapOf("file" to file, "group_id" to groupId))
@@ -660,6 +767,10 @@ suspend fun NapCatBotApi.setGroupPortrait(file: String, groupId: String) {
  * 设置QQ资料
  *
  * 修改当前账号的昵称、个性签名等资料
+ *
+ * @param nickname 昵称
+ * @param personalNote 个性签名
+ * @param sex 性别
  */
 suspend fun NapCatBotApi.setQqProfile(nickname: String, personalNote: String? = null, sex: Long? = null) {
     apiRequestUnit("set_qq_profile", mapOf("nickname" to nickname, "personal_note" to personalNote, "sex" to sex))
@@ -669,6 +780,13 @@ suspend fun NapCatBotApi.setQqProfile(nickname: String, personalNote: String? = 
  * 上传群文件
  *
  * 上传资源路径或URL指定的文件到指定群聊的文件系统中
+ *
+ * @param groupId 群组ID
+ * @param file 文件路径或URL
+ * @param name 文件名
+ * @param folder 文件夹路径
+ * @param folderId 文件夹ID
+ * @param uploadFile 是否上传文件
  */
 suspend fun NapCatBotApi.uploadGroupFile(
     groupId: String,
@@ -695,6 +813,11 @@ suspend fun NapCatBotApi.uploadGroupFile(
  * 上传私聊文件
  *
  * 上传本地文件到指定私聊会话中
+ *
+ * @param userId 用户ID
+ * @param file 文件路径
+ * @param name 文件名
+ * @param uploadFile 是否上传文件
  */
 suspend fun NapCatBotApi.uploadPrivateFile(userId: String, file: String, name: String, uploadFile: Boolean) {
     apiRequestUnit(
