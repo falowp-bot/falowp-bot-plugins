@@ -4,9 +4,9 @@ import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpBotApi
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpEchoMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCqHttpBotApiSupport
-import com.blr19c.falowp.bot.adapter.cq.expand.cqAvatar
-import com.blr19c.falowp.bot.adapter.cq.expand.cqGetMsg
-import com.blr19c.falowp.bot.adapter.cq.expand.cqMarkMsgAsRead
+import com.blr19c.falowp.bot.adapter.cq.expand.avatar
+import com.blr19c.falowp.bot.adapter.cq.expand.getMsg
+import com.blr19c.falowp.bot.adapter.cq.expand.markMsgAsRead
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.BotApi
@@ -103,7 +103,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             return
         }
         //设置已读
-        goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.cqMarkMsgAsRead(it) }
+        goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.markMsgAsRead(it) }
         if (preprocessingNoticeTypeEvents(goCQHttpMessage)) return
         if (preprocessingPostTypeEvents(goCQHttpMessage)) return
         PluginManagement.message(parseMessage(goCQHttpMessage), GoCQHttpBotApi::class)
@@ -148,7 +148,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
         when (goCQHttpMessage.noticeType ?: return false) {
             "group_recall", "friend_recall" -> {
                 val sender = parseSender(goCQHttpMessage)
-                val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.cqGetMsg(it) }
+                val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.getMsg(it) }
                 val message = cqMessage?.let { parseMessage(it) } ?: ReceiveMessage.empty()
                 val source = ReceiveMessage.Source(goCQHttpMessage.groupId!!, SourceTypeEnum.GROUP)
                 parseEventBotApi(goCQHttpMessage).publishEvent(WithdrawMessageEvent(message, sender, source))
@@ -203,7 +203,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
             userId,
             Strings.emptyToNull(goCQHttpMessage.sender?.card) ?: goCQHttpMessage.sender?.nickname ?: "",
             GoCqHttpBotApiSupport.apiAuth(userId, goCQHttpMessage.sender?.role),
-            GoCqHttpBotApiSupport.tempBot.cqAvatar(userId)
+            GoCqHttpBotApiSupport.tempBot.avatar(userId)
         )
     }
 
@@ -228,7 +228,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
 
     private suspend fun referenceSingle(referenceSingle: String?, goCQHttpMessage: GoCQHttpMessage): ReceiveMessage? {
         referenceSingle ?: return null
-        val originalMessage = GoCqHttpBotApiSupport.tempBot.cqGetMsg(referenceSingle)
+        val originalMessage = GoCqHttpBotApiSupport.tempBot.getMsg(referenceSingle)
         val finalMessage = originalMessage.copy(
             selfId = goCQHttpMessage.selfId,
             userId = originalMessage.sender?.userId
