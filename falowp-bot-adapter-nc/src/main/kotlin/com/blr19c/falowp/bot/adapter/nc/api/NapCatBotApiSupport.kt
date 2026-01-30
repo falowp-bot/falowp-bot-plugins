@@ -6,12 +6,10 @@ import com.blr19c.falowp.bot.adapter.nc.expand.getGroupMemberInfo
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
-import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.scheduling.api.SchedulingBotApiSupport
 import com.blr19c.falowp.bot.system.systemConfigListProperty
 import kotlin.reflect.KClass
-import kotlin.time.Duration.Companion.hours
 
 /**
  * NapCatBotApi 定时支持工具
@@ -20,11 +18,9 @@ object NapCatBotApiSupport : SchedulingBotApiSupport {
 
     val tempBot = NapCatBotApi(ReceiveMessage.empty(), this::class)
 
-    val groupList by CacheReference(1.hours) { tempBot.getGroupList() }
-    val friendList by CacheReference(1.hours) { tempBot.getFriendList() }
-
     override suspend fun supportReceive(receiveId: String): Boolean {
-        return groupList.any { it.groupId == receiveId } || friendList.any { it.userId == receiveId }
+        return tempBot.getGroupList().any { it.groupId == receiveId }
+                || tempBot.getFriendList().any { it.userId == receiveId }
     }
 
     override suspend fun bot(receiveId: String, originalClass: KClass<*>): BotApi {
@@ -63,7 +59,7 @@ object NapCatBotApiSupport : SchedulingBotApiSupport {
      * 获取群成员信息转换为 ReceiveMessage.User
      */
     suspend fun getGroupMemberInfo(groupId: String, userId: String): ReceiveMessage.User {
-        return tempBot.getGroupMemberInfo(groupId, userId, true).toUser()
+        return tempBot.getGroupMemberInfo(groupId, userId).toUser()
     }
 
     /**

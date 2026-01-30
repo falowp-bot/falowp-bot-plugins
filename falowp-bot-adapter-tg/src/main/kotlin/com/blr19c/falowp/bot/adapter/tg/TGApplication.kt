@@ -162,9 +162,9 @@ class TGApplication : BotAdapterInterface, Log {
             return originalText.replace(Regex(namesRegex), "").trim()
         }
 
-        private fun voiceMessage(message: Message): URI? {
+        private fun voiceMessage(message: Message): ReceiveMessage.Voice? {
             if (!message.hasVoice()) return null
-            return getFileUrl(message.voice.fileId)?.let { URI.create(it) }
+            return getFileUrl(message.voice.fileId)?.let { ReceiveMessage.Voice(message.voice.fileId, URI.create(it)) }
         }
 
         private fun atMessage(message: Message): List<ReceiveMessage.User> {
@@ -204,7 +204,12 @@ class TGApplication : BotAdapterInterface, Log {
             if (!message.hasVideo()) return null
             val fileUrl = getFileUrl(message.video.fileId) ?: return null
             val thumbnail = getFileUrl(message.video.thumbnail.fileId) ?: return null
-            return ReceiveMessage.Video(ImageUrl(thumbnail), URI.create(fileUrl), message.video.fileSize)
+            return ReceiveMessage.Video(
+                message.video.fileId,
+                ImageUrl(thumbnail),
+                URI.create(fileUrl),
+                message.video.fileSize
+            )
         }
 
         private fun apiAuth(message: Message, userId: Long): ApiAuth {

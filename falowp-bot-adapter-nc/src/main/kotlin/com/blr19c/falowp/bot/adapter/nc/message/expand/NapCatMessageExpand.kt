@@ -2,6 +2,7 @@ package com.blr19c.falowp.bot.adapter.nc.message.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport.tempBot
+import com.blr19c.falowp.bot.adapter.nc.expand.getFile
 import com.blr19c.falowp.bot.adapter.nc.expand.getMsg
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatEmoji
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
@@ -11,9 +12,9 @@ import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.expand.toURI
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.json.safeString
-import java.net.URI
 
 
 /**
@@ -29,10 +30,13 @@ fun NapCatMessage.toBotTextMessage(): String {
 /**
  * 语音消息
  */
-fun NapCatMessage.toBotVoice(): URI? {
+fun NapCatMessage.toBotVoice(): ReceiveMessage.Voice? {
     return this.message.filter { it.type == NapCatMessageDataType.RECORD }
-        .mapNotNull { it.data.url }
-        .map { URI.create(it) }
+        .mapNotNull {
+            val id = it.data.id ?: return@mapNotNull null
+            val url = it.data.url ?: return@mapNotNull null
+            ReceiveMessage.Voice(id, url.toURI())
+        }
         .singleOrNull()
 }
 
@@ -83,8 +87,9 @@ fun NapCatMessage.toBotEmoji(): List<ReceiveMessage.Emoji> {
 fun NapCatMessage.toBotVideo(): ReceiveMessage.Video? {
     return this.message.filter { it.type == NapCatMessageDataType.VIDEO }
         .mapNotNull {
+            val id = it.data.id ?: return@mapNotNull null
             val url = it.data.url ?: return@mapNotNull null
-            ReceiveMessage.Video(ImageUrl.empty(), URI.create(url), it.data.fileSize ?: 0)
+            ReceiveMessage.Video(id, ImageUrl.empty(), url.toURI(), it.data.fileSize ?: 0)
         }.singleOrNull()
 }
 
@@ -140,15 +145,27 @@ fun NapCatMessage.toBotShare(): List<ReceiveMessage.Share> {
 /**
  * 文件消息
  */
-fun NapCatMessage.toBotFile(): List<ReceiveMessage.File> {
-    return this.message.filter { it.type == NapCatMessageDataType.FILE }
+suspend fun NapCatMessage.toBotFile(): List<ReceiveMessage.File> {
+    val normalFileList = this.message.filter { it.type == NapCatMessageDataType.FILE }
         .mapNotNull {
             val fileId = it.data.fileId ?: return@mapNotNull null
             val fileName = it.data.file ?: return@mapNotNull null
             val fileSize = it.data.fileSize ?: return@mapNotNull null
-            val url = it.data.url ?: return@mapNotNull null
-            ReceiveMessage.File(fileId, fileName, URI.create(url), fileSize)
+            val url = it.data.url ?: tempBot.getFile(fileId = fileId).url
+            ReceiveMessage.File(fileId, "normal", fileName, url.toURI(), fileSize)
         }.toList()
+    val onlineFileList = this.message.filter { it.type == NapCatMessageDataType.ONLINE_FILE }
+        .mapNotNull {
+            val messageId = it.data.id ?: return@mapNotNull null
+            val fileId = it.data.fileId ?: return@mapNotNull null
+            val fileName = it.data.file ?: return@mapNotNull null
+            val fileSize = it.data.fileSize ?: return@mapNotNull null
+            val isDir = it.data.isDir ?: return@mapNotNull null
+            val subType = if (isDir) "_dir" else "_file"
+            val id = "${messageId}_${fileId}"
+            ReceiveMessage.File(id, "online$subType", fileName, "".toURI(), fileSize)
+        }.toList()
+    return normalFileList + onlineFileList
 }
 
 /**

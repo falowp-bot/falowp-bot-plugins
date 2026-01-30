@@ -3,6 +3,7 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
+import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
 
@@ -18,6 +19,7 @@ class NapCatFileApiExpand {
         val fileId: String,
         val fileName: String,
         val size: Long,
+        val busid: Int?
     )
 
     /**
@@ -28,22 +30,22 @@ class NapCatFileApiExpand {
          * 本地路径
          */
         @field:JsonProperty("file")
-        val file: String?,
+        val file: String,
         /**
          * 下载URL
          */
         @field:JsonProperty("url")
-        val url: String?,
+        val url: String,
         /**
          * 文件大小
          */
         @field:JsonProperty("file_size")
-        val fileSize: String?,
+        val fileSize: String,
         /**
          * 文件名
          */
         @field:JsonProperty("file_name")
-        val fileName: String?,
+        val fileName: String,
         /**
          * Base64编码
          */
@@ -52,62 +54,20 @@ class NapCatFileApiExpand {
     )
 
     /**
-     * GroupFileUrl
+     * FileUrl
      */
-    data class GroupFileUrl(
+    data class FileUrl(
         /**
          * 文件下载链接
          */
         @field:JsonProperty("url")
-        val url: String?
+        val url: String
     )
 
     /**
      * Image
      */
     data class Image(
-        /**
-         * 本地路径
-         */
-        @field:JsonProperty("file")
-        val file: String?,
-        /**
-         * 下载URL
-         */
-        @field:JsonProperty("url")
-        val url: String?,
-        /**
-         * 文件大小
-         */
-        @field:JsonProperty("file_size")
-        val fileSize: String?,
-        /**
-         * 文件名
-         */
-        @field:JsonProperty("file_name")
-        val fileName: String?,
-        /**
-         * Base64编码
-         */
-        @field:JsonProperty("base64")
-        val base64: String?
-    )
-
-    /**
-     * PrivateFileUrl
-     */
-    data class PrivateFileUrl(
-        /**
-         * 文件下载链接
-         */
-        @field:JsonProperty("url")
-        val url: String?
-    )
-
-    /**
-     * Record
-     */
-    data class Record(
         /**
          * 本地路径
          */
@@ -170,10 +130,10 @@ suspend fun NapCatBotApi.getFile(file: String? = null, fileId: String? = null): 
  * @param busid 业务ID
  */
 suspend fun NapCatBotApi.getGroupFileUrl(
-    groupId: String,
+    groupId: String = this.receiveMessage.source.id,
     fileId: String,
     busid: Int? = null
-): NapCatFileApiExpand.GroupFileUrl {
+): NapCatFileApiExpand.FileUrl {
     return apiRequest(
         "get_group_file_url",
         mapOf(
@@ -187,8 +147,6 @@ suspend fun NapCatBotApi.getGroupFileUrl(
 /**
  * 获取图片
  *
- * 获取指定图片的信息及路径
- *
  * @param file 文件路径
  * @param fileId 文件ID
  */
@@ -199,43 +157,14 @@ suspend fun NapCatBotApi.getImage(file: String? = null, fileId: String? = null):
 /**
  * 获取私聊文件URL
  *
- * 获取指定私聊文件的下载链接
- *
  * @param fileId 文件ID
  */
-suspend fun NapCatBotApi.getPrivateFileUrl(fileId: String): NapCatFileApiExpand.PrivateFileUrl {
+suspend fun NapCatBotApi.getPrivateFileUrl(fileId: String): NapCatFileApiExpand.FileUrl {
     return apiRequest("get_private_file_url", mapOf("file_id" to fileId))
 }
 
 /**
- * 获取语音
- *
- * 获取指定语音文件的信息，并支持格式转换
- *
- * @param file 文件路径
- * @param fileId 文件ID
- * @param outFormat 输出格式
- */
-suspend fun NapCatBotApi.getRecord(
-    file: String? = null,
-    fileId: String? = null,
-    outFormat: String
-): NapCatFileApiExpand.Record {
-    return apiRequest("get_record", mapOf("file" to file, "file_id" to fileId, "out_format" to outFormat))
-}
-
-/**
- * 取消在线文件
- *
- * @param userId 用户ID
- * @param msgId 消息ID
- */
-suspend fun NapCatBotApi.cancelOnlineFile(userId: String, msgId: String) {
-    apiRequestUnit("cancel_online_file", mapOf("user_id" to userId, "msg_id" to msgId))
-}
-
-/**
- * 创建闪照任务
+ * 创建闪传任务
  *
  * @param files 文件列表
  * @param name 任务名称
@@ -273,7 +202,7 @@ suspend fun NapCatBotApi.getFilesetInfo(filesetId: String): JsonNode {
 }
 
 /**
- * 获取闪照文件列表
+ * 获取闪传文件列表
  *
  * @param filesetId 文件集ID
  */
@@ -282,7 +211,7 @@ suspend fun NapCatBotApi.getFlashFileList(filesetId: String): JsonNode {
 }
 
 /**
- * 获取闪照文件链接
+ * 获取闪传文件链接
  *
  * @param filesetId 文件集ID
  * @param fileName 文件名
@@ -297,15 +226,6 @@ suspend fun NapCatBotApi.getFlashFileUrl(
         "get_flash_file_url",
         mapOf("fileset_id" to filesetId, "file_name" to fileName, "file_index" to fileIndex)
     )
-}
-
-/**
- * 获取在线文件消息
- *
- * @param userId 用户ID
- */
-suspend fun NapCatBotApi.getOnlineFileMsg(userId: String): JsonNode {
-    return apiRequest("get_online_file_msg", mapOf("user_id" to userId))
 }
 
 /**
@@ -326,7 +246,7 @@ suspend fun NapCatBotApi.getShareLink(filesetId: String): JsonNode {
  * @param targetParentDirectory 目标父目录
  */
 suspend fun NapCatBotApi.moveGroupFile(
-    groupId: String,
+    groupId: String = this.receiveMessage.source.id,
     fileId: String,
     currentParentDirectory: String,
     targetParentDirectory: String
@@ -343,28 +263,6 @@ suspend fun NapCatBotApi.moveGroupFile(
 }
 
 /**
- * 接收在线文件
- *
- * @param userId 用户ID
- * @param msgId 消息ID
- * @param elementId 元素ID
- */
-suspend fun NapCatBotApi.receiveOnlineFile(userId: String, msgId: String, elementId: String) {
-    apiRequestUnit("receive_online_file", mapOf("user_id" to userId, "msg_id" to msgId, "element_id" to elementId))
-}
-
-/**
- * 拒绝在线文件
- *
- * @param userId 用户ID
- * @param msgId 消息ID
- * @param elementId 元素ID
- */
-suspend fun NapCatBotApi.refuseOnlineFile(userId: String, msgId: String, elementId: String) {
-    apiRequestUnit("refuse_online_file", mapOf("user_id" to userId, "msg_id" to msgId, "element_id" to elementId))
-}
-
-/**
  * 重命名群文件
  *
  * @param groupId 群组ID
@@ -373,7 +271,7 @@ suspend fun NapCatBotApi.refuseOnlineFile(userId: String, msgId: String, element
  * @param newName 新文件名
  */
 suspend fun NapCatBotApi.renameGroupFile(
-    groupId: String,
+    groupId: String = this.receiveMessage.source.id,
     fileId: String,
     currentParentDirectory: String,
     newName: String
@@ -390,7 +288,7 @@ suspend fun NapCatBotApi.renameGroupFile(
 }
 
 /**
- * 发送闪照消息
+ * 发送闪传消息
  *
  * @param filesetId 文件集ID
  * @param userId 用户ID
@@ -400,6 +298,17 @@ suspend fun NapCatBotApi.sendFlashMsg(filesetId: String, userId: String? = null,
     apiRequestUnit("send_flash_msg", mapOf("fileset_id" to filesetId, "user_id" to userId, "group_id" to groupId))
 }
 
+
+/**
+ * 传输群文件
+ *
+ * @param groupId 群组ID
+ * @param fileId 文件ID
+ */
+suspend fun NapCatBotApi.transGroupFile(groupId: String = this.receiveMessage.source.id, fileId: String) {
+    apiRequestUnit("trans_group_file", mapOf("group_id" to groupId, "file_id" to fileId))
+}
+
 /**
  * 发送在线文件
  *
@@ -407,7 +316,11 @@ suspend fun NapCatBotApi.sendFlashMsg(filesetId: String, userId: String? = null,
  * @param filePath 文件路径
  * @param fileName 文件名
  */
-suspend fun NapCatBotApi.sendOnlineFile(userId: String, filePath: String, fileName: String? = null) {
+suspend fun NapCatBotApi.sendOnlineFile(
+    userId: String = this.receiveMessage.sender.id,
+    filePath: String,
+    fileName: String? = null
+) {
     apiRequestUnit("send_online_file", mapOf("user_id" to userId, "file_path" to filePath, "file_name" to fileName))
 }
 
@@ -418,7 +331,11 @@ suspend fun NapCatBotApi.sendOnlineFile(userId: String, filePath: String, fileNa
  * @param folderPath 文件夹路径
  * @param folderName 文件夹名称
  */
-suspend fun NapCatBotApi.sendOnlineFolder(userId: String, folderPath: String, folderName: String? = null) {
+suspend fun NapCatBotApi.sendOnlineFolder(
+    userId: String = this.receiveMessage.sender.id,
+    folderPath: String,
+    folderName: String? = null
+) {
     apiRequestUnit(
         "send_online_folder",
         mapOf("user_id" to userId, "folder_path" to folderPath, "folder_name" to folderName)
@@ -426,11 +343,44 @@ suspend fun NapCatBotApi.sendOnlineFolder(userId: String, folderPath: String, fo
 }
 
 /**
- * 传输群文件
+ * 取消在线文件
  *
- * @param groupId 群组ID
- * @param fileId 文件ID
+ * @param userId 用户ID
+ * @param file 文件信息
  */
-suspend fun NapCatBotApi.transGroupFile(groupId: String, fileId: String) {
-    apiRequestUnit("trans_group_file", mapOf("group_id" to groupId, "file_id" to fileId))
+suspend fun NapCatBotApi.cancelOnlineFile(userId: String = this.receiveMessage.sender.id, file: ReceiveMessage.File) {
+    val messageId = file.id.split("_")[0]
+    apiRequestUnit("cancel_online_file", mapOf("user_id" to userId, "msg_id" to messageId))
+}
+
+/**
+ * 获取在线文件消息
+ *
+ * @param userId 用户ID
+ */
+suspend fun NapCatBotApi.getOnlineFileMsg(userId: String = this.receiveMessage.sender.id): JsonNode {
+    return apiRequest("get_online_file_msg", mapOf("user_id" to userId))
+}
+
+
+/**
+ * 接收在线文件
+ *
+ * @param userId 用户ID
+ * @param file 文件信息
+ */
+suspend fun NapCatBotApi.receiveOnlineFile(userId: String = this.receiveMessage.sender.id, file: ReceiveMessage.File) {
+    val fileId = file.id.split("_")
+    apiRequestUnit("receive_online_file", mapOf("user_id" to userId, "msg_id" to fileId[0], "element_id" to fileId[1]))
+}
+
+/**
+ * 拒绝在线文件
+ *
+ * @param userId 用户ID
+ * @param file 文件信息
+ */
+suspend fun NapCatBotApi.refuseOnlineFile(userId: String = this.receiveMessage.sender.id, file: ReceiveMessage.File) {
+    val fileId = file.id.split("_")
+    apiRequestUnit("refuse_online_file", mapOf("user_id" to userId, "msg_id" to fileId[0], "element_id" to fileId[1]))
 }

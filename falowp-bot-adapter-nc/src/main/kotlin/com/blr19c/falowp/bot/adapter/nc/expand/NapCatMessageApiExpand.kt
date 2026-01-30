@@ -4,7 +4,9 @@ package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
+import com.blr19c.falowp.bot.system.json.safeString
 import com.fasterxml.jackson.annotation.JsonProperty
+import tools.jackson.databind.JsonNode
 
 /**
  * NapCatMessageApiExpand 消息API
@@ -170,11 +172,13 @@ class NapCatMessageApiExpand {
  * @param message 消息内容
  */
 suspend fun NapCatBotApi.sendGroupMsg(
-    groupId: String,
+    groupId: String = this.receiveMessage.source.id,
     message: List<NapCatMessage.Message>
-): Long {
+): String {
     val body = mapOf("group_id" to groupId, "message" to message)
-    return apiRequest<Long>("send_group_msg", body)
+    return apiRequest<JsonNode>("send_group_msg", body)
+        .path("message_id")
+        .safeString()
 }
 
 /**
@@ -184,11 +188,13 @@ suspend fun NapCatBotApi.sendGroupMsg(
  * @param message 消息内容
  */
 suspend fun NapCatBotApi.sendPrivateMsg(
-    userId: String,
+    userId: String = this.receiveMessage.sender.id,
     message: List<NapCatMessage.Message>
-): Long {
+): String {
     val body = mapOf("user_id" to userId, "message" to message)
-    return apiRequest<Long>("send_private_msg", body)
+    return apiRequest<JsonNode>("send_private_msg", body)
+        .path("message_id")
+        .safeString()
 }
 
 /**
@@ -199,7 +205,7 @@ suspend fun NapCatBotApi.sendPrivateMsg(
  * @param groupId 群组ID
  * @param userId 用户ID
  */
-suspend fun NapCatBotApi.sendPoke(groupId: String? = null, userId: String) {
+suspend fun NapCatBotApi.sendPoke(groupId: String? = null, userId: String = this.receiveMessage.sender.id) {
     apiRequestUnit("send_poke", mapOf("group_id" to groupId, "user_id" to userId))
 }
 
@@ -227,7 +233,7 @@ suspend fun NapCatBotApi.deleteMsg(messageId: Long) {
  * @param messageId 消息ID
  * @param userId 用户ID
  */
-suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, userId: String) {
+suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, userId: String = this.receiveMessage.sender.id) {
     apiRequestUnit(
         "forward_friend_single_msg",
         mapOf("message_id" to messageId, "user_id" to userId)
@@ -240,7 +246,7 @@ suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, userId: String)
  * @param messageId 消息ID
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: Long, groupId: String) {
+suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: Long, groupId: String = this.receiveMessage.source.id) {
     apiRequestUnit(
         "forward_group_single_msg",
         mapOf("message_id" to messageId, "group_id" to groupId)
@@ -261,21 +267,10 @@ suspend fun NapCatBotApi.getMsg(messageId: String): NapCatMessage {
 /**
  * 标记群聊已读
  *
- * 标记指定渠道的消息为已读
- *
- * @param userId 用户ID
- * @param groupId 群组ID
  * @param messageId 消息ID
  */
-suspend fun NapCatBotApi.markGroupMsgAsRead(
-    userId: String? = null,
-    groupId: String? = null,
-    messageId: String? = null
-) {
-    apiRequestUnit(
-        "mark_group_msg_as_read",
-        mapOf("user_id" to userId, "group_id" to groupId, "message_id" to messageId)
-    )
+suspend fun NapCatBotApi.markGroupMsgAsRead(messageId: String = this.receiveMessage.id) {
+    apiRequestUnit("mark_group_msg_as_read", mapOf("message_id" to messageId))
 }
 
 /**
@@ -296,19 +291,10 @@ suspend fun NapCatBotApi.markMsgAsRead(userId: String? = null, groupId: String? 
  *
  * 标记指定渠道的消息为已读
  *
- * @param userId 用户ID
- * @param groupId 群组ID
  * @param messageId 消息ID
  */
-suspend fun NapCatBotApi.markPrivateMsgAsRead(
-    userId: String? = null,
-    groupId: String? = null,
-    messageId: String? = null
-) {
-    apiRequestUnit(
-        "mark_private_msg_as_read",
-        mapOf("user_id" to userId, "group_id" to groupId, "message_id" to messageId)
-    )
+suspend fun NapCatBotApi.markPrivateMsgAsRead(messageId: String = this.receiveMessage.id) {
+    apiRequestUnit("mark_private_msg_as_read", mapOf("message_id" to messageId))
 }
 
 /**
@@ -318,7 +304,7 @@ suspend fun NapCatBotApi.markPrivateMsgAsRead(
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.arkShareGroup(groupId: String) {
+suspend fun NapCatBotApi.arkShareGroup(groupId: String = this.receiveMessage.source.id) {
     apiRequestUnit("ArkShareGroup", mapOf("group_id" to groupId))
 }
 
@@ -345,7 +331,7 @@ suspend fun NapCatBotApi.arkSharePeer(userId: String? = null, groupId: String? =
  * @param msgSeq 消息序列号
  */
 suspend fun NapCatBotApi.clickInlineKeyboardButton(
-    groupId: String,
+    groupId: String = this.receiveMessage.source.id,
     botAppid: String,
     buttonId: String,
     callbackData: String,
@@ -373,7 +359,7 @@ suspend fun NapCatBotApi.clickInlineKeyboardButton(
  * @param cookie 分页Cookie
  */
 suspend fun NapCatBotApi.fetchEmojiLike(
-    messageId: Long,
+    messageId: String,
     emojiId: Long,
     emojiType: Long,
     count: Long,
@@ -439,7 +425,7 @@ suspend fun NapCatBotApi.sendArkShare(userId: String? = null, groupId: String? =
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.sendGroupArkShare(groupId: String) {
+suspend fun NapCatBotApi.sendGroupArkShare(groupId: String = this.receiveMessage.source.id) {
     apiRequestUnit("send_group_ark_share", mapOf("group_id" to groupId))
 }
 

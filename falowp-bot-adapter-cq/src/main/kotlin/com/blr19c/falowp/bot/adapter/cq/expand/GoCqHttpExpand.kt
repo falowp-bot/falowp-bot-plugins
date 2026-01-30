@@ -465,7 +465,6 @@ suspend fun GoCQHttpBotApi.uploadGroupFile(
 /**
  * 删除群文件
  */
-@Suppress("SpellCheckingInspection")
 suspend fun GoCQHttpBotApi.deleteGroupFile(groupFile: GroupFile) {
     apiRequest<Unit>(
         "delete_group_file",
@@ -550,7 +549,6 @@ suspend fun GoCQHttpBotApi.getGroupFilesByFolder(groupFolder: GroupFolder): Grou
  *
  * @param groupFile 群组文件
  */
-@Suppress("SpellCheckingInspection")
 suspend fun GoCQHttpBotApi.getGroupFileUrl(groupFile: GroupFile): String {
     return apiRequest<Map<String, String>>(
         "get_group_file_url",

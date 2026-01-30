@@ -108,7 +108,7 @@ class TGBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : BotAp
  * 转为 TGBotApi
  */
 fun BotApi.tg(): TGBotApi {
-    return this as TGBotApi
+    return this as? TGBotApi ?: TGBotApi(receiveMessage, originalClass)
 }
 
 /**

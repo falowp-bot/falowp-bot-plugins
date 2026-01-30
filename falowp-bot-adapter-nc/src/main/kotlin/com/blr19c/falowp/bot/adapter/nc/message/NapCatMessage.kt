@@ -169,6 +169,7 @@ data class NapCatMessage(
          * 如果是引用/回复就是引用的消息ID
          */
         @field:JsonProperty("id")
+        @field:JsonAlias("msgId")
         val id: String? = null,
         /**
          * 如果是互动表情就是互动表情类型
@@ -184,16 +185,19 @@ data class NapCatMessage(
          * 文件名
          */
         @field:JsonProperty("file")
+        @field:JsonAlias("fileName")
         val file: String? = null,
         /**
          * 文件ID
          */
         @field:JsonProperty("file_id")
+        @field:JsonAlias("elementId")
         val fileId: String? = null,
         /**
          * 文件大小
          */
         @field:JsonProperty("file_size")
+        @field:JsonAlias("fileSize")
         val fileSize: Long? = null,
         /**
          * 文件链接
@@ -232,6 +236,10 @@ data class NapCatMessage(
          */
         @field:JsonProperty("raw")
         @field:JsonAlias("data")
-        val raw: JsonNode? = null
+        val raw: JsonNode? = null,
+        /**
+         * 在线文件时标注是否是文件夹
+         */
+        val isDir: Boolean? = null
     )
 }

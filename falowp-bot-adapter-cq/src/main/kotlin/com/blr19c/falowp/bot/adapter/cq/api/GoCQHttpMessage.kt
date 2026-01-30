@@ -212,7 +212,7 @@ data class GoCQHttpMessage(
     /**
      * 处理语音
      */
-    private fun voice(): Optional<URI> {
+    private fun voice(): Optional<ReceiveMessage.Voice> {
         return Optional.empty()
     }
 

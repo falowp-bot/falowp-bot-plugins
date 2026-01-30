@@ -84,7 +84,7 @@ data class NapCatWsEcho(
  * @param type 请求类型
  * @param body 请求体
  */
-private suspend inline fun <reified T : Any> NapCatBotApi.apiRequestResult(
+suspend inline fun <reified T : Any> NapCatBotApi.apiRequestResult(
     type: String,
     body: Any? = null
 ): NapCatApiResult<T> {
@@ -105,10 +105,10 @@ private suspend inline fun <reified T : Any> NapCatBotApi.apiRequestResult(
  * @param type 请求类型
  * @param body 请求体
  */
-internal suspend inline fun <reified T : Any> NapCatBotApi.apiRequest(type: String, body: Any? = null): T {
+suspend inline fun <reified T : Any> NapCatBotApi.apiRequest(type: String, body: Any? = null): T {
     val result = apiRequestResult<T>(type, body)
     if (result.success()) return result.data ?: throw IllegalStateException("NapCat-API-请求失败-无返回结果")
-    throw IllegalStateException("NapCat-API-请求失败:${result.msg ?: ""}${result.wording ?: ""}")
+    throw IllegalStateException("NapCat-API-请求失败,path:${type}:${result.msg ?: ""}${result.wording ?: ""}")
 }
 
 /**
@@ -117,8 +117,8 @@ internal suspend inline fun <reified T : Any> NapCatBotApi.apiRequest(type: Stri
  * @param type 请求类型
  * @param body 请求体
  */
-internal suspend fun NapCatBotApi.apiRequestUnit(type: String, body: Any? = null) {
+suspend fun NapCatBotApi.apiRequestUnit(type: String, body: Any? = null) {
     val result = apiRequestResult<Unit>(type, body)
     if (result.success()) return
-    throw IllegalStateException("NapCat-API-请求失败:${result.msg ?: ""}${result.wording ?: ""}")
+    throw IllegalStateException("NapCat-API-请求失败,path:${type}:${result.msg ?: ""}${result.wording ?: ""}")
 }

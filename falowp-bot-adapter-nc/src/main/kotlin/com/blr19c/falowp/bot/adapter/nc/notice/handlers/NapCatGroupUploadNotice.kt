@@ -28,8 +28,8 @@ object NapCatGroupUploadNotice : NapCatNotice.NapCatNoticeInterface {
 
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
         val user = NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
-        val groupFileUrl = NapCatBotApiSupport.tempBot.getGroupFileUrl(groupId, fileId, busid.toInt())
-        val groupFileInfo = NapCatFileApiExpand.FileInfo(fileId, fileName, fileSize.toLong())
+        val groupFileUrl = NapCatBotApiSupport.tempBot.getGroupFileUrl(groupId, fileId, busid.toIntOrNull())
+        val groupFileInfo = NapCatFileApiExpand.FileInfo(fileId, fileName, fileSize.toLong(), busid.toIntOrNull())
 
         return NapCatGroupUploadEvent(source, user, groupFileUrl, groupFileInfo)
     }

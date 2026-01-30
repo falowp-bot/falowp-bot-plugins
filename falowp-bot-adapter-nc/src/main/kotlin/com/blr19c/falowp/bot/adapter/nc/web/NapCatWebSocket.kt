@@ -75,6 +75,7 @@ object NapCatWebSocket : Log {
         val deferred = CompletableDeferred<JsonNode>()
         echoWaiters[napCatWsEcho.echo] = deferred
         try {
+            println(Json.toJsonString(napCatWsEcho))
             webSocketSession().send(Json.toJsonString(napCatWsEcho))
             return withTimeout(timeout) {
                 deferred.await()
@@ -97,8 +98,11 @@ object NapCatWebSocket : Log {
      */
     private suspend fun execWebsocketFrame(frame: Frame) {
         try {
-            if (frame !is Frame.Text) return
-            val originalMessage = Json.readJsonNode(frame.readText())
+            val originalMessage = when (frame) {
+                is Frame.Text -> Json.readJsonNode(frame.readText())
+                is Frame.Binary -> Json.readJsonNode(frame.readBytes())
+                else -> return
+            }
             if (processEcho(originalMessage)) return
             if (processEvent(originalMessage)) return
             if (processMessages(originalMessage)) return
@@ -144,10 +148,10 @@ object NapCatWebSocket : Log {
         log().info("NapCat-WebSocket-接收到消息:{}", originalMessage)
         val receiveMessage = Json.convertValue<NapCatMessage>(originalMessage).toBotMessage()
         if (receiveMessage.private()) {
-            NapCatBotApiSupport.tempBot.markPrivateMsgAsRead(receiveMessage.sender.id)
+            NapCatBotApiSupport.tempBot.markPrivateMsgAsRead(receiveMessage.id)
         }
         if (receiveMessage.group()) {
-            NapCatBotApiSupport.tempBot.markGroupMsgAsRead(receiveMessage.source.id)
+            NapCatBotApiSupport.tempBot.markGroupMsgAsRead(receiveMessage.id)
         }
         PluginManagement.message(receiveMessage, NapCatBotApi::class)
         return true

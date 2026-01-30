@@ -1,5 +1,7 @@
 package com.blr19c.falowp.bot.adapter.nc.api
 
+import com.blr19c.falowp.bot.adapter.nc.expand.getGroupList
+import com.blr19c.falowp.bot.adapter.nc.expand.sendForwardMsg
 import com.blr19c.falowp.bot.adapter.nc.expand.sendGroupMsg
 import com.blr19c.falowp.bot.adapter.nc.expand.sendPoke
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
@@ -21,8 +23,15 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
         reference: Boolean,
         forward: Boolean
     ) {
-        sendMessageChain.map { buildMessage(it, GROUP, sourceId) }.forEach {
-            if (it.isNotEmpty()) this.sendGroupMsg(sourceId, it)
+        if (forward) {
+            val messages = sendMessageChain.map { buildMessage(it) }
+            this.sendForwardMsg(messageType = GROUP, groupId = sourceId, messages = messages)
+            return
+        }
+        dealPoke(*sendMessageChain, messageType = GROUP, sourceId = sourceId)
+        sendMessageChain.map { buildMessage(it) }.forEach {
+            val message = buildReference(reference, it)
+            if (message.isNotEmpty()) this.sendGroupMsg(sourceId, message)
         }
     }
 
@@ -31,7 +40,7 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
         reference: Boolean,
         forward: Boolean
     ) {
-        for (groupId in NapCatBotApiSupport.groupList.map { it.groupId }) {
+        for (groupId in this.getGroupList().map { it.groupId }) {
             sendGroup(*sendMessageChain, sourceId = groupId, reference = reference, forward = forward)
         }
     }
@@ -42,19 +51,53 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
         reference: Boolean,
         forward: Boolean
     ) {
+        if (forward) {
+            val messages = sendMessageChain.map { buildMessage(it) }
+            this.sendForwardMsg(messageType = PRIVATE, userId = sourceId, messages = messages)
+            return
+        }
+        dealPoke(*sendMessageChain, messageType = PRIVATE, sourceId = sourceId)
+        sendMessageChain.map { buildMessage(it) }.forEach {
+            val message = buildReference(reference, it)
+            if (message.isNotEmpty()) this.sendGroupMsg(sourceId, message)
+        }
+    }
 
+    /**
+     * 处理 POKE
+     */
+    private suspend fun dealPoke(
+        vararg sendMessageChain: SendMessageChain,
+        messageType: NapCatMessageType,
+        sourceId: String
+    ) {
+        sendMessageChain.toList().flatMap { it.messageList }
+            .filterIsInstance<NudgeSendMessage>()
+            .forEach { sendMessage ->
+                when (messageType) {
+                    GROUP -> this.sendPoke(sourceId, sendMessage.id)
+                    PRIVATE -> this.sendPoke(userId = sendMessage.id)
+                    else -> {}
+                }
+            }
+    }
 
-        TODO("Not yet implemented")
+    /**
+     * 引用消息
+     */
+    private fun buildReference(reference: Boolean, messages: List<NapCatMessage.Message>): List<NapCatMessage.Message> {
+        if (!reference || messages.isEmpty()) return messages
+        val referenceMessage = NapCatMessage.Message(
+            NapCatMessageDataType.REPLY,
+            NapCatMessage.MessageData(id = this.receiveMessage.id)
+        )
+        return listOf(referenceMessage) + messages
     }
 
     /**
      * 单个消息
      */
-    private suspend fun buildMessage(
-        sendMessageChain: SendMessageChain,
-        messageType: NapCatMessageType,
-        sourceId: String
-    ): List<NapCatMessage.Message> {
+    private suspend fun buildMessage(sendMessageChain: SendMessageChain): List<NapCatMessage.Message> {
         return sendMessageChain.messageList.mapNotNull { sendMessage ->
             when (sendMessage) {
                 is AtSendMessage -> NapCatMessage.Message(
@@ -77,15 +120,6 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
                     NapCatMessage.MessageData(file = "base64://${sendMessage.image.toBase64()}")
                 )
 
-                is PokeSendMessage -> {
-                    when (messageType) {
-                        GROUP -> this.sendPoke(sourceId, sendMessage.poke)
-                        PRIVATE -> this.sendPoke(userId = sendMessage.poke)
-                        else -> {}
-                    }
-                    null
-                }
-
                 is VideoSendMessage -> NapCatMessage.Message(
                     NapCatMessageDataType.VIDEO,
                     NapCatMessage.MessageData(file = sendMessage.video.toASCIIString())
@@ -101,5 +135,5 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
  * 转为 NapCatBotApi
  */
 fun BotApi.nc(): NapCatBotApi {
-    return this as NapCatBotApi
+    return this as? NapCatBotApi ?: NapCatBotApi(receiveMessage, originalClass)
 }

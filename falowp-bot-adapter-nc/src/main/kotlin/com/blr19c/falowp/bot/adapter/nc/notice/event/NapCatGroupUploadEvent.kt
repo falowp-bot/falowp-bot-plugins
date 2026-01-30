@@ -19,7 +19,7 @@ data class NapCatGroupUploadEvent(
     /**
      * 文件链接
      */
-    val fileUrl: NapCatFileApiExpand.GroupFileUrl,
+    val fileUrl: NapCatFileApiExpand.FileUrl,
     /**
      * 文件信息
      */

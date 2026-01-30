@@ -105,7 +105,7 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
                 is VoiceSendMessage -> voiceCQ(sendMessage.voice)
                 is ImageSendMessage -> imageCQ(sendMessage.image)
                 is VideoSendMessage -> videoCQ(sendMessage.video)
-                is PokeSendMessage -> pokeCQ(sendMessage.poke)
+                is NudgeSendMessage -> pokeCQ(sendMessage.id)
                 is CqFaceMessage -> faceCQ(sendMessage.faceId)
                 is CqMusicMessage -> musicCQ(sendMessage)
                 is CqCustomMusicMessage -> customMusicCQ(sendMessage)
@@ -179,4 +179,11 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
             .replace("[", "&#91;")
             .replace("]", "&#93;")
     }
+}
+
+/**
+ * 转为 GoCQHttpBotApi
+ */
+fun BotApi.cq(): GoCQHttpBotApi {
+    return this as? GoCQHttpBotApi ?: GoCQHttpBotApi(receiveMessage, originalClass)
 }

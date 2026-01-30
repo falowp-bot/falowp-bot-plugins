@@ -583,7 +583,7 @@ suspend fun NapCatBotApi.ncGetRKey(): List<String> {
  *
  * @param userId 用户ID
  */
-suspend fun NapCatBotApi.ncGetUserStatus(userId: String): NapCatSystemApiExpand.NcGetUserStatus {
+suspend fun NapCatBotApi.ncGetUserStatus(userId: String = this.receiveMessage.sender.id): NapCatSystemApiExpand.NcGetUserStatus {
     return apiRequest("nc_get_user_status", mapOf("user_id" to userId))
 }
 
@@ -604,7 +604,7 @@ suspend fun NapCatBotApi.sendPacket(cmd: String, data: String, rsp: String) {
  * @param userId 用户ID
  * @param eventType 事件类型
  */
-suspend fun NapCatBotApi.setInputStatus(userId: String, eventType: Long) {
+suspend fun NapCatBotApi.setInputStatus(userId: String = this.receiveMessage.sender.id, eventType: Long) {
     apiRequestUnit("set_input_status", mapOf("user_id" to userId, "event_type" to eventType))
 }
 

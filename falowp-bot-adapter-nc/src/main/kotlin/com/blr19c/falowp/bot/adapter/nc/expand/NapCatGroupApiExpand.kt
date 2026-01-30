@@ -9,6 +9,7 @@ import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.json.Json
 import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
+import kotlin.time.Duration
 
 /**
  * NapCatGroupApiExpand 群组API
@@ -341,42 +342,6 @@ class NapCatGroupApiExpand {
          * 群号
          */
         @field:JsonProperty("group_id")
-        val groupId: Long,
-        /**
-         * 群名称
-         */
-        @field:JsonProperty("group_name")
-        val groupName: String,
-        /**
-         * 成员人数
-         */
-        @field:JsonProperty("member_count")
-        val memberCount: Long?,
-        /**
-         * 最大成员人数
-         */
-        @field:JsonProperty("max_member_count")
-        val maxMemberCount: Long?
-    )
-
-    /**
-     * GroupItem
-     */
-    data class GroupItem(
-        /**
-         * 是否全员禁言
-         */
-        @field:JsonProperty("group_all_shut")
-        val groupAllShut: Long,
-        /**
-         * 群备注
-         */
-        @field:JsonProperty("group_remark")
-        val groupRemark: String,
-        /**
-         * 群号
-         */
-        @field:JsonProperty("group_id")
         val groupId: String,
         /**
          * 群名称
@@ -394,7 +359,6 @@ class NapCatGroupApiExpand {
         @field:JsonProperty("max_member_count")
         val maxMemberCount: Long?
     )
-
 
     /**
      * 群禁言信息
@@ -469,7 +433,7 @@ class NapCatGroupApiExpand {
  * @param groupId 群组ID
  * @param noticeId 公告ID
  */
-suspend fun NapCatBotApi.delGroupNotice(groupId: String, noticeId: String) {
+suspend fun NapCatBotApi.delGroupNotice(groupId: String = this.receiveMessage.source.id, noticeId: String) {
     apiRequestUnit("_del_group_notice", mapOf("group_id" to groupId, "notice_id" to noticeId))
 }
 
@@ -480,7 +444,7 @@ suspend fun NapCatBotApi.delGroupNotice(groupId: String, noticeId: String) {
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.getGroupNotice(groupId: String): List<NapCatGroupApiExpand.GroupNoticeItemItem> {
+suspend fun NapCatBotApi.getGroupNotice(groupId: String = this.receiveMessage.source.id): List<NapCatGroupApiExpand.GroupNoticeItemItem> {
     return apiRequest("_get_group_notice", mapOf("group_id" to groupId))
 }
 
@@ -513,7 +477,7 @@ suspend fun NapCatBotApi.deleteEssenceMsg(
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.getEssenceMsgList(groupId: String): List<NapCatGroupApiExpand.EssenceMsg> {
+suspend fun NapCatBotApi.getEssenceMsgList(groupId: String = this.receiveMessage.source.id): List<NapCatGroupApiExpand.EssenceMsg> {
     return apiRequest("get_essence_msg_list", mapOf("group_id" to groupId))
 }
 
@@ -524,7 +488,7 @@ suspend fun NapCatBotApi.getEssenceMsgList(groupId: String): List<NapCatGroupApi
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.getGroupDetailInfo(groupId: String): NapCatGroupApiExpand.GroupDetailInfo {
+suspend fun NapCatBotApi.getGroupDetailInfo(groupId: String = this.receiveMessage.source.id): NapCatGroupApiExpand.GroupDetailInfo {
     return apiRequest("get_group_detail_info", mapOf("group_id" to groupId))
 }
 
@@ -551,7 +515,7 @@ suspend fun NapCatBotApi.getGroupIgnoredNotifies(): NapCatGroupApiExpand.GroupIg
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.getGroupInfo(groupId: String): NapCatGroupApiExpand.GroupInfo {
+suspend fun NapCatBotApi.getGroupInfo(groupId: String = this.receiveMessage.source.id): NapCatGroupApiExpand.GroupInfo {
     return apiRequest("get_group_info", mapOf("group_id" to groupId))
 }
 
@@ -562,7 +526,7 @@ suspend fun NapCatBotApi.getGroupInfo(groupId: String): NapCatGroupApiExpand.Gro
  *
  * @param noCache 是否禁用缓存
  */
-suspend fun NapCatBotApi.getGroupList(noCache: Boolean? = null): List<NapCatGroupApiExpand.GroupItem> {
+suspend fun NapCatBotApi.getGroupList(noCache: Boolean = true): List<NapCatGroupApiExpand.GroupInfo> {
     return apiRequest("get_group_list", mapOf("no_cache" to noCache))
 }
 
@@ -576,9 +540,9 @@ suspend fun NapCatBotApi.getGroupList(noCache: Boolean? = null): List<NapCatGrou
  * @param noCache 是否禁用缓存
  */
 suspend fun NapCatBotApi.getGroupMemberInfo(
-    groupId: String,
-    userId: String,
-    noCache: Boolean? = null
+    groupId: String = this.receiveMessage.source.id,
+    userId: String = this.receiveMessage.sender.id,
+    noCache: Boolean = true
 ): NapCatGroupApiExpand.GroupMember {
     return apiRequest("get_group_member_info", mapOf("group_id" to groupId, "user_id" to userId, "no_cache" to noCache))
 }
@@ -592,8 +556,8 @@ suspend fun NapCatBotApi.getGroupMemberInfo(
  * @param noCache 是否禁用缓存
  */
 suspend fun NapCatBotApi.getGroupMemberList(
-    groupId: String,
-    noCache: Boolean? = null
+    groupId: String = this.receiveMessage.source.id,
+    noCache: Boolean = true
 ): List<NapCatGroupApiExpand.GroupMember> {
     return apiRequest("get_group_member_list", mapOf("group_id" to groupId, "no_cache" to noCache))
 }
@@ -608,7 +572,11 @@ suspend fun NapCatBotApi.getGroupMemberList(
  * @param messageId 消息ID
  * @param messageSeq 消息序列号
  */
-suspend fun NapCatBotApi.setGroupTodo(groupId: String, messageId: String? = null, messageSeq: String? = null) {
+suspend fun NapCatBotApi.setGroupTodo(
+    groupId: String = this.receiveMessage.source.id,
+    messageId: String? = null,
+    messageSeq: String? = null
+) {
     apiRequestUnit(
         "set_group_todo",
         mapOf("group_id" to groupId, "message_id" to messageId, "message_seq" to messageSeq)
@@ -620,7 +588,7 @@ suspend fun NapCatBotApi.setGroupTodo(groupId: String, messageId: String? = null
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.getGroupShutList(groupId: String): List<NapCatGroupApiExpand.GroupShut> {
+suspend fun NapCatBotApi.getGroupShutList(groupId: String = this.receiveMessage.source.id): List<NapCatGroupApiExpand.GroupShut> {
     return apiRequest("get_group_shut_list", mapOf("group_id" to groupId))
 }
 
@@ -631,7 +599,7 @@ suspend fun NapCatBotApi.getGroupShutList(groupId: String): List<NapCatGroupApiE
  *
  * @param messageId 消息ID
  */
-suspend fun NapCatBotApi.setEssenceMsg(messageId: Long) {
+suspend fun NapCatBotApi.setEssenceMsg(messageId: String) {
     apiRequestUnit("set_essence_msg", mapOf("message_id" to messageId))
 }
 
@@ -647,9 +615,9 @@ suspend fun NapCatBotApi.setEssenceMsg(messageId: Long) {
  */
 suspend fun NapCatBotApi.setGroupAddRequest(
     flag: String,
-    approve: Boolean? = null,
+    approve: Boolean,
     reason: String? = null,
-    count: Long? = null
+    count: Long = 100
 ) {
     apiRequestUnit(
         "set_group_add_request",
@@ -666,7 +634,11 @@ suspend fun NapCatBotApi.setGroupAddRequest(
  * @param userId 用户ID
  * @param enable 是否启用
  */
-suspend fun NapCatBotApi.setGroupAdmin(groupId: String, userId: String, enable: Boolean? = null) {
+suspend fun NapCatBotApi.setGroupAdmin(
+    groupId: String = this.receiveMessage.source.id,
+    userId: String = this.receiveMessage.sender.id,
+    enable: Boolean
+) {
     apiRequestUnit("set_group_admin", mapOf("group_id" to groupId, "user_id" to userId, "enable" to enable))
 }
 
@@ -679,8 +651,15 @@ suspend fun NapCatBotApi.setGroupAdmin(groupId: String, userId: String, enable: 
  * @param userId 用户ID
  * @param duration 禁言时长
  */
-suspend fun NapCatBotApi.setGroupBan(groupId: String, userId: String, duration: Long) {
-    apiRequestUnit("set_group_ban", mapOf("group_id" to groupId, "user_id" to userId, "duration" to duration))
+suspend fun NapCatBotApi.setGroupBan(
+    groupId: String = this.receiveMessage.source.id,
+    userId: String = this.receiveMessage.sender.id,
+    duration: Duration
+) {
+    apiRequestUnit(
+        "set_group_ban",
+        mapOf("group_id" to groupId, "user_id" to userId, "duration" to duration.inWholeSeconds)
+    )
 }
 
 /**
@@ -692,7 +671,11 @@ suspend fun NapCatBotApi.setGroupBan(groupId: String, userId: String, duration: 
  * @param userId 用户ID
  * @param card 群名片
  */
-suspend fun NapCatBotApi.setGroupCard(groupId: String, userId: String, card: String? = null) {
+suspend fun NapCatBotApi.setGroupCard(
+    groupId: String = this.receiveMessage.source.id,
+    userId: String = this.receiveMessage.sender.id,
+    card: String
+) {
     apiRequestUnit("set_group_card", mapOf("group_id" to groupId, "user_id" to userId, "card" to card))
 }
 
@@ -705,7 +688,11 @@ suspend fun NapCatBotApi.setGroupCard(groupId: String, userId: String, card: Str
  * @param userId 用户ID
  * @param rejectAddRequest 是否拒绝再次申请
  */
-suspend fun NapCatBotApi.setGroupKick(groupId: String, userId: String, rejectAddRequest: Boolean? = null) {
+suspend fun NapCatBotApi.setGroupKick(
+    groupId: String = this.receiveMessage.source.id,
+    userId: String = this.receiveMessage.sender.id,
+    rejectAddRequest: Boolean? = null
+) {
     apiRequestUnit(
         "set_group_kick",
         mapOf("group_id" to groupId, "user_id" to userId, "reject_add_request" to rejectAddRequest)
@@ -720,7 +707,7 @@ suspend fun NapCatBotApi.setGroupKick(groupId: String, userId: String, rejectAdd
  * @param groupId 群组ID
  * @param isDismiss 是否解散
  */
-suspend fun NapCatBotApi.setGroupLeave(groupId: String, isDismiss: Boolean? = null) {
+suspend fun NapCatBotApi.setGroupLeave(groupId: String = this.receiveMessage.source.id, isDismiss: Boolean = false) {
     apiRequestUnit("set_group_leave", mapOf("group_id" to groupId, "is_dismiss" to isDismiss))
 }
 
@@ -732,7 +719,7 @@ suspend fun NapCatBotApi.setGroupLeave(groupId: String, isDismiss: Boolean? = nu
  * @param groupId 群组ID
  * @param groupName 群名称
  */
-suspend fun NapCatBotApi.setGroupName(groupId: String, groupName: String) {
+suspend fun NapCatBotApi.setGroupName(groupId: String = this.receiveMessage.source.id, groupName: String) {
     apiRequestUnit("set_group_name", mapOf("group_id" to groupId, "group_name" to groupName))
 }
 
@@ -744,7 +731,7 @@ suspend fun NapCatBotApi.setGroupName(groupId: String, groupName: String) {
  * @param groupId 群组ID
  * @param enable 是否启用
  */
-suspend fun NapCatBotApi.setGroupWholeBan(groupId: String, enable: Boolean? = null) {
+suspend fun NapCatBotApi.setGroupWholeBan(groupId: String = this.receiveMessage.source.id, enable: Boolean? = null) {
     apiRequestUnit("set_group_whole_ban", mapOf("group_id" to groupId, "enable" to enable))
 }
 
@@ -755,7 +742,11 @@ suspend fun NapCatBotApi.setGroupWholeBan(groupId: String, enable: Boolean? = nu
  * @param albumId 相册ID
  * @param lloc 媒体位置标识
  */
-suspend fun NapCatBotApi.delGroupAlbumMedia(groupId: String, albumId: String, lloc: String) {
+suspend fun NapCatBotApi.delGroupAlbumMedia(
+    groupId: String = this.receiveMessage.source.id,
+    albumId: String,
+    lloc: String
+) {
     apiRequestUnit("del_group_album_media", mapOf("group_id" to groupId, "album_id" to albumId, "lloc" to lloc))
 }
 
@@ -767,7 +758,12 @@ suspend fun NapCatBotApi.delGroupAlbumMedia(groupId: String, albumId: String, ll
  * @param lloc 媒体位置标识
  * @param content 评论内容
  */
-suspend fun NapCatBotApi.doGroupAlbumComment(groupId: String, albumId: String, lloc: String, content: String) {
+suspend fun NapCatBotApi.doGroupAlbumComment(
+    groupId: String = this.receiveMessage.source.id,
+    albumId: String,
+    lloc: String,
+    content: String
+) {
     apiRequestUnit(
         "do_group_album_comment",
         mapOf("group_id" to groupId, "album_id" to albumId, "lloc" to lloc, "content" to content)
@@ -782,7 +778,7 @@ suspend fun NapCatBotApi.doGroupAlbumComment(groupId: String, albumId: String, l
  * @param attachInfo 附加信息
  */
 suspend fun NapCatBotApi.getGroupAlbumMediaList(
-    groupId: String,
+    groupId: String = this.receiveMessage.source.id,
     albumId: String,
     attachInfo: String
 ): List<NapCatGroupApiExpand.AlbumMedia> {
@@ -798,7 +794,7 @@ suspend fun NapCatBotApi.getGroupAlbumMediaList(
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.getGroupInfoEx(groupId: String): JsonNode {
+suspend fun NapCatBotApi.getGroupInfoEx(groupId: String = this.receiveMessage.source.id): JsonNode {
     return apiRequest("get_group_info_ex", mapOf("group_id" to groupId))
 }
 
@@ -807,7 +803,7 @@ suspend fun NapCatBotApi.getGroupInfoEx(groupId: String): JsonNode {
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.getQunAlbumList(groupId: String): List<NapCatGroupApiExpand.Album> {
+suspend fun NapCatBotApi.getQunAlbumList(groupId: String = this.receiveMessage.source.id): List<NapCatGroupApiExpand.Album> {
     return apiRequest("get_qun_album_list", mapOf("group_id" to groupId))
 }
 
@@ -816,7 +812,7 @@ suspend fun NapCatBotApi.getQunAlbumList(groupId: String): List<NapCatGroupApiEx
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.sendGroupSign(groupId: String) {
+suspend fun NapCatBotApi.sendGroupSign(groupId: String = this.receiveMessage.source.id) {
     apiRequestUnit("send_group_sign", mapOf("group_id" to groupId))
 }
 
@@ -829,7 +825,7 @@ suspend fun NapCatBotApi.sendGroupSign(groupId: String) {
  * @param groupAnswer 验证答案
  */
 suspend fun NapCatBotApi.setGroupAddOption(
-    groupId: String,
+    groupId: String = this.receiveMessage.source.id,
     addType: Long,
     groupQuestion: String? = null,
     groupAnswer: String? = null
@@ -855,7 +851,7 @@ suspend fun NapCatBotApi.setGroupAddOption(
  * @param set 是否点赞
  */
 suspend fun NapCatBotApi.setGroupAlbumMediaLike(
-    groupId: String,
+    groupId: String = this.receiveMessage.source.id,
     albumId: String,
     lloc: String,
     id: String,
@@ -875,7 +871,7 @@ suspend fun NapCatBotApi.setGroupAlbumMediaLike(
  * @param groupId 群组ID
  * @param remark 群备注
  */
-suspend fun NapCatBotApi.setGroupRemark(groupId: String, remark: String) {
+suspend fun NapCatBotApi.setGroupRemark(groupId: String = this.receiveMessage.source.id, remark: String) {
     apiRequestUnit("set_group_remark", mapOf("group_id" to groupId, "remark" to remark))
 }
 
@@ -887,7 +883,7 @@ suspend fun NapCatBotApi.setGroupRemark(groupId: String, remark: String) {
  * @param robotMemberExamine 机器人加群审核
  */
 suspend fun NapCatBotApi.setGroupRobotAddOption(
-    groupId: String,
+    groupId: String = this.receiveMessage.source.id,
     robotMemberSwitch: Long? = null,
     robotMemberExamine: Long? = null
 ) {
@@ -908,7 +904,11 @@ suspend fun NapCatBotApi.setGroupRobotAddOption(
  * @param noCodeFingerOpen 是否开启群号检索
  * @param noFingerOpen 是否开启群名检索
  */
-suspend fun NapCatBotApi.setGroupSearch(groupId: String, noCodeFingerOpen: Long? = null, noFingerOpen: Long? = null) {
+suspend fun NapCatBotApi.setGroupSearch(
+    groupId: String = this.receiveMessage.source.id,
+    noCodeFingerOpen: Long? = null,
+    noFingerOpen: Long? = null
+) {
     apiRequestUnit(
         "set_group_search",
         mapOf("group_id" to groupId, "no_code_finger_open" to noCodeFingerOpen, "no_finger_open" to noFingerOpen)
@@ -920,7 +920,7 @@ suspend fun NapCatBotApi.setGroupSearch(groupId: String, noCodeFingerOpen: Long?
  *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.setGroupSign(groupId: String) {
+suspend fun NapCatBotApi.setGroupSign(groupId: String = this.receiveMessage.source.id) {
     apiRequestUnit("set_group_sign", mapOf("group_id" to groupId))
 }
 
@@ -932,7 +932,12 @@ suspend fun NapCatBotApi.setGroupSign(groupId: String) {
  * @param albumName 相册名称
  * @param file 图片文件
  */
-suspend fun NapCatBotApi.uploadImageToQunAlbum(groupId: String, albumId: String, albumName: String, file: String) {
+suspend fun NapCatBotApi.uploadImageToQunAlbum(
+    groupId: String = this.receiveMessage.source.id,
+    albumId: String,
+    albumName: String,
+    file: String
+) {
     apiRequestUnit(
         "upload_image_to_qun_album",
         mapOf("group_id" to groupId, "album_id" to albumId, "album_name" to albumName, "file" to file)
@@ -948,7 +953,11 @@ suspend fun NapCatBotApi.uploadImageToQunAlbum(groupId: String, albumId: String,
  * @param userId 用户ID列表
  * @param rejectAddRequest 是否拒绝再次申请
  */
-suspend fun NapCatBotApi.setGroupKickMembers(groupId: String, userId: List<String>, rejectAddRequest: Boolean? = null) {
+suspend fun NapCatBotApi.setGroupKickMembers(
+    groupId: String = this.receiveMessage.source.id,
+    userId: List<String>,
+    rejectAddRequest: Boolean = false
+) {
     apiRequestUnit(
         "set_group_kick_members",
         mapOf("group_id" to groupId, "user_id" to userId, "reject_add_request" to rejectAddRequest)
@@ -964,7 +973,11 @@ suspend fun NapCatBotApi.setGroupKickMembers(groupId: String, userId: List<Strin
  * @param userId 用户ID
  * @param specialTitle 专属头衔
  */
-suspend fun NapCatBotApi.setGroupSpecialTitle(groupId: String, userId: String, specialTitle: String) {
+suspend fun NapCatBotApi.setGroupSpecialTitle(
+    groupId: String = this.receiveMessage.source.id,
+    userId: String = this.receiveMessage.sender.id,
+    specialTitle: String
+) {
     apiRequestUnit(
         "set_group_special_title",
         mapOf("group_id" to groupId, "user_id" to userId, "special_title" to specialTitle)

@@ -395,7 +395,7 @@ suspend fun NapCatBotApi.getCookies(domain: String): NapCatUserApiExpand.Cookies
  *
  * @param noCache 是否禁用缓存
  */
-suspend fun NapCatBotApi.getFriendList(noCache: Boolean? = null): List<NapCatUserApiExpand.FriendUser> {
+suspend fun NapCatBotApi.getFriendList(noCache: Boolean = true): List<NapCatUserApiExpand.FriendUser> {
     return apiRequest("get_friend_list", mapOf("no_cache" to noCache))
 }
 
@@ -418,7 +418,7 @@ suspend fun NapCatBotApi.getRecentContact(count: Long): List<NapCatUserApiExpand
  * @param userId 用户ID
  * @param times 点赞次数
  */
-suspend fun NapCatBotApi.sendLike(userId: String, times: Long) {
+suspend fun NapCatBotApi.sendLike(userId: String = this.receiveMessage.sender.id, times: Long) {
     apiRequestUnit("send_like", mapOf("user_id" to userId, "times" to times))
 }
 
@@ -443,7 +443,7 @@ suspend fun NapCatBotApi.setFriendAddRequest(flag: String, approve: String? = nu
  * @param userId 用户ID
  * @param remark 备注
  */
-suspend fun NapCatBotApi.setFriendRemark(userId: String, remark: String) {
+suspend fun NapCatBotApi.setFriendRemark(userId: String = this.receiveMessage.sender.id, remark: String) {
     apiRequestUnit("set_friend_remark", mapOf("user_id" to userId, "remark" to remark))
 }
 
@@ -496,17 +496,17 @@ suspend fun NapCatBotApi.setDiyOnlineStatus(faceId: Long, faceType: Long, wordin
  *
  * @param file 头像文件
  */
-suspend fun NapCatBotApi.setQqAvatar(file: String) {
+suspend fun NapCatBotApi.setQQAvatar(file: String) {
     apiRequestUnit("set_qq_avatar", mapOf("file" to file))
 }
 
 /**
  * 设置个性签名
  *
- * 修改当前登录帐号的个性签名
+ * 修改当前登录账号的个性签名
  *
  * @param longNick 个性签名内容
  */
-suspend fun NapCatBotApi.setSelfLongnick(longNick: String) {
+suspend fun NapCatBotApi.setSelfLongNick(longNick: String) {
     apiRequestUnit("set_self_longnick", mapOf("longNick" to longNick))
 }

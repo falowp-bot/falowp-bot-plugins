@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue
 /**
  * 消息数据类型
  */
+@Suppress("SpellCheckingInspection")
 enum class NapCatMessageDataType(@get:JsonValue val value: String) {
 
     /**
@@ -52,6 +53,11 @@ enum class NapCatMessageDataType(@get:JsonValue val value: String) {
      * 文件消息
      */
     FILE("file"),
+
+    /**
+     * 在线文件
+     */
+    ONLINE_FILE("onlinefile"),
 
     /**
      * 合并转发
