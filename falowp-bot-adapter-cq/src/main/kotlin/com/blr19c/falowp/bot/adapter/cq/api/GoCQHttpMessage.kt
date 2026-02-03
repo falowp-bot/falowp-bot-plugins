@@ -4,11 +4,11 @@ import com.blr19c.falowp.bot.system.api.MessageTypeEnum
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.json.safeString
 import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
-import java.net.URI
 import java.util.*
 import kotlin.time.Duration.Companion.minutes
 
@@ -206,7 +206,7 @@ data class GoCQHttpMessage(
     private fun imageList(): List<ImageUrl> {
         val cqMessage = this.message ?: return emptyList()
         val imageRegex = Regex("\\[CQ:image.+,url=(https?://[^\\s/$.?#].\\S*)]")
-        return imageRegex.findAll(cqMessage).map { it.groupValues[1] }.map { ImageUrl(it) }.toList()
+        return imageRegex.findAll(cqMessage).map { it.groupValues[1] }.map { it.toImageUrl() }.toList()
     }
 
     /**
@@ -252,9 +252,10 @@ data class GoCQHttpMessage(
     private fun shareMiniAppStandard(jsonNode: JsonNode): ReceiveMessage.Share {
         val appInfo = jsonNode["meta"].iterator().next()
         return ReceiveMessage.Share(
+            "",
             appInfo["title"].safeString(),
             appInfo["desc"].safeString(),
-            ImageUrl(appInfo["preview"].safeString()),
+            appInfo["preview"].safeString().toImageUrl(),
             appInfo["qqdocurl"].safeString(),
         )
     }
@@ -262,18 +263,20 @@ data class GoCQHttpMessage(
     private fun shareStandard(jsonNode: JsonNode): ReceiveMessage.Share {
         val view = jsonNode["view"].safeString()
         return ReceiveMessage.Share(
+            "",
             jsonNode["meta"][view]["tag"].safeString(),
             jsonNode["meta"][view]["title"].safeString(),
-            ImageUrl(jsonNode["meta"][view]["preview"].safeString()),
+            jsonNode["meta"][view]["preview"].safeString().toImageUrl(),
             jsonNode["meta"][view]["jumpUrl"].safeString(),
         )
     }
 
     private fun shareCard(jsonNode: JsonNode): ReceiveMessage.Share {
         return ReceiveMessage.Share(
+            "",
             jsonNode["meta"]["contact"]["tag"].safeString(),
             jsonNode["meta"]["contact"]["nickname"].safeString(),
-            ImageUrl(jsonNode["meta"]["contact"]["avatar"].safeString()),
+            jsonNode["meta"]["contact"]["avatar"].safeString().toImageUrl(),
             jsonNode["meta"]["contact"]["jumpUrl"].safeString(),
         )
     }

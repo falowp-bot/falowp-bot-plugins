@@ -1,10 +1,13 @@
-@file:Suppress("UNUSED", "UnusedReceiverParameter")
+@file:Suppress("unused", "SpellCheckingInspection")
 
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
 import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
+import java.net.URI
+import java.util.*
+import java.util.Locale.getDefault
 
 /**
  * NapCatSystemApiExpand 系统API
@@ -192,80 +195,15 @@ class NapCatSystemApiExpand {
      */
     data class LoginInfo(
         /**
-         * 出生年份
-         */
-        @field:JsonProperty("birthday_year")
-        val birthdayYear: Long?,
-        /**
-         * 出生月份
-         */
-        @field:JsonProperty("birthday_month")
-        val birthdayMonth: Long?,
-        /**
-         * 出生日期
-         */
-        @field:JsonProperty("birthday_day")
-        val birthdayDay: Long?,
-        /**
-         * 手机号
-         */
-        @field:JsonProperty("phone_num")
-        val phoneNum: String?,
-        /**
-         * 邮箱
-         */
-        @field:JsonProperty("email")
-        val email: String?,
-        /**
-         * 分组ID
-         */
-        @field:JsonProperty("category_id")
-        val categoryId: Long?,
-        /**
          * QQ号
          */
         @field:JsonProperty("user_id")
-        val userId: Long,
+        val userId: String,
         /**
          * 昵称
          */
         @field:JsonProperty("nickname")
         val nickname: String,
-        /**
-         * 备注
-         */
-        @field:JsonProperty("remark")
-        val remark: String?,
-        /**
-         * 性别
-         */
-        @field:JsonProperty("sex")
-        val sex: String?,
-        /**
-         * 等级
-         */
-        @field:JsonProperty("level")
-        val level: Long?,
-        /**
-         * 年龄
-         */
-        @field:JsonProperty("age")
-        val age: Long?,
-        /**
-         * QID
-         */
-        @field:JsonProperty("qid")
-        val qid: String?,
-        /**
-         * 登录天数
-         */
-        @field:JsonProperty("login_days")
-        val loginDays: Long?,
-        /**
-         * 分组名称
-         */
-        @field:JsonProperty("categoryName")
-        val categoryName: String?,
     )
 
     /**
@@ -308,17 +246,6 @@ class NapCatSystemApiExpand {
          */
         @field:JsonProperty("app_version")
         val appVersion: String
-    )
-
-    /**
-     * MiniAppArk
-     */
-    data class MiniAppArk(
-        /**
-         * data
-         */
-        @field:JsonProperty("data")
-        val data: String
     )
 
     /**
@@ -393,8 +320,6 @@ class NapCatSystemApiExpand {
 
 /**
  * 是否可以发送图片
- *
- * 检查是否可以发送图片
  */
 suspend fun NapCatBotApi.canSendImage() {
     apiRequestUnit("can_send_image")
@@ -402,8 +327,6 @@ suspend fun NapCatBotApi.canSendImage() {
 
 /**
  * 是否可以发送语音
- *
- * 检查是否可以发送语音
  */
 suspend fun NapCatBotApi.canSendRecord() {
     apiRequestUnit("can_send_record")
@@ -411,16 +334,12 @@ suspend fun NapCatBotApi.canSendRecord() {
 
 /**
  * 清理缓存
- *
- * 清理缓存
  */
 suspend fun NapCatBotApi.cleanCache() {
     apiRequestUnit("clean_cache")
 }
 
 /**
- * 获取登录凭证
- *
  * 获取登录凭证
  *
  * @param domain 域名
@@ -431,8 +350,6 @@ suspend fun NapCatBotApi.getCredentials(domain: String): NapCatSystemApiExpand.C
 
 /**
  * 获取 CSRF Token
- *
- * 获取 CSRF Token
  */
 suspend fun NapCatBotApi.getCsrfToken(): NapCatSystemApiExpand.CsrfToken {
     return apiRequest("get_csrf_token")
@@ -440,8 +357,6 @@ suspend fun NapCatBotApi.getCsrfToken(): NapCatSystemApiExpand.CsrfToken {
 
 /**
  * 获取可疑好友申请
- *
- * 获取系统的可疑好友申请列表
  *
  * @param count 获取数量
  */
@@ -452,8 +367,6 @@ suspend fun NapCatBotApi.getDoubtFriendsAddRequest(count: Long): List<NapCatSyst
 /**
  * 获取群系统消息
  *
- * 获取群系统消息
- *
  * @param count 获取数量
  */
 suspend fun NapCatBotApi.getGroupSystemMsg(count: Long): NapCatSystemApiExpand.GroupSystemMsg {
@@ -462,16 +375,12 @@ suspend fun NapCatBotApi.getGroupSystemMsg(count: Long): NapCatSystemApiExpand.G
 
 /**
  * 获取登录号信息
- *
- * 获取当前登录账号的信息
  */
 suspend fun NapCatBotApi.getLoginInfo(): NapCatSystemApiExpand.LoginInfo {
     return apiRequest("get_login_info")
 }
 
 /**
- * 获取运行状态
- *
  * 获取运行状态
  */
 suspend fun NapCatBotApi.getStatus(): NapCatSystemApiExpand.Status {
@@ -480,8 +389,6 @@ suspend fun NapCatBotApi.getStatus(): NapCatSystemApiExpand.Status {
 
 /**
  * 获取版本信息
- *
- * 获取版本信息
  */
 suspend fun NapCatBotApi.getVersionInfo(): NapCatSystemApiExpand.VersionInfo {
     return apiRequest("get_version_info")
@@ -489,8 +396,6 @@ suspend fun NapCatBotApi.getVersionInfo(): NapCatSystemApiExpand.VersionInfo {
 
 /**
  * 获取Packet状态
- *
- * 获取底层Packet服务的运行状态
  */
 suspend fun NapCatBotApi.ncGetPacketStatus(): JsonNode {
     return apiRequest("nc_get_packet_status")
@@ -510,8 +415,6 @@ suspend fun NapCatBotApi.setDoubtFriendsAddRequest(flag: String, approve: Boolea
 
 /**
  * 重启服务
- *
- * 重启服务
  */
 suspend fun NapCatBotApi.setRestart() {
     apiRequestUnit("set_restart")
@@ -529,7 +432,7 @@ suspend fun NapCatBotApi.botExit() {
  *
  * @param count 获取数量
  */
-suspend fun NapCatBotApi.fetchCustomFace(count: Long): List<String> {
+suspend fun NapCatBotApi.fetchCustomFace(count: Long): List<URI> {
     return apiRequest("fetch_custom_face", mapOf("count" to count))
 }
 
@@ -545,9 +448,67 @@ suspend fun NapCatBotApi.getCollectionList(category: String, count: String): Str
 
 /**
  * 获取小程序 Ark
+ *
+ * @param type 类型
+ * @param title 标题
+ * @param desc 描述
+ * @param picUrl 图片URL
+ * @param jumpUrl 跳转URL
  */
-suspend fun NapCatBotApi.getMiniAppArk(): NapCatSystemApiExpand.MiniAppArk {
-    return apiRequest("get_mini_app_ark")
+suspend fun NapCatBotApi.getMiniAppArk(
+    type: String,
+    title: String,
+    desc: String,
+    picUrl: String,
+    jumpUrl: String
+): JsonNode {
+    return apiRequest<JsonNode>(
+        "get_mini_app_ark",
+        mapOf("type" to type, "title" to title, "desc" to desc, "picUrl" to picUrl, "jumpUrl" to jumpUrl)
+    ).path("data")
+}
+
+/**
+ * 获取自定义小程序 Ark
+ *
+ * @param appId 小程序ID
+ * @param title 标题
+ * @param desc 描述
+ * @param picUrl 图片URL
+ * @param pathUrl 小程序内URL
+ * @param docUrl 浏览器打开URL
+ * @param iconUrl 小程序图标
+ */
+suspend fun NapCatBotApi.getCustomMiniAppArk(
+    appId: String,
+    title: String,
+    desc: String,
+    picUrl: String,
+    pathUrl: String,
+    docUrl: String,
+    iconUrl: String
+): JsonNode {
+    return apiRequest<JsonNode>(
+        "get_mini_app_ark",
+        mapOf(
+            "title" to title,
+            "desc" to desc,
+            "picUrl" to picUrl,
+            "jumpUrl" to pathUrl,
+            "webUrl" to docUrl,
+            "iconUrl" to iconUrl,
+            "appId" to appId,
+            "scene" to "1036",
+            "templateType" to "1",
+            "businessType" to "0",
+            "verType" to "3",
+            "shareType" to "0",
+            "versionId" to UUID.randomUUID().toString().replace("-", "").lowercase(getDefault()),
+            "sdkId" to "V1_PC_MINISDK_99.99.99_1_APP_A",
+            "withShareTicket" to "0",
+            "rawArkData" to "false"
+        )
+    ).path("data")
 }
 
 /**
@@ -620,8 +581,6 @@ suspend fun NapCatBotApi.createCollection(rawData: String, brief: String) {
 
 /**
  * 获取ClientKey
- *
- * 获取当前登录帐号的ClientKey
  */
 suspend fun NapCatBotApi.getClientKey(): NapCatSystemApiExpand.ClientKey {
     return apiRequest("get_clientkey")
@@ -640,8 +599,6 @@ suspend fun NapCatBotApi.ocrImage(image: String) {
 
 /**
  * 英文单词翻译
- *
- * 将英文单词列表翻译为中文
  *
  * @param words 英文单词列表
  */

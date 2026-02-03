@@ -7,6 +7,7 @@ import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCqHttpBotApiSupport.messageIdToCQMessageIdMap
 import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.listener.events.RequestAddFriendEvent
 import com.blr19c.falowp.bot.system.listener.events.RequestJoinGroupEvent
@@ -805,7 +806,7 @@ suspend fun GoCQHttpBotApi.getImage(file: String): Image {
  * @param userId 用户id
  */
 fun GoCQHttpBotApi.avatar(userId: String = this.receiveMessage.sender.id): ImageUrl {
-    return ImageUrl("https://q1.qlogo.cn/g?b=qq&nk=$userId&s=640")
+    return "https://q1.qlogo.cn/g?b=qq&nk=$userId&s=640".toImageUrl()
 }
 
 /**

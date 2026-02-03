@@ -7,6 +7,7 @@ import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQMessageTypeEnum.MEDIA
 import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQMessageTypeEnum.TEXT
 import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQSendMessage
 import com.blr19c.falowp.bot.system.adapterConfigProperty
+import com.blr19c.falowp.bot.system.api.BotSelf
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.json.Json
@@ -87,5 +88,9 @@ class QQBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
             )
             header(HttpHeaders.Authorization, token)
         }.bodyAsJsonNode()
+    }
+
+    override suspend fun self(): BotSelf {
+        return BotSelf.Default("qq-self")
     }
 }

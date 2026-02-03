@@ -75,7 +75,6 @@ object NapCatWebSocket : Log {
         val deferred = CompletableDeferred<JsonNode>()
         echoWaiters[napCatWsEcho.echo] = deferred
         try {
-            println(Json.toJsonString(napCatWsEcho))
             webSocketSession().send(Json.toJsonString(napCatWsEcho))
             return withTimeout(timeout) {
                 deferred.await()

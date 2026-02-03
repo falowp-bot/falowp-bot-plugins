@@ -3,6 +3,8 @@ package com.blr19c.falowp.bot.adapter.nc.api
 import com.blr19c.falowp.bot.adapter.nc.expand.getFriendList
 import com.blr19c.falowp.bot.adapter.nc.expand.getGroupList
 import com.blr19c.falowp.bot.adapter.nc.expand.getGroupMemberInfo
+import com.blr19c.falowp.bot.adapter.nc.expand.getLoginInfo
+import com.blr19c.falowp.bot.adapter.nc.message.NapCatSelf
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
@@ -46,6 +48,13 @@ object NapCatBotApiSupport : SchedulingBotApiSupport {
      */
     fun avatar(userId: String): ImageUrl {
         return ImageUrl("https://q1.qlogo.cn/g?b=qq&nk=$userId&s=640")
+    }
+
+    /**
+     * 自身信息
+     */
+    suspend fun self(): NapCatSelf {
+        return NapCatSelf(this.tempBot.getLoginInfo())
     }
 
     /**

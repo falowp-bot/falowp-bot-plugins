@@ -4,8 +4,8 @@ import com.blr19c.falowp.bot.plugins.user.currentUser
 import com.blr19c.falowp.bot.plugins.user.incrementCoins
 import com.blr19c.falowp.bot.plugins.user.incrementImpression
 import com.blr19c.falowp.bot.system.api.SendMessage
-import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
+import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.message.message
@@ -73,7 +73,7 @@ class SignIn {
             style += ";"
         }
         style += """
-            background-image: url("data:image/png;base64,${ImageUrl(url.trim()).toBase64()}");
+            background-image: url("data:image/png;base64,${url.trim().toImageUrl().toBase64()}");
             background-size: cover;
             """.trimIndent()
         this.attr("style", style)

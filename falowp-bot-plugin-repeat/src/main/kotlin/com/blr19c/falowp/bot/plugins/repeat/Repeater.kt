@@ -4,7 +4,7 @@ import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.listener.events.SendMessageEvent
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.event.eventListener
-import com.blr19c.falowp.bot.system.plugin.message.MessagePluginRegisterMatch
+import com.blr19c.falowp.bot.system.plugin.message.MessageMatch
 import com.blr19c.falowp.bot.system.plugin.message.queueMessage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -71,7 +71,7 @@ class Repeater {
 
 
     private val repeater = queueMessage(
-        MessagePluginRegisterMatch.allMatch(),
+        MessageMatch.allMatch(),
         terminateEvent = false, onSuccess = {}, onOverFlow = {}
     ) {
         executor.launch {

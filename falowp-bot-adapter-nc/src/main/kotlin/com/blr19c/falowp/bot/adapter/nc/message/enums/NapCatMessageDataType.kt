@@ -30,6 +30,16 @@ enum class NapCatMessageDataType(@get:JsonValue val value: String) {
     FACE("face"),
 
     /**
+     * 商城表情
+     */
+    M_FACE("mface"),
+
+    /**
+     * 音乐
+     */
+    MUSIC("music"),
+
+    /**
      * at@ 消息
      */
     AT("at"),

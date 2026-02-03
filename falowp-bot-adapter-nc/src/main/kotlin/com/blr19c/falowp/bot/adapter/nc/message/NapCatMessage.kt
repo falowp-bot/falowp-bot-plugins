@@ -232,11 +232,11 @@ data class NapCatMessage(
         val emojiPackageId: String? = null,
         /**
          * 原始数据 如果有
-         * 由于 napcat 设计问题 这里可能是一个StringNode 需要 unwrap
+         * 由于 NapCat 设计问题 这里可能是一个StringNode 需要 unwrap
          */
-        @field:JsonProperty("raw")
-        @field:JsonAlias("data")
-        val raw: JsonNode? = null,
+        @field:JsonProperty("data")
+        @field:JsonAlias("raw")
+        val data: JsonNode? = null,
         /**
          * 在线文件时标注是否是文件夹
          */

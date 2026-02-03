@@ -325,7 +325,8 @@ enum class NapCatFaceEmoji(@get:JsonValue val id: String, val type: String, val 
 
         @JvmStatic
         fun fromValue(value: String, faceType: String): NapCatFaceEmoji {
-            return entries.firstOrNull { it.id == value && it.faceType == faceType } ?: UNKNOWN
+            val type = if (faceType == "1") "2" else faceType
+            return entries.firstOrNull { it.id == value && it.faceType == type } ?: UNKNOWN
         }
 
     }

@@ -14,7 +14,7 @@ import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.message.MessagePluginRegisterMatch
+import com.blr19c.falowp.bot.system.plugin.message.MessageMatch
 import com.blr19c.falowp.bot.system.plugin.message.message
 import com.blr19c.falowp.bot.system.plugin.task.periodicScheduling
 import com.blr19c.falowp.bot.system.web.urlToRedirectUrl
@@ -34,7 +34,7 @@ import kotlin.time.Duration.Companion.seconds
 @Plugin(
     name = "b站订阅",
     desc = """
-            <p>B站直播,UP动态等提醒(0-6点不会推送)</p>
+            <p>B站直播,UP动态等提醒(系统休息时段不会推送)</p>
             <p>指令:</p>
             <p>登录 [bB]站登录</p>
             <p>添加订阅 [bB]站订阅 uid</p>
@@ -175,6 +175,7 @@ class Subscription : Log {
             }
             this.sendReply("订阅:$subscriptionMid(${userInfo.name})完成")
         } catch (e: Exception) {
+            e.printStackTrace()
             this.sendReply("订阅失败:${e.message}")
         }
     }
@@ -226,7 +227,7 @@ class Subscription : Log {
      * 视频ai描述
      */
     private val videoAi = message(
-        MessagePluginRegisterMatch(
+        MessageMatch(
             messageType = MessageTypeEnum.SHARE,
             customBlock = { receiveMessage ->
                 receiveMessage.content.share.any { it.appName == "哔哩哔哩" }

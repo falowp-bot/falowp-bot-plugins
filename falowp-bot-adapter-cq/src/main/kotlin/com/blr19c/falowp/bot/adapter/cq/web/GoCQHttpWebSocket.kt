@@ -10,6 +10,7 @@ import com.blr19c.falowp.bot.adapter.cq.expand.markMsgAsRead
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.BotApi
+import com.blr19c.falowp.bot.system.api.BotSelf
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.json.Json
@@ -176,7 +177,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
     private fun parseEventBotApi(goCQHttpMessage: GoCQHttpMessage): BotApi {
         val sender = parseSender(goCQHttpMessage)
         val source = parseSource(goCQHttpMessage)
-        val self = ReceiveMessage.Self(goCQHttpMessage.selfId!!)
+        val self = BotSelf.Default(goCQHttpMessage.selfId!!)
         val message = ReceiveMessage.empty().copy(sender = sender, source = source, self = self)
         return GoCQHttpBotApi(message, this::class)
     }
@@ -185,7 +186,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
         val content = parseMessageContent(goCQHttpMessage)
         val sender = parseSender(goCQHttpMessage)
         val source = parseSource(goCQHttpMessage)
-        val self = ReceiveMessage.Self(goCQHttpMessage.selfId!!)
+        val self = BotSelf.Default(goCQHttpMessage.selfId!!)
         val messageId = goCQHttpMessage.messageId ?: UUID.randomUUID().toString()
         val messageType = goCQHttpMessage.toMessageType()
         val adapter = ReceiveMessage.Adapter("CQ", goCQHttpMessage)

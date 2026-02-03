@@ -9,6 +9,7 @@ import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatMessageDataType
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatMessageType
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatMessageType.GROUP
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatMessageType.PRIVATE
+import com.blr19c.falowp.bot.adapter.nc.message.expand.NapCatSendMessage
 import com.blr19c.falowp.bot.system.api.*
 import kotlin.reflect.KClass
 
@@ -61,6 +62,10 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
             val message = buildReference(reference, it)
             if (message.isNotEmpty()) this.sendGroupMsg(sourceId, message)
         }
+    }
+
+    override suspend fun self(): BotSelf {
+        return NapCatBotApiSupport.self()
     }
 
     /**
@@ -124,6 +129,8 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
                     NapCatMessageDataType.VIDEO,
                     NapCatMessage.MessageData(file = sendMessage.video.toASCIIString())
                 )
+
+                is NapCatSendMessage -> sendMessage.message
 
                 else -> null
             }

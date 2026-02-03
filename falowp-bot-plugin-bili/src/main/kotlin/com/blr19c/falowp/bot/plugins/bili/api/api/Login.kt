@@ -16,7 +16,7 @@ suspend fun BiliClient.login(push: suspend (url: String) -> Unit) {
         while (isActive) {
             delay(3_000)
             val status = get(QRCODE_POLL) {
-                parameter("qrcode_key", qrcode["key"].safeString())
+                parameter("qrcode_key", qrcode["qrcode_key"].safeString())
             }
             when (status["code"].asInt()) {
                 0 -> return@withTimeout status

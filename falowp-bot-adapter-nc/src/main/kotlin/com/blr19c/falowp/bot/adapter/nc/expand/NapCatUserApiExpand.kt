@@ -1,9 +1,11 @@
-@file:Suppress("UNUSED", "UnusedReceiverParameter")
+@file:Suppress("UNUSED", "SpellCheckingInspection")
 
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
+import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatBotOnlineStatus
+import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatFaceEmoji
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.fasterxml.jackson.annotation.JsonProperty
 
@@ -391,8 +393,6 @@ suspend fun NapCatBotApi.getCookies(domain: String): NapCatUserApiExpand.Cookies
 /**
  * 获取好友列表
  *
- * 获取当前帐号的好友列表
- *
  * @param noCache 是否禁用缓存
  */
 suspend fun NapCatBotApi.getFriendList(noCache: Boolean = true): List<NapCatUserApiExpand.FriendUser> {
@@ -400,8 +400,6 @@ suspend fun NapCatBotApi.getFriendList(noCache: Boolean = true): List<NapCatUser
 }
 
 /**
- * 获取最近会话
- *
  * 获取最近会话
  *
  * @param count 获取数量
@@ -413,8 +411,6 @@ suspend fun NapCatBotApi.getRecentContact(count: Long): List<NapCatUserApiExpand
 /**
  * 点赞
  *
- * 给指定用户点赞
- *
  * @param userId 用户ID
  * @param times 点赞次数
  */
@@ -425,19 +421,15 @@ suspend fun NapCatBotApi.sendLike(userId: String = this.receiveMessage.sender.id
 /**
  * 处理加好友请求
  *
- * 同意或拒绝加好友请求
- *
  * @param flag 请求标识
  * @param approve 是否同意
  * @param remark 备注
  */
-suspend fun NapCatBotApi.setFriendAddRequest(flag: String, approve: String? = null, remark: String? = null) {
+suspend fun NapCatBotApi.setFriendAddRequest(flag: String, approve: Boolean, remark: String? = null) {
     apiRequestUnit("set_friend_add_request", mapOf("flag" to flag, "approve" to approve, "remark" to remark))
 }
 
 /**
- * 设置好友备注
- *
  * 设置好友备注
  *
  * @param userId 用户ID
@@ -476,23 +468,40 @@ suspend fun NapCatBotApi.getUnidirectionalFriendList(): List<NapCatUserApiExpand
     return apiRequest("get_unidirectional_friend_list")
 }
 
+
+/**
+ * 设置在线状态
+ *
+ * @param onlineStatus 在线状态
+ * @param battery 电池电量
+ */
+suspend fun NapCatBotApi.setOnlineStatus(onlineStatus: NapCatBotOnlineStatus, battery: Int = 0) {
+    apiRequestUnit(
+        "set_online_status",
+        mapOf(
+            "status" to onlineStatus.status,
+            "ext_status" to onlineStatus.extStatus,
+            "battery_status" to battery
+        )
+    )
+}
+
+
 /**
  * 设置自定义在线状态
  *
- * 设置自定义在线状态
- *
- * @param faceId 表情ID
- * @param faceType 表情类型
+ * @param face 表情
  * @param wording 状态文案
  */
-suspend fun NapCatBotApi.setDiyOnlineStatus(faceId: Long, faceType: Long, wording: String) {
-    apiRequestUnit("set_diy_online_status", mapOf("face_id" to faceId, "face_type" to faceType, "wording" to wording))
+suspend fun NapCatBotApi.setDiyOnlineStatus(face: NapCatFaceEmoji, wording: String) {
+    apiRequestUnit(
+        "set_diy_online_status",
+        mapOf("face_id" to face.id, "face_type" to face.faceType, "wording" to wording)
+    )
 }
 
 /**
  * 设置QQ头像
- *
- * 修改当前账号的QQ头像
  *
  * @param file 头像文件
  */
@@ -502,8 +511,6 @@ suspend fun NapCatBotApi.setQQAvatar(file: String) {
 
 /**
  * 设置个性签名
- *
- * 修改当前登录账号的个性签名
  *
  * @param longNick 个性签名内容
  */

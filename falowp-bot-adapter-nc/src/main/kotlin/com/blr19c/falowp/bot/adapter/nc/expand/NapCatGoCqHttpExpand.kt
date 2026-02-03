@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED", "UnusedReceiverParameter")
+@file:Suppress("UNUSED", "SpellCheckingInspection")
 
 package com.blr19c.falowp.bot.adapter.nc.expand
 

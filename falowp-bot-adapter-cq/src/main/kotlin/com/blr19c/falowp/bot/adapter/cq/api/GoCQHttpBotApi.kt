@@ -69,6 +69,10 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
         }
     }
 
+    override suspend fun self(): BotSelf {
+        return BotSelf.Default(this.cq().getLoginInfo().userId)
+    }
+
     /**
      * 转发消息
      */

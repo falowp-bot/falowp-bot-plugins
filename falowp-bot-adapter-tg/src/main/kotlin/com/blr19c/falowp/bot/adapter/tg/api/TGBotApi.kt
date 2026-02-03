@@ -45,6 +45,10 @@ class TGBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : BotAp
         sendMessageChain.forEach { sendTelegramMessage(it, sourceId) }
     }
 
+    override suspend fun self(): BotSelf {
+        return TGSelf(this.telegramLongPollingBot().me)
+    }
+
 
     private suspend fun sendTelegramMessage(
         sendMessageChain: SendMessageChain,

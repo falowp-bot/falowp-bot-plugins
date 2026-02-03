@@ -13,7 +13,6 @@ data class BiliMessage(
 ) : SendMessage
 
 
-fun SendMessage.Builder.biliMessage(biliUpInfoVo: BiliUpInfoVo, url: String, itemId: String): SendMessage.Builder {
+fun SendMessage.Builder.biliMessage(biliUpInfoVo: BiliUpInfoVo, url: String, itemId: String) = apply {
     this.messageList.add(BiliMessage(biliUpInfoVo.mid, url, itemId))
-    return this
 }

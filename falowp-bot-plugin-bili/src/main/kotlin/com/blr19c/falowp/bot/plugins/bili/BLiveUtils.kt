@@ -8,8 +8,8 @@ import com.blr19c.falowp.bot.plugins.bili.api.data.BiliVideoAiSummary
 import com.blr19c.falowp.bot.plugins.bili.vo.BiliUpInfoVo
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.cache.CacheReference
-import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
+import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.readPluginResource
 import com.blr19c.falowp.bot.system.systemConfigProperty
@@ -275,7 +275,7 @@ object BLiveUtils : Log {
             inputStream.bufferedReader().use { it.readText() }
         }
         val htmlBody = Jsoup.parse(htmlString)
-        val cover = "data:image/png;base64,${ImageUrl(liveInfo.roomInfo.cover.trim()).toBase64()}"
+        val cover = "data:image/png;base64,${liveInfo.roomInfo.cover.trim().toImageUrl().toBase64()}"
         htmlBody.select("#background").attr("src", cover)
         //标题
         htmlBody.select(".title").html(liveInfo.roomInfo.title)
@@ -297,7 +297,7 @@ object BLiveUtils : Log {
         if (style.isNotBlank() && !style.endsWith(";")) {
             style += ";"
         }
-        style += """background-image: url("data:image/png;base64,${ImageUrl(url.trim()).toBase64()}");"""
+        style += """background-image: url("data:image/png;base64,${url.trim().toImageUrl().toBase64()}");"""
         this.attr("style", style)
     }
 

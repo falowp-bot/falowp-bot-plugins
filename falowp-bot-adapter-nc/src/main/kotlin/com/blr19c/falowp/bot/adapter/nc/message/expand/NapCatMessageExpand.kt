@@ -12,6 +12,7 @@ import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.expand.toURI
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.json.safeString
@@ -67,7 +68,7 @@ fun NapCatMessage.toBotEmoji(): List<ReceiveMessage.Emoji> {
     val faceEmoji = this.message.filter { it.type == NapCatMessageDataType.FACE }
         .mapNotNull { m ->
             val id = m.data.id ?: return@mapNotNull null
-            val raw = m.data.raw ?: return@mapNotNull null
+            val raw = m.data.data ?: return@mapNotNull null
             val faceType = raw.path("faceType").safeString()
             NapCatFaceEmoji.fromValue(id, faceType).toNapCatEmoji()
         }.toList()
@@ -99,16 +100,18 @@ fun NapCatMessage.toBotVideo(): ReceiveMessage.Video? {
 @Suppress("SpellCheckingInspection")
 fun NapCatMessage.toBotShare(): List<ReceiveMessage.Share> {
     return this.message.filter { it.type == NapCatMessageDataType.JSON }.mapNotNull {
-        val node = Json.unwrapJsonNode(it.data.raw ?: return@mapNotNull null)
+        val node = Json.unwrapJsonNode(it.data.data ?: return@mapNotNull null)
         val app = node.path("app")?.safeString() ?: return@mapNotNull null
         when {
             app.startsWith("com.tencent.miniapp") -> {
                 val appInfo = node["meta"].iterator().next()
                 ReceiveMessage.Share(
-                    appName = appInfo["title"].safeString(),
-                    title = appInfo["desc"].safeString(),
-                    preview = ImageUrl(appInfo["preview"].safeString()),
-                    sourceUrl = appInfo["qqdocurl"].safeString(),
+                    appId = appInfo.path("appid").safeString(),
+                    appName = appInfo.path("title").safeString(),
+                    title = appInfo.path("desc").safeString(),
+                    preview = appInfo.path("preview").safeString().toImageUrl(),
+                    sourceUrl = appInfo.path("qqdocurl").safeString()
+                        .ifBlank { appInfo.path("url").safeString() },
                 )
             }
 
@@ -118,10 +121,12 @@ fun NapCatMessage.toBotShare(): List<ReceiveMessage.Share> {
                 val view = node["view"].safeString()
                 val meta = node["meta"][view]
                 ReceiveMessage.Share(
-                    appName = meta["tag"].safeString(),
-                    title = meta["title"].safeString(),
-                    preview = ImageUrl(meta["preview"].safeString()),
-                    sourceUrl = meta["jumpUrl"].safeString(),
+                    appId = meta.path("appid").safeString(),
+                    appName = meta.path("tag").safeString(),
+                    title = meta.path("title").safeString(),
+                    preview = meta.path("preview").safeString().toImageUrl(),
+                    sourceUrl = meta.path("jumpUrl").safeString()
+                        .ifBlank { meta.path("url").safeString() },
                 )
             }
 
@@ -129,10 +134,12 @@ fun NapCatMessage.toBotShare(): List<ReceiveMessage.Share> {
                     || app.startsWith("com.tencent.contact.lua") -> {
                 val contact = node["meta"]["contact"]
                 ReceiveMessage.Share(
-                    appName = contact["tag"].safeString(),
-                    title = contact["nickname"].safeString(),
-                    preview = ImageUrl(contact["avatar"].safeString()),
-                    sourceUrl = contact["jumpUrl"].safeString(),
+                    appId = contact.path("appid").safeString(),
+                    appName = contact.path("tag").safeString(),
+                    title = contact.path("nickname").safeString(),
+                    preview = contact.path("avatar").safeString().toImageUrl(),
+                    sourceUrl = contact.path("jumpUrl").safeString()
+                        .ifBlank { contact.path("url").safeString() },
                 )
             }
 
@@ -224,7 +231,7 @@ suspend fun NapCatMessage.toBotMessage(): ReceiveMessage {
     }
     val sender = this.toBotUser()
     val source = this.toBotSource()
-    val self = ReceiveMessage.Self(this.selfId)
+    val self = NapCatBotApiSupport.self()
     val messageId = this.messageId
     val messageType = content.toMessageType()
     val adapter = ReceiveMessage.Adapter("NapCat", this)

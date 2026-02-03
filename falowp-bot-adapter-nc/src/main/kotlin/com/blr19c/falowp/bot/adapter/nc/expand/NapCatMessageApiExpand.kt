@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED", "UnusedReceiverParameter")
+@file:Suppress("UNUSED")
 
 package com.blr19c.falowp.bot.adapter.nc.expand
 
@@ -200,8 +200,6 @@ suspend fun NapCatBotApi.sendPrivateMsg(
 /**
  * 发送戳一戳
  *
- * 在群聊或私聊中发送戳一戳动作
- *
  * @param groupId 群组ID
  * @param userId 用户ID
  */
@@ -256,8 +254,6 @@ suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: Long, groupId: String 
 /**
  * 获取消息
  *
- * 根据消息 ID 获取消息详细信息
- *
  * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.getMsg(messageId: String): NapCatMessage {
@@ -276,8 +272,6 @@ suspend fun NapCatBotApi.markGroupMsgAsRead(messageId: String = this.receiveMess
 /**
  * 标记消息已读 (Go-CQHTTP)
  *
- * 标记指定渠道的消息为已读
- *
  * @param userId 用户ID
  * @param groupId 群组ID
  * @param messageId 消息ID
@@ -289,8 +283,6 @@ suspend fun NapCatBotApi.markMsgAsRead(userId: String? = null, groupId: String? 
 /**
  * 标记私聊已读
  *
- * 标记指定渠道的消息为已读
- *
  * @param messageId 消息ID
  */
 suspend fun NapCatBotApi.markPrivateMsgAsRead(messageId: String = this.receiveMessage.id) {
@@ -300,25 +292,20 @@ suspend fun NapCatBotApi.markPrivateMsgAsRead(messageId: String = this.receiveMe
 /**
  * 分享群 (Ark)
  *
- * 获取群分享的 Ark 内容
- *
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.arkShareGroup(groupId: String = this.receiveMessage.source.id) {
-    apiRequestUnit("ArkShareGroup", mapOf("group_id" to groupId))
+suspend fun NapCatBotApi.arkShareGroup(groupId: String = this.receiveMessage.source.id): JsonNode {
+    return apiRequest<JsonNode>("ArkShareGroup", mapOf("group_id" to groupId))
 }
 
 /**
  * 分享用户 (Ark)
  *
- * 获取用户推荐的 Ark 内容
- *
  * @param userId 用户ID
- * @param groupId 群组ID
- * @param phoneNumber 手机号
  */
-suspend fun NapCatBotApi.arkSharePeer(userId: String? = null, groupId: String? = null, phoneNumber: String) {
-    apiRequestUnit("ArkSharePeer", mapOf("user_id" to userId, "group_id" to groupId, "phone_number" to phoneNumber))
+suspend fun NapCatBotApi.arkSharePeer(userId: String = this.receiveMessage.sender.id): JsonNode {
+    return apiRequest<JsonNode>("ArkSharePeer", mapOf("user_id" to userId))
+        .path("arkMsg")
 }
 
 /**
@@ -406,30 +393,6 @@ suspend fun NapCatBotApi.getEmojiLikes(
 }
 
 /**
- * 分享用户 (Ark)
- *
- * 获取用户推荐的 Ark 内容
- *
- * @param userId 用户ID
- * @param groupId 群组ID
- * @param phoneNumber 手机号
- */
-suspend fun NapCatBotApi.sendArkShare(userId: String? = null, groupId: String? = null, phoneNumber: String) {
-    apiRequestUnit("send_ark_share", mapOf("user_id" to userId, "group_id" to groupId, "phone_number" to phoneNumber))
-}
-
-/**
- * 分享群 (Ark)
- *
- * 获取群分享的 Ark 内容
- *
- * @param groupId 群组ID
- */
-suspend fun NapCatBotApi.sendGroupArkShare(groupId: String = this.receiveMessage.source.id) {
-    apiRequestUnit("send_group_ark_share", mapOf("group_id" to groupId))
-}
-
-/**
  * 设置消息表情点赞
  *
  * @param messageId 消息ID
@@ -438,17 +401,4 @@ suspend fun NapCatBotApi.sendGroupArkShare(groupId: String = this.receiveMessage
  */
 suspend fun NapCatBotApi.setMsgEmojiLike(messageId: Long, emojiId: Long, set: Boolean? = null) {
     apiRequestUnit("set_msg_emoji_like", mapOf("message_id" to messageId, "emoji_id" to emojiId, "set" to set))
-}
-
-/**
- * 设置在线状态
- *
- * 
-## 状态列表
-
-### 在线
-
- */
-suspend fun NapCatBotApi.setOnlineStatus() {
-    apiRequestUnit("set_online_status")
 }

@@ -2,18 +2,17 @@ package com.blr19c.falowp.bot.adapter.tg
 
 import com.blr19c.falowp.bot.adapter.tg.api.TGBotApi
 import com.blr19c.falowp.bot.adapter.tg.api.TGBotApiSupport
+import com.blr19c.falowp.bot.adapter.tg.api.TGSelf
 import com.blr19c.falowp.bot.adapter.tg.database.TGUserInfo
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.adapter.BotAdapter
 import com.blr19c.falowp.bot.system.adapter.BotAdapterInterface
 import com.blr19c.falowp.bot.system.adapter.BotAdapterRegister
 import com.blr19c.falowp.bot.system.adapterConfigProperty
-import com.blr19c.falowp.bot.system.api.ApiAuth
-import com.blr19c.falowp.bot.system.api.MessageTypeEnum
-import com.blr19c.falowp.bot.system.api.ReceiveMessage
-import com.blr19c.falowp.bot.system.api.SourceTypeEnum
+import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
 import com.blr19c.falowp.bot.system.systemConfigListProperty
 import com.blr19c.falowp.bot.system.systemConfigProperty
@@ -152,8 +151,8 @@ class TGApplication : BotAdapterInterface, Log {
             return MessageTypeEnum.MESSAGE
         }
 
-        private fun receiveMessageSelf(): ReceiveMessage.Self {
-            return ReceiveMessage.Self(meInfo.id.toString())
+        private fun receiveMessageSelf(): BotSelf {
+            return TGSelf(meInfo)
         }
 
         private fun textMessage(message: Message, atList: List<ReceiveMessage.User>): String {
@@ -197,7 +196,7 @@ class TGApplication : BotAdapterInterface, Log {
 
         private fun imageMessage(message: Message): List<ImageUrl> {
             if (!message.hasPhoto()) return emptyList()
-            return message.photo.mapNotNull { photo -> getFileUrl(photo.fileId) }.map { ImageUrl(it) }
+            return message.photo.mapNotNull { photo -> getFileUrl(photo.fileId) }.map { it.toImageUrl() }
         }
 
         private fun videoMessage(message: Message): ReceiveMessage.Video? {
@@ -206,7 +205,7 @@ class TGApplication : BotAdapterInterface, Log {
             val thumbnail = getFileUrl(message.video.thumbnail.fileId) ?: return null
             return ReceiveMessage.Video(
                 message.video.fileId,
-                ImageUrl(thumbnail),
+                thumbnail.toImageUrl(),
                 URI.create(fileUrl),
                 message.video.fileSize
             )
@@ -230,7 +229,7 @@ class TGApplication : BotAdapterInterface, Log {
                 ?.fileId
                 ?: return null
             val fileUrl = this.getFileUrl(avatarFileId) ?: return null
-            return ImageUrl(fileUrl)
+            return fileUrl.toImageUrl()
         }
 
         private fun getFileUrl(fileId: String, fileSize: Long = 0): String? {

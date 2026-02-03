@@ -7,7 +7,7 @@ import com.blr19c.falowp.bot.plugins.user.database.BotUser
 import com.blr19c.falowp.bot.plugins.user.vo.BotUserVo
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.BotApi
-import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.expand.toImageUrl
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -102,7 +102,7 @@ private fun convertVo(resultRow: ResultRow): BotUserVo {
         resultRow[BotUser.id],
         resultRow[BotUser.userId],
         resultRow[BotUser.nickname],
-        ImageUrl(resultRow[BotUser.avatar]),
+        resultRow[BotUser.avatar].toImageUrl(),
         ApiAuth.valueOf(resultRow[BotUser.auth]),
         resultRow[BotUser.impression],
         resultRow[BotUser.coins],

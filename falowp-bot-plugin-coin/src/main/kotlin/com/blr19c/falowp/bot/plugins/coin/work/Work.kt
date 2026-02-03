@@ -4,7 +4,7 @@ import com.blr19c.falowp.bot.plugins.user.currentUser
 import com.blr19c.falowp.bot.plugins.user.incrementCoins
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.hook.awaitReply
-import com.blr19c.falowp.bot.system.plugin.message.MessagePluginRegisterMatch
+import com.blr19c.falowp.bot.system.plugin.message.MessageMatch
 import com.blr19c.falowp.bot.system.plugin.message.message
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.random.Random
@@ -38,7 +38,7 @@ class Work {
         this.sendReply(replyQuestion)
 
         val inputAnswerList = withTimeoutOrNull(120.seconds) {
-            val answer = awaitReply(MessagePluginRegisterMatch(regex = Regex("提交([\\d ]+)"))) { (answer) -> answer }
+            val answer = awaitReply(MessageMatch(regex = Regex("提交([\\d ]+)"))) { (answer) -> answer }
             Regex("\\b\\d+\\b").findAll(answer).map { it.value.toInt() }.toList()
         } ?: return@message this.sendReply("你做的太慢了,没得到任何奖励", reference = true)
 

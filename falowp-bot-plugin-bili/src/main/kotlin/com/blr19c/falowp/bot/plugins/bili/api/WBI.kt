@@ -44,9 +44,9 @@ object WBI {
             val map = mutableMapOf(
                 "dm_img_list" to "[]",
                 "dm_img_str" to "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ",
-                "dm_cover_img_str" to "QU5HTEUgKEFwcGxlLCBBTkdMRSBNZXRhbCBSZW5kZXJlcjogQXBwbGUgTTEgUHJvLCBVbnNwZWNpZmllZCBWZXJzaW9uKUdvb2dsZSBJbmMuIChBcHBsZS",
-                "dm_img_inter" to """{"ds":[],"wh":[3795,2140,61],"of":[308,616,308]}""",
-                "w_webid" to getAccessId(),
+                "dm_cover_img_str" to "QU5HTEUgKEFwcGxlLCBBTkdMRSBNZXRhbCBSZW5kZXJlcjogQXBwbGUgTTQsIFVuc3BlY2lmaWVkIFZlcnNpb24pR29vZ2xlIEluYy4gKEFwcGxlKQ",
+                "dm_img_inter" to """[{"x":3564,"y":1509,"z":0,"timestamp":1,"k":75,"type":0},{"x":3745,"y":999,"z":23,"timestamp":546,"k":116,"type":0}]""",
+                //"w_webid" to getAccessId(),
             )
             val finalParams = params.toMutableMap()
             finalParams.putAll(map)
@@ -87,22 +87,6 @@ object WBI {
         val imgUrl = wbiNode["wbi_img"]["img_url"].safeString()
         val subUrl = wbiNode["wbi_img"]["sub_url"].safeString()
         return WbiImg(imgUrl, subUrl)
-    }
-
-    private suspend fun getAccessId(): String {
-        val uid = DatabaseCookiesStorage.getAll().find { it.name == "DedeUserID" }!!.value
-        val dynamicUrl = "https://space.bilibili.com/$uid/dynamic"
-        val client = BiliClient()
-        val dynamicText = client.getText(dynamicUrl)
-        val pattern = """<script id="__RENDER_DATA__" type="application/json">(.*?)</script>"""
-        val regex = Regex(pattern, RegexOption.DOT_MATCHES_ALL)
-        val renderData = regex.find(dynamicText)?.groupValues?.get(1) ?: ""
-        val decodedData = withContext(Dispatchers.IO) {
-            URLDecoder.decode(renderData, "UTF-8")
-        }
-        val json = Json.decodeFromString<JsonObject>(decodedData)
-        val accessId = json["access_id"]?.jsonPrimitive?.content ?: ""
-        return accessId
     }
 }
 

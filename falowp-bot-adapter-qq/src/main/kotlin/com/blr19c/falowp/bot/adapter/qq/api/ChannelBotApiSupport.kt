@@ -88,7 +88,7 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
         )
         val sourceType = if (opReceiveMessage.t.isDirect()) SourceTypeEnum.PRIVATE else SourceTypeEnum.GROUP
         val source = ReceiveMessage.Source(opReceiveMessage.d.channelId, sourceType)
-        val self = ReceiveMessage.Self(selfId)
+        val self = BotSelf.Default(selfId)
         val messageId = opReceiveMessage.d.id
         val messageType = MessageTypeEnum.MESSAGE
         val adapter = ReceiveMessage.Adapter("QQ-CHANNEL", opReceiveMessage)

@@ -23,18 +23,16 @@ data class CqCustomMusicMessage(
 /**
  * 发送[CQ:json信息]
  */
-fun SendMessage.Builder.cqJsonMessage(message: String, escape: Boolean = true): SendMessage.Builder {
-    this.messageList.addLast(CqJsonMessage(message, escape))
-    return this
+fun SendMessage.Builder.cqJsonMessage(message: String, escape: Boolean = true) = apply {
+    messageList.addLast(CqJsonMessage(message, escape))
 }
 
 /**
  * 发送[CQ:face表情]
  * [face表情代码](https://github.com/kyubotics/coolq-http-api/wiki/%E8%A1%A8%E6%83%85-CQ-%E7%A0%81-ID-%E8%A1%A8)
  */
-fun SendMessage.Builder.cqFaceMessage(faceId: Int): SendMessage.Builder {
-    this.messageList.addLast(CqFaceMessage(faceId))
-    return this
+fun SendMessage.Builder.cqFaceMessage(faceId: Int) = apply {
+    messageList.addLast(CqFaceMessage(faceId))
 }
 
 /**
@@ -42,9 +40,8 @@ fun SendMessage.Builder.cqFaceMessage(faceId: Int): SendMessage.Builder {
  *
  * @param type 类型 可选的值qq,163
  */
-fun SendMessage.Builder.cqMusicMessage(type: String, id: String): SendMessage.Builder {
-    this.messageList.addLast(CqMusicMessage(type, id))
-    return this
+fun SendMessage.Builder.cqMusicMessage(type: String, id: String) = apply {
+    messageList.addLast(CqMusicMessage(type, id))
 }
 
 /**
@@ -64,7 +61,8 @@ fun SendMessage.Builder.cqCustomMusicMessage(
     subtype: String = "163",
     image: String = "",
     content: String = ""
-): SendMessage.Builder {
-    this.messageList.addLast(CqCustomMusicMessage(url, audio, title, subtype, image, content))
-    return this
+) = apply {
+    messageList.addLast(
+        CqCustomMusicMessage(url, audio, title, subtype, image, content)
+    )
 }
