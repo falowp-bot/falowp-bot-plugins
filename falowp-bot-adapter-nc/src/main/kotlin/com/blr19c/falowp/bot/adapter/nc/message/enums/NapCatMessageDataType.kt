@@ -94,6 +94,16 @@ enum class NapCatMessageDataType(@get:JsonValue val value: String) {
      */
     UNKNOWN("unknown");
 
+    /**
+     * 是否独立消息
+     */
+    fun independent(): Boolean {
+        return when (this) {
+            TEXT, IMAGE, FACE, AT, REPLY -> false
+            else -> true
+        }
+    }
+
     companion object {
 
         @JvmStatic

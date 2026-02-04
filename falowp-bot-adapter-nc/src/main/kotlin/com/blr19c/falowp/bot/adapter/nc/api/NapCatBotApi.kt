@@ -25,12 +25,12 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
         forward: Boolean
     ) {
         if (forward) {
-            val messages = sendMessageChain.map { buildMessage(it) }
+            val messages = sendMessageChain.flatMap { buildMessage(it) }
             this.sendForwardMsg(messageType = GROUP, groupId = sourceId, messages = messages)
             return
         }
         dealPoke(*sendMessageChain, messageType = GROUP, sourceId = sourceId)
-        sendMessageChain.map { buildMessage(it) }.forEach {
+        sendMessageChain.flatMap { buildMessage(it) }.forEach {
             val message = buildReference(reference, it)
             if (message.isNotEmpty()) this.sendGroupMsg(sourceId, message)
         }
@@ -53,12 +53,12 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
         forward: Boolean
     ) {
         if (forward) {
-            val messages = sendMessageChain.map { buildMessage(it) }
+            val messages = sendMessageChain.flatMap { buildMessage(it) }
             this.sendForwardMsg(messageType = PRIVATE, userId = sourceId, messages = messages)
             return
         }
         dealPoke(*sendMessageChain, messageType = PRIVATE, sourceId = sourceId)
-        sendMessageChain.map { buildMessage(it) }.forEach {
+        sendMessageChain.flatMap { buildMessage(it) }.forEach {
             val message = buildReference(reference, it)
             if (message.isNotEmpty()) this.sendGroupMsg(sourceId, message)
         }
@@ -102,8 +102,8 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
     /**
      * 单个消息
      */
-    private suspend fun buildMessage(sendMessageChain: SendMessageChain): List<NapCatMessage.Message> {
-        return sendMessageChain.messageList.mapNotNull { sendMessage ->
+    private suspend fun buildMessage(sendMessageChain: SendMessageChain) = splitIndependent {
+        sendMessageChain.messageList.mapNotNull { sendMessage ->
             when (sendMessage) {
                 is AtSendMessage -> NapCatMessage.Message(
                     NapCatMessageDataType.AT,
@@ -144,6 +144,36 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
                 else -> null
             }
         }
+    }
+
+    /**
+     * 独立消息拆分
+     */
+    private suspend fun splitIndependent(function: suspend () -> List<NapCatMessage.Message>): List<List<NapCatMessage.Message>> {
+        val result = mutableListOf<MutableList<NapCatMessage.Message>>()
+        var buffer = mutableListOf<NapCatMessage.Message>()
+
+        fun flush() {
+            if (buffer.isNotEmpty()) {
+                result.add(buffer)
+                buffer = mutableListOf()
+            }
+        }
+
+        fun single(message: NapCatMessage.Message) {
+            flush()
+            result.add(mutableListOf(message))
+        }
+
+        for (message in function()) {
+            if (message.type.independent()) {
+                single(message)
+            } else {
+                buffer.add(message)
+            }
+        }
+        flush()
+        return result
     }
 }
 
