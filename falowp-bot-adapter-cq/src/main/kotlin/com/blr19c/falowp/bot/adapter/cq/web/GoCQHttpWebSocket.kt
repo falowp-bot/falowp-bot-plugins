@@ -110,7 +110,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
         PluginManagement.message(parseMessage(goCQHttpMessage), GoCQHttpBotApi::class)
     }
 
-    private fun preprocessingPostTypeEvents(goCQHttpMessage: GoCQHttpMessage): Boolean {
+    private suspend fun preprocessingPostTypeEvents(goCQHttpMessage: GoCQHttpMessage): Boolean {
         when (goCQHttpMessage.postType ?: return false) {
             "request" -> {
                 when (goCQHttpMessage.requestType ?: return false) {
