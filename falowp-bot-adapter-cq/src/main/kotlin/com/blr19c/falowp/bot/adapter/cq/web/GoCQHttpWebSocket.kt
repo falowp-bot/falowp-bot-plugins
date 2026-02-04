@@ -118,7 +118,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
                         parseEventBotApi(goCQHttpMessage).publishEvent(
                             RequestJoinGroupEvent(
                                 parseSource(goCQHttpMessage),
-                                goCQHttpMessage.userId!!,
+                                ReceiveMessage.User.empty().copy(id = goCQHttpMessage.userId!!),
                                 goCQHttpMessage.comment!!,
                                 goCQHttpMessage.flag!!,
                                 goCQHttpMessage.subType!!
@@ -131,7 +131,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
                         parseEventBotApi(goCQHttpMessage).publishEvent(
                             RequestAddFriendEvent(
                                 parseSource(goCQHttpMessage),
-                                goCQHttpMessage.userId!!,
+                                ReceiveMessage.User.empty().copy(id = goCQHttpMessage.userId!!),
                                 goCQHttpMessage.comment!!,
                                 goCQHttpMessage.flag!!,
                             )
@@ -152,7 +152,7 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
                 val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.getMsg(it) }
                 val message = cqMessage?.let { parseMessage(it) } ?: ReceiveMessage.empty()
                 val source = ReceiveMessage.Source(goCQHttpMessage.groupId!!, SourceTypeEnum.GROUP)
-                parseEventBotApi(goCQHttpMessage).publishEvent(WithdrawMessageEvent(source, message, sender))
+                parseEventBotApi(goCQHttpMessage).publishEvent(WithdrawMessageEvent(source, sender, message))
                 return true
             }
 

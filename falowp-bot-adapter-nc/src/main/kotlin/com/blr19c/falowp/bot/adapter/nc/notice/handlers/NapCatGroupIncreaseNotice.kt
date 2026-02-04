@@ -25,8 +25,8 @@ object NapCatGroupIncreaseNotice : NapCatNotice.NapCatNoticeInterface {
 
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
         val user = NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
-        val operator = NapCatBotApiSupport.getGroupMemberInfo(groupId, operatorId)
+        val actor = NapCatBotApiSupport.getGroupMemberInfo(groupId, operatorId)
 
-        return GroupIncreaseEvent(source, user, operator, subType)
+        return GroupIncreaseEvent(source, actor, user, subType)
     }
 }

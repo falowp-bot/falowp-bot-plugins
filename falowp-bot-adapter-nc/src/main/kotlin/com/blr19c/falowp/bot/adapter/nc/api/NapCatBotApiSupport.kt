@@ -1,9 +1,6 @@
 package com.blr19c.falowp.bot.adapter.nc.api
 
-import com.blr19c.falowp.bot.adapter.nc.expand.getFriendList
-import com.blr19c.falowp.bot.adapter.nc.expand.getGroupList
-import com.blr19c.falowp.bot.adapter.nc.expand.getGroupMemberInfo
-import com.blr19c.falowp.bot.adapter.nc.expand.getLoginInfo
+import com.blr19c.falowp.bot.adapter.nc.expand.*
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatSelf
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.BotApi
@@ -72,9 +69,23 @@ object NapCatBotApiSupport : SchedulingBotApiSupport {
     }
 
     /**
+     * 获取群聊群主信息
+     */
+    suspend fun getGroupOwner(groupId: String): ReceiveMessage.User? {
+        return tempBot.getGroupMemberList(groupId).find { it.role == "owner" }?.toUser()
+    }
+
+    /**
      * 获取好友信息转换为 ReceiveMessage.User
      */
     suspend fun getFriendInfo(userId: String): ReceiveMessage.User? {
         return tempBot.getFriendList().singleOrNull { it.userId == userId }?.toUser()
+    }
+
+    /**
+     * 用户ID生成临时用户信息
+     */
+    fun userIdToUser(userId: String): ReceiveMessage.User {
+        return ReceiveMessage.User(userId, "", apiAuth(userId), avatar(userId))
     }
 }

@@ -1,5 +1,6 @@
 package com.blr19c.falowp.bot.adapter.nc.notice.handlers
 
+import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
 import com.blr19c.falowp.bot.adapter.nc.notice.NapCatNotice
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
@@ -23,8 +24,9 @@ object NapCatGroupAddNotice : NapCatNotice.NapCatNoticeInterface {
         val subType = originalMessage.path("sub_type").safeString()
 
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
+        val actor = NapCatBotApiSupport.userIdToUser(userId)
 
-        return RequestJoinGroupEvent(source, userId, comment, flag, subType)
+        return RequestJoinGroupEvent(source, actor, comment, flag, subType)
     }
 
 }

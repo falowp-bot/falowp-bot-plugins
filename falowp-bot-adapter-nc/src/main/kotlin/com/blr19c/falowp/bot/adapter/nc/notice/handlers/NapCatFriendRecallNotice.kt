@@ -25,7 +25,7 @@ object NapCatFriendRecallNotice : NapCatNotice.NapCatNoticeInterface {
         val message = NapCatBotApiSupport.tempBot.getMsg(messageId).toBotMessage()
         val source = ReceiveMessage.Source(userId, SourceTypeEnum.PRIVATE)
 
-        return WithdrawMessageEvent(source, message, message.sender)
+        return WithdrawMessageEvent(source, message.sender, message)
     }
 
 }

@@ -21,10 +21,10 @@ object NapCatNotifyProfileLikeNotice : NapCatNotice.NapCatNoticeInterface {
         val nickname = originalMessage.path("operator_nick").safeString()
         val count = originalMessage.path("times").intValue()
 
-        val operator = NapCatBotApiSupport.getFriendInfo(operatorId) ?: ReceiveMessage.User.empty()
+        val actor = NapCatBotApiSupport.getFriendInfo(operatorId) ?: ReceiveMessage.User.empty()
             .copy(id = operatorId, nickname = nickname)
         val source = ReceiveMessage.Source(operatorId, SourceTypeEnum.PRIVATE)
 
-        return NapCatNotifyProfileLikeNoticeEvent(source, operator, count)
+        return NapCatNotifyProfileLikeNoticeEvent(source, actor, count)
     }
 }

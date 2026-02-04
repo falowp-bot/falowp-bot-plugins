@@ -23,7 +23,8 @@ object NapCatGroupAdminNotice : NapCatNotice.NapCatNoticeInterface {
 
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
         val user = NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
+        val actor = NapCatBotApiSupport.getGroupOwner(groupId) ?: ReceiveMessage.User.empty()
 
-        return NapCatGroupAdminEvent(source, user, subType)
+        return NapCatGroupAdminEvent(source, actor, user, subType)
     }
 }

@@ -32,9 +32,9 @@ object NapCatGroupMsgEmojiLikeNotice : NapCatNotice.NapCatNoticeInterface {
         }
 
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
-        val user = NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
+        val actor = NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
         val message = NapCatBotApiSupport.tempBot.getMsg(messageId).toBotMessage()
 
-        return NapCatGroupMsgEmojiLikeEvent(source, user, message, likes, add)
+        return NapCatGroupMsgEmojiLikeEvent(source, actor, message, likes, add)
     }
 }

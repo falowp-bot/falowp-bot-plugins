@@ -12,6 +12,10 @@ data class NapCatGroupNotifyTitleEvent(
      */
     override val source: ReceiveMessage.Source,
     /**
+     * 操作人
+     */
+    override val actor: ReceiveMessage.User,
+    /**
      * 用户
      */
     val user: ReceiveMessage.User,

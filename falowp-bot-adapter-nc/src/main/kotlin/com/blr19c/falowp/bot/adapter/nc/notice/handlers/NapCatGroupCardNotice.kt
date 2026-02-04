@@ -22,9 +22,9 @@ object NapCatGroupCardNotice : NapCatNotice.NapCatNoticeInterface {
         val cardNew = originalMessage.path("card_new").safeString()
         val cardOld = originalMessage.path("card_old").safeString()
 
-        val user = NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
+        val actor = NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
 
-        return NapCatGroupCardEvent(source, user, cardNew, cardOld)
+        return NapCatGroupCardEvent(source, actor, cardNew, cardOld)
     }
 }

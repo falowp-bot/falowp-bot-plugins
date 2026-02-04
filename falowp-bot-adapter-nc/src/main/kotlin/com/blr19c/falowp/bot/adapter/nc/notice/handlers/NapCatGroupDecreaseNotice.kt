@@ -25,8 +25,8 @@ object NapCatGroupDecreaseNotice : NapCatNotice.NapCatNoticeInterface {
 
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
         val user = ReceiveMessage.User.empty().copy(id = userId)
-        val operator = if (operatorId == "0") user else NapCatBotApiSupport.getGroupMemberInfo(groupId, operatorId)
+        val actor = if (operatorId == "0") user else NapCatBotApiSupport.getGroupMemberInfo(groupId, operatorId)
 
-        return GroupDecreaseEvent(source, user, operator, subType)
+        return GroupDecreaseEvent(source, actor, user, subType)
     }
 }

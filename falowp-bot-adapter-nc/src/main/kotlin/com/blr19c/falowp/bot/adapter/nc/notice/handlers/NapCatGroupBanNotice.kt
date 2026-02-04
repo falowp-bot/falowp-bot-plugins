@@ -25,10 +25,10 @@ object NapCatGroupBanNotice : NapCatNotice.NapCatNoticeInterface {
         val duration = originalMessage.path("duration").safeString()
 
         val user = NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
-        val operator = NapCatBotApiSupport.getGroupMemberInfo(groupId, operatorId)
+        val actor = NapCatBotApiSupport.getGroupMemberInfo(groupId, operatorId)
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
         val durationTime = duration.toLong().seconds
 
-        return NapCatGroupBanEvent(source, user, operator, durationTime, subType)
+        return NapCatGroupBanEvent(source, actor, user, durationTime, subType)
     }
 }

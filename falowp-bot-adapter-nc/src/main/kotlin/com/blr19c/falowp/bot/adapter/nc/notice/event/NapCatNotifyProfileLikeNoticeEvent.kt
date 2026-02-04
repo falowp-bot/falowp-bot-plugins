@@ -14,7 +14,7 @@ data class NapCatNotifyProfileLikeNoticeEvent(
     /**
      * 点赞用户
      */
-    val operator: ReceiveMessage.User,
+    override val actor: ReceiveMessage.User,
     /**
      * 点赞数量
      */

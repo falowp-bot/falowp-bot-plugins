@@ -12,13 +12,13 @@ data class NapCatGroupEssenceEvent(
      */
     override val source: ReceiveMessage.Source,
     /**
+     * 操作人
+     */
+    override val actor: ReceiveMessage.User,
+    /**
      * 用户
      */
     val user: ReceiveMessage.User,
-    /**
-     * 操作人
-     */
-    val operator: ReceiveMessage.User,
     /**
      * 消息
      */

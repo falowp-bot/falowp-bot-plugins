@@ -15,7 +15,7 @@ data class NapCatGroupUploadEvent(
     /**
      * 用户
      */
-    val user: ReceiveMessage.User,
+    override val actor: ReceiveMessage.User,
     /**
      * 文件链接
      */

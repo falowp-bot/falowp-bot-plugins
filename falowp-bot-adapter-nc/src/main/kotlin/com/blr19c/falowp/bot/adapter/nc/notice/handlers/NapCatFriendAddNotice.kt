@@ -1,5 +1,6 @@
 package com.blr19c.falowp.bot.adapter.nc.notice.handlers
 
+import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
 import com.blr19c.falowp.bot.adapter.nc.notice.NapCatNotice
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
@@ -21,7 +22,8 @@ object NapCatFriendAddNotice : NapCatNotice.NapCatNoticeInterface {
         val flag = originalMessage.path("flag").safeString()
 
         val source = ReceiveMessage.Source(userId, SourceTypeEnum.PRIVATE)
+        val actor = NapCatBotApiSupport.userIdToUser(userId)
 
-        return RequestAddFriendEvent(source, userId, comment, flag)
+        return RequestAddFriendEvent(source, actor, comment, flag)
     }
 }

@@ -30,8 +30,8 @@ object NapCatGroupEssenceNotice : NapCatNotice.NapCatNoticeInterface {
         val selfId = originalMessage.path("self_id").safeString()
 
         val essenceMsg = NapCatBotApiSupport.tempBot.getEssenceMsgList(groupId)[0]
-        val operator = NapCatBotApiSupport.getGroupMemberInfo(groupId, operatorId)
-        val user = if (userId == "0") operator else NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
+        val actor = NapCatBotApiSupport.getGroupMemberInfo(groupId, operatorId)
+        val user = if (userId == "0") actor else NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
         val napCatMessage = NapCatMessage.empty().copy(
             messageId = essenceMsg.messageId,
@@ -50,6 +50,6 @@ object NapCatGroupEssenceNotice : NapCatNotice.NapCatNoticeInterface {
         )
         val message = napCatMessage.toBotMessage()
 
-        return NapCatGroupEssenceEvent(source, user, operator, message, subType)
+        return NapCatGroupEssenceEvent(source, actor, user, message, subType)
     }
 }

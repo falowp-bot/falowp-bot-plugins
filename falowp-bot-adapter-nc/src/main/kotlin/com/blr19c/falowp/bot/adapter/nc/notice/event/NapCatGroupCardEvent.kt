@@ -14,7 +14,7 @@ data class NapCatGroupCardEvent(
     /**
      * 用户
      */
-    val user: ReceiveMessage.User,
+    override val actor: ReceiveMessage.User,
     /**
      * 新名片
      */

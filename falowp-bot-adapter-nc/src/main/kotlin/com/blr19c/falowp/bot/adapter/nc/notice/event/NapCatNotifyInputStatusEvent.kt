@@ -14,7 +14,7 @@ data class NapCatNotifyInputStatusEvent(
     /**
      * 用户
      */
-    val user: ReceiveMessage.User,
+    override val actor: ReceiveMessage.User,
     /**
      * 类型
      */

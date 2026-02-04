@@ -5,6 +5,7 @@ import com.blr19c.falowp.bot.plugins.auth.database.BanInfo.sourceId
 import com.blr19c.falowp.bot.plugins.auth.database.BanInfo.userId
 import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.system.api.ApiAuth
+import com.blr19c.falowp.bot.system.listener.hooks.EventPluginExecutionHook
 import com.blr19c.falowp.bot.system.listener.hooks.ReceiveMessageHook
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.hook.beforeHook
@@ -68,13 +69,18 @@ class Ban {
         }
     }
 
-    private val banHook = beforeHook<ReceiveMessageHook>(order = Int.MIN_VALUE) { (receiveMessage) ->
+    private val banMessageHook = beforeHook<ReceiveMessageHook>(order = Int.MIN_VALUE) { (receiveMessage) ->
         if (banSet.contains(receiveMessage.sender.id + receiveMessage.source.id)) this.terminate()
+    }
+
+    private val banEventHook = beforeHook<EventPluginExecutionHook>(order = Int.MIN_VALUE) { (event) ->
+        if (banSet.contains(event.actor.id + event.source.id)) this.terminate()
     }
 
     init {
         ban.register()
         unban.register()
-        banHook.register()
+        banMessageHook.register()
+        banEventHook.register()
     }
 }

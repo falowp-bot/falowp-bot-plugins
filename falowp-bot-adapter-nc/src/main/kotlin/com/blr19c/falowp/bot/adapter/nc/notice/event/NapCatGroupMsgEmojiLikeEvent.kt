@@ -14,7 +14,7 @@ data class NapCatGroupMsgEmojiLikeEvent(
     /**
      * 用户
      */
-    val user: ReceiveMessage.User,
+    override val actor: ReceiveMessage.User,
     /**
      * 消息
      */

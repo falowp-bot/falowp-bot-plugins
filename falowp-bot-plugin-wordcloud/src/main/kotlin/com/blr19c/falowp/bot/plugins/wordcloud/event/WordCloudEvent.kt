@@ -11,4 +11,5 @@ import java.time.LocalDate
  */
 data class WordCloudEvent(val date: LocalDate = LocalDate.now()) : Plugin.Listener.Event {
     override val source = ReceiveMessage.Source.system()
+    override val actor = ReceiveMessage.User.empty()
 }
