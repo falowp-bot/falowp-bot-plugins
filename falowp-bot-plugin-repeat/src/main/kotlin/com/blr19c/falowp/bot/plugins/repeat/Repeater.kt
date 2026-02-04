@@ -1,15 +1,14 @@
 package com.blr19c.falowp.bot.plugins.repeat
 
 import com.blr19c.falowp.bot.system.api.*
+import com.blr19c.falowp.bot.system.listener.events.NudgeEvent
 import com.blr19c.falowp.bot.system.listener.events.SendMessageEvent
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.event.eventListener
 import com.blr19c.falowp.bot.system.plugin.message.MessageMatch
 import com.blr19c.falowp.bot.system.plugin.message.queueMessage
-import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.random.Random
 
 /**
  * 复读机
@@ -20,93 +19,87 @@ import kotlin.random.Random
     desc = "和大家一起复读"
 )
 class Repeater {
+
     private val mutex: Mutex = Mutex()
-    private val executor = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val historyMessage = LinkedHashMap<String, RepeaterData>()
 
-    private fun equalsContent(content1: ReceiveMessage.Content, content2: ReceiveMessage.Content) = runBlocking {
-        val image1 = content1.image.map { it.toSummary() }.toList()
-        val image2 = content2.image.map { it.toSummary() }.toList()
-        content1.at.map { it.id }.toList() == content2.at.map { it.id }.toList()
-                && content1.message == content2.message
-                && image1 == image2
-    }
-
-    private fun buildReplyMessage(content: ReceiveMessage.Content): SendMessageChain {
-        if (Random.nextDouble(0.0, 1.0) < 0.8) {
-            val message = if (content.message.contains("打断施法"))
-                "打断!".plus(content.message) else content.message
-            return SendMessage.builder()
-                .at(content.at.map { it.id })
-                .image(content.image.map { it.info })
-                .text(message)
-                .build()
-        }
-        val replyMessage = "打断施法"
-        val interruptMessage = if (content.message.contains(replyMessage))
-            "打断!".plus(content.message) else replyMessage.plus("!")
-        return SendMessage.builder(interruptMessage).build()
-    }
-
-    private suspend fun addMessage(botApi: BotApi, originalMessage: RepeaterData, sourceId: String) = mutex.withLock {
-        val repeaterData = historyMessage.compute(sourceId) { _, oldRepeaterData ->
-            var newRepeaterData = originalMessage
-            oldRepeaterData ?: return@compute newRepeaterData
-            if (!equalsContent(newRepeaterData.content, oldRepeaterData.content)) {
-                return@compute newRepeaterData
-            }
-            newRepeaterData = oldRepeaterData.copy(count = oldRepeaterData.count + 1)
-            if (newRepeaterData.count < 0) {
-                newRepeaterData = oldRepeaterData.copy(repeat = true)
-            }
-            if (newRepeaterData.count >= 3) {
-                newRepeaterData = newRepeaterData.copy(count = Int.MIN_VALUE)
-            }
-            newRepeaterData
-        } ?: return@withLock
-        if (repeaterData.count < 0 && !repeaterData.repeat) {
-            botApi.sendReply(buildReplyMessage(repeaterData.content))
-        }
-    }
-
-
     private val repeater = queueMessage(
-        MessageMatch.allMatch(),
-        terminateEvent = false, onSuccess = {}, onOverFlow = {}
+        match = MessageMatch.allMatch(),
+        terminateEvent = false,
+        onSuccess = {},
+        onOverFlow = {}
     ) {
-        executor.launch {
-            addMessage(this@queueMessage, RepeaterData(receiveMessage.content), receiveMessage.source.id)
+        if (this.receiveMessage.messageType != MessageTypeEnum.MESSAGE) {
+            clearMessage(this.receiveMessage.source.id)
+            return@queueMessage
+        }
+        addMessage(this.receiveMessage.source, this.receiveMessage.content)
+    }
+
+    private val nudgeEventListener = eventListener<NudgeEvent> { event ->
+        this.addMessage(event.source, NudgeSendMessage(event.target.id))
+    }
+
+    private val sendMessageEventListener = eventListener<SendMessageEvent> {
+        clearMessage(this.receiveMessage.source.id)
+    }
+
+    private suspend fun BotApi.addMessage(source: ReceiveMessage.Source, content: Any) {
+        val message = mutex.withLock {
+            val old = historyMessage[source.id]
+            val new = when {
+                old == null || !equalsContent(old.content, content) -> RepeaterData(content)
+                else -> old.copy(count = old.count + 1)
+            }
+            historyMessage[source.id] = new
+            return@withLock new
+        }
+        if (message.count >= 3) {
+            clearMessage(source.id)
+            sendRepeater(source, message)
         }
     }
 
-    private val sendMessageEvent = eventListener<SendMessageEvent> { (sendMessageList, _, forward) ->
-        if (forward || this.receiveMessage.source.id.isBlank()) return@eventListener
-        for (sendMessageChain in sendMessageList) {
-            val atList = sendMessageChain.messageList.filterIsInstance<AtSendMessage>()
-                .map { ReceiveMessage.User.empty().copy(id = it.at) }
-                .toList()
-            val imageList = sendMessageChain.messageList.filterIsInstance<ImageSendMessage>()
-                .map { it.image }
-                .toList()
-            val text = sendMessageChain.messageList.filterIsInstance<TextSendMessage>().joinToString { it.content }
-            val content = ReceiveMessage.Content(
-                text,
-                null,
-                atList,
-                imageList,
-                emptyList(),
-                null,
-                emptyList(),
-                emptyList()
-            ) { null }
-            addMessage(this, RepeaterData(content, repeat = true), this.receiveMessage.source.id)
+    private suspend fun BotApi.sendRepeater(source: ReceiveMessage.Source, new: RepeaterData) {
+        val message = when (new.content) {
+            is ReceiveMessage.Content -> SendMessage.builder()
+                .text(new.content.message)
+                .at(new.content.at.map { it.id })
+                .image(new.content.image.map { it.info })
+                .emoji(new.content.emoji.map { EmojiSendMessage(it.id, it.type, it.display) })
+                .build()
+
+            is NudgeSendMessage -> SendMessage.builder()
+                .nudge(new.content.id)
+                .build()
+
+            else -> return
         }
+        if (source.type == SourceTypeEnum.GROUP) {
+            this.sendGroup(message, sourceId = source.id)
+        }
+        if (source.type == SourceTypeEnum.PRIVATE) {
+            this.sendPrivate(message, sourceId = source.id)
+        }
+    }
+
+    private suspend fun clearMessage(sourceId: String) = mutex.withLock {
+        historyMessage.remove(sourceId)
+    }
+
+    private fun equalsContent(a: Any, b: Any) = when (a) {
+        is ReceiveMessage.Content if b is ReceiveMessage.Content ->
+            a.message == b.message && a.at == b.at && a.image == b.image && a.emoji == b.emoji
+
+        is NudgeSendMessage if b is NudgeSendMessage -> a.id == b.id
+        else -> false
     }
 
     init {
         repeater.register()
-        sendMessageEvent.register()
+        nudgeEventListener.register()
+        sendMessageEventListener.register()
     }
 
-    data class RepeaterData(val content: ReceiveMessage.Content, val count: Int = 1, val repeat: Boolean = false)
+    private data class RepeaterData(val content: Any, val count: Int = 1)
 }

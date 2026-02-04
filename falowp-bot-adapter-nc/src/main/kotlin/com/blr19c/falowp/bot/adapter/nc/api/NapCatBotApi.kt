@@ -130,6 +130,15 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
                     NapCatMessage.MessageData(file = sendMessage.video.toASCIIString())
                 )
 
+                is EmojiSendMessage -> NapCatMessage.Message(
+                    NapCatMessageDataType.FACE,
+                    NapCatMessage.MessageData(
+                        id = sendMessage.id,
+                        type = sendMessage.type,
+                        summary = sendMessage.display
+                    )
+                )
+
                 is NapCatSendMessage -> sendMessage.message
 
                 else -> null

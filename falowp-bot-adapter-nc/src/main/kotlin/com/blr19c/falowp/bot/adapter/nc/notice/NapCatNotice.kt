@@ -4,8 +4,11 @@ import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatNoticeType
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatRequestType
 import com.blr19c.falowp.bot.system.Log
+import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.plugin.Plugin
+import com.blr19c.falowp.bot.system.plugin.event.EventBotApi
+import com.blr19c.falowp.bot.system.plugin.event.eventBotApi
 import tools.jackson.databind.JsonNode
 
 /**
@@ -26,7 +29,7 @@ object NapCatNotice {
     suspend fun processEvent(originalMessage: JsonNode) {
         val requestType = NapCatRequestType.fromValue(originalMessage.path("request_type").safeString())
         val event = requestType.clazz?.objectInstance?.toBotEvent(originalMessage)
-        event?.let { NapCatBotApiSupport.tempBot.publishEvent(it) }
+        event?.let { eventBot(it).publishEvent(it) }
     }
 
     /**
@@ -35,7 +38,11 @@ object NapCatNotice {
     suspend fun processNotice(originalMessage: JsonNode) {
         val napCatNoticeType = NapCatNoticeType.fromValue(originalMessage)
         val event = napCatNoticeType.clazz?.objectInstance?.toBotEvent(originalMessage)
-        event?.let { NapCatBotApiSupport.tempBot.publishEvent(it) }
+        event?.let { eventBot(it).publishEvent(it) }
+    }
+
+    private suspend fun eventBot(event: Plugin.Listener.Event): EventBotApi {
+        return NapCatBotApiSupport.tempBot.eventBotApi(event, ReceiveMessage.Adapter("NapCat", event))
     }
 
 }

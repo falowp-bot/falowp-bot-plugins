@@ -10,7 +10,7 @@ data class NapCatNotifyProfileLikeNoticeEvent(
     /**
      * 来源
      */
-    val source: ReceiveMessage.Source,
+    override val source: ReceiveMessage.Source,
     /**
      * 点赞用户
      */

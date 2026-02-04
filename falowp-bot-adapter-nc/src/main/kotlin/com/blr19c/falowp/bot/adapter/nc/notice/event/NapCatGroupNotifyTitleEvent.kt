@@ -10,7 +10,7 @@ data class NapCatGroupNotifyTitleEvent(
     /**
      * 群组
      */
-    val source: ReceiveMessage.Source,
+    override val source: ReceiveMessage.Source,
     /**
      * 用户
      */

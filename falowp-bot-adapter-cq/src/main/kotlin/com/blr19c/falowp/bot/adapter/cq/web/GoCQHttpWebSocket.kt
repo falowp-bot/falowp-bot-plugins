@@ -117,8 +117,8 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
                     "group" -> {
                         parseEventBotApi(goCQHttpMessage).publishEvent(
                             RequestJoinGroupEvent(
-                                goCQHttpMessage.userId!!,
                                 parseSource(goCQHttpMessage),
+                                goCQHttpMessage.userId!!,
                                 goCQHttpMessage.comment!!,
                                 goCQHttpMessage.flag!!,
                                 goCQHttpMessage.subType!!
@@ -130,8 +130,8 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
                     "friend" -> {
                         parseEventBotApi(goCQHttpMessage).publishEvent(
                             RequestAddFriendEvent(
-                                goCQHttpMessage.userId!!,
                                 parseSource(goCQHttpMessage),
+                                goCQHttpMessage.userId!!,
                                 goCQHttpMessage.comment!!,
                                 goCQHttpMessage.flag!!,
                             )
@@ -152,21 +152,21 @@ class GoCQHttpWebSocket(onload: () -> Unit) : Log {
                 val cqMessage = goCQHttpMessage.messageId?.let { GoCqHttpBotApiSupport.tempBot.getMsg(it) }
                 val message = cqMessage?.let { parseMessage(it) } ?: ReceiveMessage.empty()
                 val source = ReceiveMessage.Source(goCQHttpMessage.groupId!!, SourceTypeEnum.GROUP)
-                parseEventBotApi(goCQHttpMessage).publishEvent(WithdrawMessageEvent(message, sender, source))
+                parseEventBotApi(goCQHttpMessage).publishEvent(WithdrawMessageEvent(source, message, sender))
                 return true
             }
 
             "group_increase" -> {
                 val sender = parseSender(goCQHttpMessage)
                 val source = parseSource(goCQHttpMessage)
-                parseEventBotApi(goCQHttpMessage).publishEvent(GroupIncreaseEvent(sender, source, sender, ""))
+                parseEventBotApi(goCQHttpMessage).publishEvent(GroupIncreaseEvent(source, sender, sender, ""))
                 return true
             }
 
             "group_decrease" -> {
                 val sender = parseSender(goCQHttpMessage)
                 val source = parseSource(goCQHttpMessage)
-                parseEventBotApi(goCQHttpMessage).publishEvent(GroupDecreaseEvent(sender, source, sender, ""))
+                parseEventBotApi(goCQHttpMessage).publishEvent(GroupDecreaseEvent(source, sender, sender, ""))
                 return true
             }
 

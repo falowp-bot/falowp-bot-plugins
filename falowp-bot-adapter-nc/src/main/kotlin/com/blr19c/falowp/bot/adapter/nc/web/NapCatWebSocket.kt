@@ -44,10 +44,15 @@ object NapCatWebSocket : Log {
         while (isActive) {
             try {
                 napCatWsClient().ws(adapterConfigProperty("nc.wsAddress")) {
-                    log().info("NapCat-WebSocket-连接成功")
-                    initWebsocket(onload)
-                    for (frame in incoming) {
-                        launch { execWebsocketFrame(frame) }
+                    try {
+                        log().info("NapCat-WebSocket-连接成功")
+                        initWebsocket(onload)
+                        for (frame in incoming) {
+                            launch { execWebsocketFrame(frame) }
+                        }
+                    } finally {
+                        val reason = closeReason.await()
+                        log().warn("NapCat-WebSocket-断开连接,closeReason=$reason")
                     }
                 }
             } catch (e: CancellationException) {
@@ -75,7 +80,7 @@ object NapCatWebSocket : Log {
         val deferred = CompletableDeferred<JsonNode>()
         echoWaiters[napCatWsEcho.echo] = deferred
         try {
-            webSocketSession().send(Json.toJsonString(napCatWsEcho))
+            webSocketSession().sendLargeText(Json.toJsonString(napCatWsEcho))
             return withTimeout(timeout) {
                 deferred.await()
             }
@@ -156,10 +161,26 @@ object NapCatWebSocket : Log {
         return true
     }
 
+    private suspend fun WebSocketSession.sendLargeText(text: String, chunkSize: Int = 32_000) {
+        var i = 0
+        log().warn("send json length=${text.length}")
+
+        while (i < text.length) {
+            val end = minOf(i + chunkSize, text.length)
+            val content = Frame.Text(
+                fin = end == text.length,
+                data = text.substring(i, end).toByteArray()
+            )
+            this.send(content)
+            i = end
+        }
+    }
+
     fun napCatWsClient(): HttpClient {
         return webclient().config {
             install(WebSockets) {
                 pingInterval = 3.seconds
+                maxFrameSize = 16L * 1024 * 1024
             }
         }
     }

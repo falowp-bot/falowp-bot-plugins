@@ -27,6 +27,6 @@ object NapCatGroupRecallNotice : NapCatNotice.NapCatNoticeInterface {
         val operator = NapCatBotApiSupport.getGroupMemberInfo(groupId, operatorId)
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
 
-        return WithdrawMessageEvent(message, operator, source)
+        return WithdrawMessageEvent(source, message, operator)
     }
 }

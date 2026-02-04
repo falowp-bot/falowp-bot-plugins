@@ -22,6 +22,6 @@ object NapCatFriendAddNotice : NapCatNotice.NapCatNoticeInterface {
 
         val source = ReceiveMessage.Source(userId, SourceTypeEnum.PRIVATE)
 
-        return RequestAddFriendEvent(userId, source, comment, flag)
+        return RequestAddFriendEvent(source, userId, comment, flag)
     }
 }

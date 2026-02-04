@@ -8,6 +8,7 @@ import com.blr19c.falowp.bot.system.web.longTimeoutWebclient
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import java.util.*
 import kotlin.time.Duration.Companion.minutes
 
@@ -87,9 +88,14 @@ suspend inline fun <reified T : Any> NapCatBotApi.apiRequestResult(
     body: Any? = null
 ): NapCatApiResult<T> {
     return if (adapterConfigProperty("nc.useHttp") { false.toString() }.toBoolean()) {
-        val baseUrl = adapterConfigProperty("nc.httpAddress")
-        val resBytes = longTimeoutWebclient().post("$baseUrl/$type") { setBody(body) }.bodyAsBytes()
-        Json.readObj<NapCatApiResult<T>>(resBytes)
+        val res = longTimeoutWebclient().post {
+            url {
+                takeFrom(adapterConfigProperty("nc.httpAddress"))
+                appendPathSegments(type)
+            }
+            setBody(body ?: emptyMap<String, String>())
+        }
+        Json.readObj<NapCatApiResult<T>>(res.bodyAsBytes())
     } else {
         val echo = UUID.randomUUID().toString()
         val node = NapCatWebSocket.sendAndWaitEcho(NapCatWsEcho(type, body, echo), 1.minutes)

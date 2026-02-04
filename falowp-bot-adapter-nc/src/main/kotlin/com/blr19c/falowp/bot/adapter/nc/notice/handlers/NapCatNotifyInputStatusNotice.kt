@@ -24,6 +24,6 @@ object NapCatNotifyInputStatusNotice : NapCatNotice.NapCatNoticeInterface {
         val user = NapCatBotApiSupport.getFriendInfo(userId) ?: ReceiveMessage.User.empty().copy(id = userId)
         val source = ReceiveMessage.Source(userId, SourceTypeEnum.PRIVATE)
 
-        return NapCatNotifyInputStatusEvent(user, source, eventType, statusText)
+        return NapCatNotifyInputStatusEvent(source, user, eventType, statusText)
     }
 }

@@ -8,13 +8,13 @@ import com.blr19c.falowp.bot.system.plugin.Plugin
  */
 data class NapCatNotifyInputStatusEvent(
     /**
+     * 来源
+     */
+    override val source: ReceiveMessage.Source,
+    /**
      * 用户
      */
     val user: ReceiveMessage.User,
-    /**
-     * 来源
-     */
-    val source: ReceiveMessage.Source,
     /**
      * 类型
      */

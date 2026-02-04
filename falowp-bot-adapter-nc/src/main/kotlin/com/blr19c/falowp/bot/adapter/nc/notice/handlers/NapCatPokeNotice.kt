@@ -31,7 +31,7 @@ object NapCatPokeNotice : NapCatNotice.NapCatNoticeInterface {
         val sender = NapCatBotApiSupport.getFriendInfo(userId) ?: ReceiveMessage.User.empty().copy(id = userId)
         val action = parseAction(originalMessage, target)
 
-        return NudgeEvent(target, sender, source, action)
+        return NudgeEvent(source, target, sender, action)
     }
 
     private suspend fun groupPoke(originalMessage: JsonNode): NudgeEvent {
@@ -44,7 +44,7 @@ object NapCatPokeNotice : NapCatNotice.NapCatNoticeInterface {
         val sender = NapCatBotApiSupport.getGroupMemberInfo(groupId, userId)
         val action = parseAction(originalMessage, target)
 
-        return NudgeEvent(target, sender, source, action)
+        return NudgeEvent(source, target, sender, action)
     }
 
     private fun parseAction(originalMessage: JsonNode, target: ReceiveMessage.User): String {

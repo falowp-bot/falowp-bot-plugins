@@ -24,7 +24,7 @@ object NapCatGroupAddNotice : NapCatNotice.NapCatNoticeInterface {
 
         val source = ReceiveMessage.Source(groupId, SourceTypeEnum.GROUP)
 
-        return RequestJoinGroupEvent(userId, source, comment, flag, subType)
+        return RequestJoinGroupEvent(source, userId, comment, flag, subType)
     }
 
 }
