@@ -4,6 +4,7 @@ val falowpBotVersion: String by project
 plugins {
     kotlin("jvm") version "2.3.0"
     id("com.github.ben-manes.versions") version "0.53.0"
+    id("com.vanniktech.maven.publish") version "0.36.0"
     id("maven-publish")
     signing
 }
@@ -34,6 +35,7 @@ subprojects {
     }
 
     apply(plugin = "maven-publish")
+    apply(plugin = "com.vanniktech.maven.publish")
     apply(plugin = "signing")
 
     group = rootProject.group
@@ -60,74 +62,50 @@ subprojects {
     }
 
 
-    publishing {
-        repositories {
-            maven {
-                // https://s01.oss.sonatype.org/content/repositories/snapshots/
-                url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-                credentials {
-                    username =
-                        project.findProperty("s01SonatypeUserName")?.toString() ?: System.getenv("MAVEN_USERNAME")
-                    password =
-                        project.findProperty("s01SonatypePassword")?.toString() ?: System.getenv("MAVEN_PASSWORD")
+    mavenPublishing {
+        publishToMavenCentral()
+        signAllPublications()
+        coordinates(
+            groupId = project.group.toString(),
+            artifactId = project.name.toString(),
+            version = project.version.toString()
+        )
+        pom {
+            name.set("${project.group}:${project.name}")
+            description.set("FalowpBot plugin")
+            url.set("https://github.com/falowp-bot")
+
+            scm {
+                url.set("https://github.com/falowp-bot")
+                connection.set("scm:git:https://github.com/falowp-bot.git")
+                developerConnection.set("scm:git:ssh://git@github.com/falowp-bot.git")
+            }
+
+            licenses {
+                license {
+                    name.set("GPL-3.0 license")
+                    url.set("https://www.gnu.org/licenses/agpl-3.0.txt")
                 }
             }
-        }
 
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(components["java"])
-                groupId = project.group.toString()
-                version = project.version.toString()
-
-                println("groupId: $groupId, artifactId: $artifactId, version: $version")
-
-                artifact(tasks.getByName<Jar>("javadocJar")) {
-                    classifier = "javadoc"
-                }
-                artifact(tasks.getByName<Jar>("sourcesJar")) {
-                    classifier = "sources"
-                }
-
-                pom {
-                    name.set("${project.group}:falowp-bot-system")
-                    description.set("FalowpBot plugin")
-                    packaging = "jar"
-                    url.set("https://github.com/falowp-bot")
-
-                    scm {
-                        url.set("https://github.com/falowp-bot")
-                        connection.set("https://github.com/falowp-bot")
-                        developerConnection.set("https://github.com/falowp-bot")
-                    }
-
-                    licenses {
-                        license {
-                            name.set("GPL-3.0 license")
-                            url.set("https://www.gnu.org/licenses/agpl-3.0.txt")
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id.set("falowp")
-                            name.set("falowp")
-                            organization {
-                                name = "falowp"
-                                url = "https://falowp.blr19c.com"
-                            }
-                            timezone.set("+8")
-                            roles.add("owner")
-                        }
-                    }
+            developers {
+                developer {
+                    id.set("falowp")
+                    name.set("falowp")
+                    organization.set("falowp")
+                    organizationUrl.set("https://falowp.blr19c.com")
+                    timezone.set("+8")
+                    roles.set(listOf("owner"))
                 }
             }
         }
     }
 
     signing {
-        if (System.getenv("GPG_PRIVATE_KEY") != null) {
-            useInMemoryPgpKeys(System.getenv("GPG_PRIVATE_KEY"), System.getenv("GPG_PASSPHRASE"))
+        val key = findProperty("signingInMemoryKey") as String?
+        val pass = findProperty("signingInMemoryKeyPassword") as String?
+        if (!key.isNullOrBlank() && !pass.isNullOrBlank()) {
+            useInMemoryPgpKeys(key, pass)
         } else {
             //如果本地gpg采用homebrew安装 需要手动指定位置
             //signing.gnupg.executable=/opt/homebrew/bin/gpg
