@@ -5,13 +5,14 @@ import com.blr19c.falowp.bot.plugins.bili.api.api.ORIGIN
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.web.bodyAsJsonNode
 import com.blr19c.falowp.bot.system.web.longTimeoutWebclient
-import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import tools.jackson.databind.JsonNode
 
+@Suppress("UNUSED")
 class BiliClient : Log {
 
     private val storage = DatabaseCookiesStorage

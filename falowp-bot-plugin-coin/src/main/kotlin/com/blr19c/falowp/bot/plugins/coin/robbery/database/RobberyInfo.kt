@@ -1,9 +1,9 @@
 package com.blr19c.falowp.bot.plugins.coin.robbery.database
 
 import com.blr19c.falowp.bot.plugins.db.multiTransaction
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.date
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.javatime.date
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 
 /**
  * 打劫记录

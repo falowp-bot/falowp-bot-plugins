@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 /**
  * 腾讯翻译
  */
+@Suppress("UNUSED")
 object TxTranslate {
 
     private val client by lazy {

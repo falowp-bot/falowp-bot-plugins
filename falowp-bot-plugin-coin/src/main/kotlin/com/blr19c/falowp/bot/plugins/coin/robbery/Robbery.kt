@@ -8,8 +8,8 @@ import com.blr19c.falowp.bot.plugins.user.incrementCoins
 import com.blr19c.falowp.bot.plugins.user.queryByUserId
 import com.blr19c.falowp.bot.plugins.user.vo.BotUserVo
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
-import org.jetbrains.exposed.sql.insert
+import com.blr19c.falowp.bot.system.plugin.message.message
+import org.jetbrains.exposed.v1.jdbc.insert
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.sql.SQLException
@@ -65,7 +65,7 @@ class Robbery {
                 }
             }
             this.sendReply("你抢到了${sum.toPlainString()}个金币")
-        } catch (e: SQLException) {
+        } catch (_: SQLException) {
             this.sendReply("这些人你今天已经抢过了")
         }
     }

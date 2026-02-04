@@ -1,10 +1,13 @@
+@file:Suppress("unused", "UnusedReceiverParameter")
+
 package com.blr19c.falowp.bot.adapter.tg.api
 
-import com.blr19c.falowp.bot.adapter.tg.TGApplication.Companion.telegramLongPollingBot
+import com.blr19c.falowp.bot.adapter.tg.TGApplication
 import com.blr19c.falowp.bot.adapter.tg.database.TGUserInfo
 import com.blr19c.falowp.bot.system.api.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto
 import org.telegram.telegrambots.meta.api.methods.send.SendVoice
@@ -40,6 +43,10 @@ class TGBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : BotAp
         forward: Boolean
     ) {
         sendMessageChain.forEach { sendTelegramMessage(it, sourceId) }
+    }
+
+    override suspend fun self(): BotSelf {
+        return TGSelf(this.telegramLongPollingBot().me)
     }
 
 
@@ -99,4 +106,18 @@ class TGBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : BotAp
             }
         }
     }
+}
+
+/**
+ * 转为 TGBotApi
+ */
+fun BotApi.tg(): TGBotApi {
+    return this as? TGBotApi ?: TGBotApi(receiveMessage, originalClass)
+}
+
+/**
+ * 获取tg原始bot
+ */
+fun TGBotApi.telegramLongPollingBot(): TelegramLongPollingBot {
+    return TGApplication.telegramLongPollingBot()
 }

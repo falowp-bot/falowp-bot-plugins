@@ -2,8 +2,8 @@ package com.blr19c.falowp.bot.adapter.qq.op
 
 import com.blr19c.falowp.bot.adapter.qq.op.serializer.OpCodeEnumJsonDeserializer
 import com.blr19c.falowp.bot.adapter.qq.op.serializer.OpCodeEnumJsonSerialize
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import tools.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonSerialize
 
 /**
  * opCode消息类型

@@ -4,10 +4,11 @@ import com.blr19c.falowp.bot.system.api.MessageTypeEnum
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.json.Json
+import com.blr19c.falowp.bot.system.json.safeString
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.JsonNode
-import java.net.URI
+import tools.jackson.databind.JsonNode
 import java.util.*
 import kotlin.time.Duration.Companion.minutes
 
@@ -169,9 +170,6 @@ data class GoCQHttpMessage(
 
 
     fun toMessageType(): MessageTypeEnum {
-        if (this.subType == "poke") {
-            return MessageTypeEnum.POKE
-        }
         if (voice.isPresent) {
             return MessageTypeEnum.VOICE
         }
@@ -207,14 +205,14 @@ data class GoCQHttpMessage(
      */
     private fun imageList(): List<ImageUrl> {
         val cqMessage = this.message ?: return emptyList()
-        val imageRegex = Regex("\\[CQ:image.+,url=(https?://[^\\s/\$.?#].\\S*)]")
-        return imageRegex.findAll(cqMessage).map { it.groupValues[1] }.map { ImageUrl(it) }.toList()
+        val imageRegex = Regex("\\[CQ:image.+,url=(https?://[^\\s/$.?#].\\S*)]")
+        return imageRegex.findAll(cqMessage).map { it.groupValues[1] }.map { it.toImageUrl() }.toList()
     }
 
     /**
      * 处理语音
      */
-    private fun voice(): Optional<URI> {
+    private fun voice(): Optional<ReceiveMessage.Voice> {
         return Optional.empty()
     }
 
@@ -240,41 +238,46 @@ data class GoCQHttpMessage(
     }
 
     private fun shareInfo(jsonNode: JsonNode): ReceiveMessage.Share? {
-        return if (jsonNode["app"].asText().startsWith("com.tencent.miniapp"))
+        return if (jsonNode["app"].safeString().startsWith("com.tencent.miniapp"))
             shareMiniAppStandard(jsonNode)
-        else if (jsonNode["app"].asText().startsWith("com.tencent.structmsg"))
+        else if (jsonNode["app"].safeString().startsWith("com.tencent.structmsg"))
             shareStandard(jsonNode)
-        else if (jsonNode["app"].asText().startsWith("com.tencent.troopsharecard"))
+        else if (jsonNode["app"].safeString().startsWith("com.tencent.troopsharecard"))
             shareCard(jsonNode)
         else null
     }
 
+
+    @Suppress("SpellCheckingInspection")
     private fun shareMiniAppStandard(jsonNode: JsonNode): ReceiveMessage.Share {
-        val appInfo = jsonNode["meta"].elements().next()
+        val appInfo = jsonNode["meta"].iterator().next()
         return ReceiveMessage.Share(
-            appInfo["title"].asText(),
-            appInfo["desc"].asText(),
-            ImageUrl(appInfo["preview"].asText()),
-            appInfo["qqdocurl"].asText(),
+            "",
+            appInfo["title"].safeString(),
+            appInfo["desc"].safeString(),
+            appInfo["preview"].safeString().toImageUrl(),
+            appInfo["qqdocurl"].safeString(),
         )
     }
 
     private fun shareStandard(jsonNode: JsonNode): ReceiveMessage.Share {
-        val view = jsonNode["view"].asText()
+        val view = jsonNode["view"].safeString()
         return ReceiveMessage.Share(
-            jsonNode["meta"][view]["tag"].asText(),
-            jsonNode["meta"][view]["title"].asText(),
-            ImageUrl(jsonNode["meta"][view]["preview"].asText()),
-            jsonNode["meta"][view]["jumpUrl"].asText(),
+            "",
+            jsonNode["meta"][view]["tag"].safeString(),
+            jsonNode["meta"][view]["title"].safeString(),
+            jsonNode["meta"][view]["preview"].safeString().toImageUrl(),
+            jsonNode["meta"][view]["jumpUrl"].safeString(),
         )
     }
 
     private fun shareCard(jsonNode: JsonNode): ReceiveMessage.Share {
         return ReceiveMessage.Share(
-            jsonNode["meta"]["contact"]["tag"].asText(),
-            jsonNode["meta"]["contact"]["nickname"].asText(),
-            ImageUrl(jsonNode["meta"]["contact"]["avatar"].asText()),
-            jsonNode["meta"]["contact"]["jumpUrl"].asText(),
+            "",
+            jsonNode["meta"]["contact"]["tag"].safeString(),
+            jsonNode["meta"]["contact"]["nickname"].safeString(),
+            jsonNode["meta"]["contact"]["avatar"].safeString().toImageUrl(),
+            jsonNode["meta"]["contact"]["jumpUrl"].safeString(),
         )
     }
 

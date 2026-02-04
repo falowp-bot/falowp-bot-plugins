@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package com.blr19c.falowp.bot.plugins.bili.api.api
 
 import com.blr19c.falowp.bot.plugins.bili.api.BiliClient

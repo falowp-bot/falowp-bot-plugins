@@ -7,15 +7,16 @@ import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQMessageTypeEnum.MEDIA
 import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQMessageTypeEnum.TEXT
 import com.blr19c.falowp.bot.adapter.qq.op.qq.OpQQSendMessage
 import com.blr19c.falowp.bot.system.adapterConfigProperty
+import com.blr19c.falowp.bot.system.api.BotSelf
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.web.bodyAsJsonNode
 import com.blr19c.falowp.bot.system.web.webclient
-import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import tools.jackson.databind.JsonNode
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
@@ -87,5 +88,9 @@ class QQBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
             )
             header(HttpHeaders.Authorization, token)
         }.bodyAsJsonNode()
+    }
+
+    override suspend fun self(): BotSelf {
+        return BotSelf.Default("qq-self")
     }
 }

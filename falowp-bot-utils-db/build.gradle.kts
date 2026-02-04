@@ -1,4 +1,4 @@
-val exposedVersion = "0.60.0"
+val exposedVersion = "1.0.0"
 
 dependencies {
     implementation("com.blr19c.falowp:falowp-bot-system:${rootProject.version}")
@@ -6,5 +6,5 @@ dependencies {
     api("org.jetbrains.exposed:exposed-core:$exposedVersion")
     api("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     api("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
-    runtimeOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    api("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
 }

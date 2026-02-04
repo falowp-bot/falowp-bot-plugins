@@ -37,7 +37,7 @@ data class OpQQReceiveMessage(
 
     data class User(
 
-        @JsonAlias(value = ["member_openid", "user_openid"])
+        @field:JsonAlias(value = ["member_openid", "user_openid"])
         val id: String,
     )
 }

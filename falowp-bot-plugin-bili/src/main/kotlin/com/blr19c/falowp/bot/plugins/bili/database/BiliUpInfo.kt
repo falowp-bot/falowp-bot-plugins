@@ -2,7 +2,12 @@ package com.blr19c.falowp.bot.plugins.bili.database
 
 import com.blr19c.falowp.bot.plugins.bili.vo.BiliUpInfoVo
 import com.blr19c.falowp.bot.plugins.db.multiTransaction
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 
 /**
  * b站up主信息

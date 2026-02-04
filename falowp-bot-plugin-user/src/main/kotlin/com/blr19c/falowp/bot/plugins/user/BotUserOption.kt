@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED")
+
 package com.blr19c.falowp.bot.plugins.user
 
 import com.blr19c.falowp.bot.plugins.db.multiTransaction
@@ -5,9 +7,14 @@ import com.blr19c.falowp.bot.plugins.user.database.BotUser
 import com.blr19c.falowp.bot.plugins.user.vo.BotUserVo
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.BotApi
-import com.blr19c.falowp.bot.system.expand.ImageUrl
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
+import com.blr19c.falowp.bot.system.expand.toImageUrl
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.plus
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import java.math.BigDecimal
 
 /**
@@ -95,7 +102,7 @@ private fun convertVo(resultRow: ResultRow): BotUserVo {
         resultRow[BotUser.id],
         resultRow[BotUser.userId],
         resultRow[BotUser.nickname],
-        ImageUrl(resultRow[BotUser.avatar]),
+        resultRow[BotUser.avatar].toImageUrl(),
         ApiAuth.valueOf(resultRow[BotUser.auth]),
         resultRow[BotUser.impression],
         resultRow[BotUser.coins],

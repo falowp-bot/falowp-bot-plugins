@@ -5,10 +5,10 @@ import com.blr19c.falowp.bot.plugins.user.vo.BotUserVo
 import com.blr19c.falowp.bot.system.api.SendMessage
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
+import com.blr19c.falowp.bot.system.plugin.message.message
 import com.blr19c.falowp.bot.system.readPluginResource
 import com.blr19c.falowp.bot.system.web.htmlToImageBase64
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jsoup.Jsoup
 
 /**

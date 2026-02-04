@@ -50,7 +50,7 @@ class QQApplication : BotAdapterInterface, Log {
             //最新一次消息的s&sessionId
             loopParameters = (AtomicReference<Int>() to AtomicReference<String>()),
             //首次鉴权
-            firstBlock = { authentication(this);register.finish(this@QQApplication) },
+            firstBlock = { authentication(this); register.finish(this@QQApplication) },
             //重连发送恢复连接
             reconnectBlock = { (lastS, sessionId) -> resumeAuthentication(this, lastS, sessionId) },
             block = { (lastS, sessionId) ->
@@ -212,7 +212,7 @@ class QQApplication : BotAdapterInterface, Log {
     }
 
     private suspend fun WebSocketSession.sendMessage(data: Any, showLog: Boolean = true) {
-        val json = if (data is String) data else Json.toJsonString(data)
+        val json = data as? String ?: Json.toJsonString(data)
         if (showLog) log().info("发送消息:$json")
         this.send(json)
     }

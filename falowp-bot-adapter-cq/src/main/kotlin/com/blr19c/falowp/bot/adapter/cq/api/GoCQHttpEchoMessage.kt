@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 /**
  * 带有echo的回执消息
  */
+@Suppress("SpellCheckingInspection")
 data class GoCQHttpEchoMessage(
 
     /**

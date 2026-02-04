@@ -13,18 +13,18 @@ import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
-import com.blr19c.falowp.bot.system.plugin.MessagePluginRegisterMatch
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Message.message
-import com.blr19c.falowp.bot.system.plugin.Plugin.Task.periodicScheduling
+import com.blr19c.falowp.bot.system.plugin.message.MessageMatch
+import com.blr19c.falowp.bot.system.plugin.message.message
+import com.blr19c.falowp.bot.system.plugin.task.periodicScheduling
 import com.blr19c.falowp.bot.system.web.urlToRedirectUrl
 import com.blr19c.falowp.bot.system.web.webclient
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.QRCodeWriter
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.update
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 import kotlin.time.Duration.Companion.days
@@ -34,7 +34,7 @@ import kotlin.time.Duration.Companion.seconds
 @Plugin(
     name = "b站订阅",
     desc = """
-            <p>B站直播,UP动态等提醒(0-6点不会推送)</p>
+            <p>B站直播,UP动态等提醒(系统休息时段不会推送)</p>
             <p>指令:</p>
             <p>登录 [bB]站登录</p>
             <p>添加订阅 [bB]站订阅 uid</p>
@@ -175,6 +175,7 @@ class Subscription : Log {
             }
             this.sendReply("订阅:$subscriptionMid(${userInfo.name})完成")
         } catch (e: Exception) {
+            e.printStackTrace()
             this.sendReply("订阅失败:${e.message}")
         }
     }
@@ -226,7 +227,7 @@ class Subscription : Log {
      * 视频ai描述
      */
     private val videoAi = message(
-        MessagePluginRegisterMatch(
+        MessageMatch(
             messageType = MessageTypeEnum.SHARE,
             customBlock = { receiveMessage ->
                 receiveMessage.content.share.any { it.appName == "哔哩哔哩" }

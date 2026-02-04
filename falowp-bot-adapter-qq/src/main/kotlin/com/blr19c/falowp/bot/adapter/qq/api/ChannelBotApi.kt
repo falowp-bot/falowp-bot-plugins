@@ -6,6 +6,7 @@ import com.blr19c.falowp.bot.adapter.qq.op.OpException
 import com.blr19c.falowp.bot.adapter.qq.op.channel.OpChannelMessageContent
 import com.blr19c.falowp.bot.adapter.qq.op.channel.OpChannelSendMessage
 import com.blr19c.falowp.bot.system.adapterConfigProperty
+import com.blr19c.falowp.bot.system.api.BotSelf
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.web.webclient
@@ -62,5 +63,9 @@ class ChannelBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
         message: OpChannelSendMessage
     ) {
         throw OpException("频道适配器不支持私聊")
+    }
+
+    override suspend fun self(): BotSelf {
+        return BotSelf.Default(ChannelBotApiSupport.selfId)
     }
 }

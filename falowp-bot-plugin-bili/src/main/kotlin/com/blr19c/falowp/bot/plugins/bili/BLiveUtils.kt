@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package com.blr19c.falowp.bot.plugins.bili
 
 import com.blr19c.falowp.bot.plugins.bili.api.DatabaseCookiesStorage
@@ -6,8 +8,9 @@ import com.blr19c.falowp.bot.plugins.bili.api.data.BiliVideoAiSummary
 import com.blr19c.falowp.bot.plugins.bili.vo.BiliUpInfoVo
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.cache.CacheReference
-import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
+import com.blr19c.falowp.bot.system.expand.toImageUrl
+import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.readPluginResource
 import com.blr19c.falowp.bot.system.systemConfigProperty
 import com.blr19c.falowp.bot.system.web.*
@@ -33,6 +36,7 @@ import kotlin.time.Duration.Companion.days
 /**
  * b站获取信息工具
  */
+@Suppress("SpellCheckingInspection")
 object BLiveUtils : Log {
 
     private val ticket by CacheReference(1.days) { genWebTicket() }
@@ -54,7 +58,7 @@ object BLiveUtils : Log {
             for (cookie in DatabaseCookiesStorage.getAll()) {
                 cookie(cookie.name, cookie.value)
             }
-        }.bodyAsJsonNode()["data"]["ticket"].asText()
+        }.bodyAsJsonNode()["data"]["ticket"].safeString()
     }
 
 
@@ -271,7 +275,7 @@ object BLiveUtils : Log {
             inputStream.bufferedReader().use { it.readText() }
         }
         val htmlBody = Jsoup.parse(htmlString)
-        val cover = "data:image/png;base64,${ImageUrl(liveInfo.roomInfo.cover.trim()).toBase64()}"
+        val cover = "data:image/png;base64,${liveInfo.roomInfo.cover.trim().toImageUrl().toBase64()}"
         htmlBody.select("#background").attr("src", cover)
         //标题
         htmlBody.select(".title").html(liveInfo.roomInfo.title)
@@ -293,7 +297,7 @@ object BLiveUtils : Log {
         if (style.isNotBlank() && !style.endsWith(";")) {
             style += ";"
         }
-        style += """background-image: url("data:image/png;base64,${ImageUrl(url.trim()).toBase64()}");"""
+        style += """background-image: url("data:image/png;base64,${url.trim().toImageUrl().toBase64()}");"""
         this.attr("style", style)
     }
 

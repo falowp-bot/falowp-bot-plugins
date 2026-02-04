@@ -10,7 +10,7 @@ import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.systemConfigProperty
-import com.fasterxml.jackson.databind.node.ArrayNode
+import tools.jackson.databind.node.ArrayNode
 import java.net.URI
 import kotlin.math.min
 import kotlin.reflect.KClass
@@ -29,11 +29,11 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
         //当forward时reference失效
         if (forward) {
             val message = buildForwardMessage(SourceTypeEnum.GROUP, sourceId, *sendMessageChain)
-            return this.cqSendGroupForwardMsg(sourceId, message).saveMessageId(*sendMessageChain)
+            return this.sendGroupForwardMsg(sourceId, message).saveMessageId(*sendMessageChain)
         }
         sendMessageChain.forEach {
             val message = buildMessage(it, SourceTypeEnum.GROUP, sourceId, reference)
-            this.cqSendGroupMsg(sourceId, message).saveMessageId(it)
+            this.sendGroupMsg(sourceId, message).saveMessageId(it)
         }
     }
 
@@ -42,12 +42,12 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
             //当forward时reference失效
             if (forward) {
                 val message = buildForwardMessage(SourceTypeEnum.GROUP, groupId, *sendMessageChain)
-                this.cqSendGroupForwardMsg(groupId, message).saveMessageId(*sendMessageChain)
+                this.sendGroupForwardMsg(groupId, message).saveMessageId(*sendMessageChain)
                 continue
             }
             sendMessageChain.forEach {
                 val message = buildMessage(it, SourceTypeEnum.GROUP, groupId, reference)
-                this.cqSendGroupMsg(groupId, message).saveMessageId(it)
+                this.sendGroupMsg(groupId, message).saveMessageId(it)
             }
         }
     }
@@ -61,12 +61,16 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
         //当forward时reference失效
         if (forward) {
             val message = buildForwardMessage(SourceTypeEnum.PRIVATE, sourceId, *sendMessageChain)
-            return this.cqSendPrivateForwardMsg(sourceId, message).saveMessageId(*sendMessageChain)
+            return this.sendPrivateForwardMsg(sourceId, message).saveMessageId(*sendMessageChain)
         }
         sendMessageChain.forEach {
             val message = buildMessage(it, SourceTypeEnum.PRIVATE, sourceId, reference)
-            this.cqSendPrivateMsg(userId = sourceId, message = message).saveMessageId(it)
+            this.sendPrivateMsg(userId = sourceId, message = message).saveMessageId(it)
         }
+    }
+
+    override suspend fun self(): BotSelf {
+        return BotSelf.Default(this.cq().getLoginInfo().userId)
     }
 
     /**
@@ -105,7 +109,7 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
                 is VoiceSendMessage -> voiceCQ(sendMessage.voice)
                 is ImageSendMessage -> imageCQ(sendMessage.image)
                 is VideoSendMessage -> videoCQ(sendMessage.video)
-                is PokeSendMessage -> pokeCQ(receiveMessage.sender.id)
+                is NudgeSendMessage -> pokeCQ(sendMessage.id)
                 is CqFaceMessage -> faceCQ(sendMessage.faceId)
                 is CqMusicMessage -> musicCQ(sendMessage)
                 is CqCustomMusicMessage -> customMusicCQ(sendMessage)
@@ -127,7 +131,7 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
 
     private suspend fun atCQ(at: String, sourceId: String, sourceTypeEnum: SourceTypeEnum): String {
         if (at == "all" && sourceTypeEnum == SourceTypeEnum.GROUP) {
-            val remain = this.cqGetGroupAtAllRemain(sourceId)
+            val remain = this.getGroupAtAllRemain(sourceId)
             if (!remain.canAtAll || min(remain.remainAtAllCountForGroup, remain.remainAtAllCountForUin) <= 0) {
                 log().info("@全体次数已用尽")
                 return ""
@@ -179,4 +183,11 @@ class GoCQHttpBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) :
             .replace("[", "&#91;")
             .replace("]", "&#93;")
     }
+}
+
+/**
+ * 转为 GoCQHttpBotApi
+ */
+fun BotApi.cq(): GoCQHttpBotApi {
+    return this as? GoCQHttpBotApi ?: GoCQHttpBotApi(receiveMessage, originalClass)
 }

@@ -3,7 +3,7 @@ package com.blr19c.falowp.bot.plugins.idle
 
 import com.blr19c.falowp.bot.system.api.SendMessage
 import com.blr19c.falowp.bot.system.plugin.Plugin
-import com.blr19c.falowp.bot.system.plugin.Plugin.Task.cronScheduling
+import com.blr19c.falowp.bot.system.plugin.task.cronScheduling
 import com.blr19c.falowp.bot.system.systemConfigProperty
 import com.blr19c.falowp.bot.system.web.webclient
 import io.ktor.client.request.*
@@ -128,7 +128,7 @@ class Idle {
             val summaryComment = summarySplit[0] + summarySplit[1]
             if (lastSummaryComment == null) {
                 lastSummaryComment = summaryComment
-                var propertyList: ContentCollection<Property> = holiday!!.propertyList
+                var propertyList = holiday!!.propertyList
                 propertyList = propertyList.remove(holiday.getProperty<Summary>(Property.SUMMARY).get())
                 propertyList = propertyList.add(Summary(lastSummaryComment))
                 lastHoliday = VEvent(propertyList as PropertyList)
@@ -136,7 +136,7 @@ class Idle {
                 continue
             }
             if (lastSummaryComment == summaryComment) {
-                var propertyList: ContentCollection<Property> = lastHoliday!!.propertyList
+                var propertyList = lastHoliday!!.propertyList
                 propertyList = propertyList.remove(lastHoliday.getProperty<DtEnd<Temporal>>(Property.DTEND).get())
                 propertyList = propertyList.add(holiday.getProperty<DtEnd<Temporal>>(Property.DTEND).get())
                 lastHoliday = VEvent(propertyList as PropertyList)

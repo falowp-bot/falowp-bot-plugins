@@ -1,7 +1,7 @@
 package com.blr19c.falowp.bot.adapter.qq.op.qq
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.JsonNode
+import tools.jackson.databind.JsonNode
 
 /**
  * QQ发送消息

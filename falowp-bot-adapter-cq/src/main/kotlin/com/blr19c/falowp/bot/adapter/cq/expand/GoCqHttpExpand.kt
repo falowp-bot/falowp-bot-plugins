@@ -1,12 +1,13 @@
-@file:Suppress("UNUSED")
+@file:Suppress("UNUSED", "UnusedReceiverParameter")
 
 package com.blr19c.falowp.bot.adapter.cq.expand
 
+import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpBotApi
 import com.blr19c.falowp.bot.adapter.cq.api.GoCQHttpMessage
 import com.blr19c.falowp.bot.adapter.cq.api.GoCqHttpBotApiSupport.messageIdToCQMessageIdMap
 import com.blr19c.falowp.bot.system.adapterConfigProperty
-import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.expand.ImageUrl
+import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.listener.events.RequestAddFriendEvent
 import com.blr19c.falowp.bot.system.listener.events.RequestJoinGroupEvent
@@ -24,7 +25,7 @@ import kotlin.time.Duration
  * @param autoEscape 消息内容是否作为纯文本发送(即不解析CQ码)
  * @return 消息id
  */
-suspend fun BotApi.cqSendPrivateMsg(
+suspend fun GoCQHttpBotApi.sendPrivateMsg(
     groupId: String? = null,
     userId: String = this.receiveMessage.sender.id,
     message: String,
@@ -49,7 +50,7 @@ suspend fun BotApi.cqSendPrivateMsg(
  * @param autoEscape 消息内容是否作为纯文本发送(即不解析CQ码)
  * @return 消息id
  */
-suspend fun BotApi.cqSendGroupMsg(
+suspend fun GoCQHttpBotApi.sendGroupMsg(
     groupId: String = this.receiveMessage.source.id,
     message: String,
     autoEscape: Boolean = false
@@ -70,7 +71,7 @@ suspend fun BotApi.cqSendGroupMsg(
  * @param groupId 群组id
  * @param messages 自定义转发消息
  */
-suspend fun BotApi.cqSendGroupForwardMsg(
+suspend fun GoCQHttpBotApi.sendGroupForwardMsg(
     groupId: String = this.receiveMessage.source.id,
     messages: Any
 ): String {
@@ -89,7 +90,7 @@ suspend fun BotApi.cqSendGroupForwardMsg(
  * @param userId 用户id
  * @param messages 自定义转发消息
  */
-suspend fun BotApi.cqSendPrivateForwardMsg(
+suspend fun GoCQHttpBotApi.sendPrivateForwardMsg(
     userId: String = this.receiveMessage.sender.id,
     messages: Any
 ): String {
@@ -112,7 +113,7 @@ suspend fun BotApi.cqSendPrivateForwardMsg(
  * @param autoEscape 消息内容是否作为纯文本发送(即不解析CQ码)
  * @return 消息id
  */
-suspend fun BotApi.cqSendMsg(
+suspend fun GoCQHttpBotApi.sendMsg(
     groupId: String = this.receiveMessage.source.id,
     userId: String = this.receiveMessage.sender.id,
     messageType: String,
@@ -134,14 +135,14 @@ suspend fun BotApi.cqSendMsg(
 /**
  * 撤回消息
  */
-suspend fun BotApi.cqDeleteMsg(messageId: String = this.receiveMessage.id) {
+suspend fun GoCQHttpBotApi.deleteMsg(messageId: String = this.receiveMessage.id) {
     apiRequest<Unit>("delete_msg", mapOf("message_id" to convertMessageId(messageId)))
 }
 
 /**
  * 获取消息
  */
-suspend fun BotApi.cqGetMsg(messageId: String = this.receiveMessage.id): GoCQHttpMessage {
+suspend fun GoCQHttpBotApi.getMsg(messageId: String = this.receiveMessage.id): GoCQHttpMessage {
     return apiRequest("get_msg", mapOf("message_id" to convertMessageId(messageId)))!!
 }
 
@@ -153,7 +154,7 @@ suspend fun BotApi.cqGetMsg(messageId: String = this.receiveMessage.id): GoCQHtt
  * @param headers 请求头 例如:Referer=xx这种格式
  * @return 文件绝对路径
  */
-suspend fun BotApi.cqDownloadFile(
+suspend fun GoCQHttpBotApi.downloadFile(
     url: String,
     threadCount: Int = 3,
     headers: List<String> = emptyList()
@@ -173,7 +174,7 @@ suspend fun BotApi.cqDownloadFile(
  * @param url
  * @return 安全等级, 1: 安全 2: 未知 3: 危险
  */
-suspend fun BotApi.cqCheckUrlSafely(url: String): Int {
+suspend fun GoCQHttpBotApi.checkUrlSafely(url: String): Int {
     return apiRequest<Map<String, Int>>("check_url_safely", mapOf("url" to url))!!["level"]!!
 }
 
@@ -182,7 +183,7 @@ suspend fun BotApi.cqCheckUrlSafely(url: String): Int {
  *
  * @param messageId 消息id
  */
-suspend fun BotApi.cqGetForwardMsg(messageId: String = this.receiveMessage.id): List<GoCQHttpMessage> {
+suspend fun GoCQHttpBotApi.getForwardMsg(messageId: String = this.receiveMessage.id): List<GoCQHttpMessage> {
     return apiRequest<Map<String, List<GoCQHttpMessage>>>(
         "get_forward_msg",
         mapOf("message_id" to convertMessageId(messageId))
@@ -195,7 +196,7 @@ suspend fun BotApi.cqGetForwardMsg(messageId: String = this.receiveMessage.id): 
  * @param groupId 群组id
  * @param messageSeq 起始消息序号, 可通过GoCQHttpMessage获得
  */
-suspend fun BotApi.cqGetGroupMsgHistory(
+suspend fun GoCQHttpBotApi.getGroupMsgHistory(
     groupId: String = this.receiveMessage.source.id,
     messageSeq: Long,
 ): List<GoCQHttpMessage> {
@@ -213,7 +214,7 @@ suspend fun BotApi.cqGetGroupMsgHistory(
  *
  * @param groupId 群组id
  */
-suspend fun BotApi.cqGetEssenceMsgList(groupId: String = this.receiveMessage.source.id): List<EssenceMsg> {
+suspend fun GoCQHttpBotApi.getEssenceMsgList(groupId: String = this.receiveMessage.source.id): List<EssenceMsg> {
     return apiRequest("get_essence_msg_list", mapOf("group_id" to groupId))!!
 }
 
@@ -222,7 +223,7 @@ suspend fun BotApi.cqGetEssenceMsgList(groupId: String = this.receiveMessage.sou
  *
  * @param groupId 群组id
  */
-suspend fun BotApi.cqGetGroupAtAllRemain(groupId: String = this.receiveMessage.source.id): GroupAtAllRemain {
+suspend fun GoCQHttpBotApi.getGroupAtAllRemain(groupId: String = this.receiveMessage.source.id): GroupAtAllRemain {
     return apiRequest("get_group_at_all_remain", mapOf("group_id" to groupId))!!
 }
 
@@ -231,7 +232,7 @@ suspend fun BotApi.cqGetGroupAtAllRemain(groupId: String = this.receiveMessage.s
  *
  * @param messageId 消息id
  */
-suspend fun BotApi.cqMarkMsgAsRead(messageId: String = this.receiveMessage.id) {
+suspend fun GoCQHttpBotApi.markMsgAsRead(messageId: String = this.receiveMessage.id) {
     apiRequest<Unit>("mark_msg_as_read", mapOf("message_id" to convertMessageId(messageId)))
 }
 
@@ -242,7 +243,7 @@ suspend fun BotApi.cqMarkMsgAsRead(messageId: String = this.receiveMessage.id) {
  * @param userId 用户id
  * @param reject 是否以后拒绝申请
  */
-suspend fun BotApi.cqSetGroupKick(
+suspend fun GoCQHttpBotApi.setGroupKick(
     groupId: String = this.receiveMessage.source.id,
     userId: String = this.receiveMessage.sender.id,
     reject: Boolean = false
@@ -264,7 +265,7 @@ suspend fun BotApi.cqSetGroupKick(
  * @param userId 用户id
  * @param duration 禁言时间
  */
-suspend fun BotApi.cqSetGroupBan(
+suspend fun GoCQHttpBotApi.setGroupBan(
     groupId: String = this.receiveMessage.source.id,
     userId: String = this.receiveMessage.sender.id,
     duration: Duration,
@@ -285,7 +286,7 @@ suspend fun BotApi.cqSetGroupBan(
  * @param enable 启用或者关闭
  * @param groupId 群组id
  */
-suspend fun BotApi.cqSetGroupWholeBan(
+suspend fun GoCQHttpBotApi.setGroupWholeBan(
     groupId: String = this.receiveMessage.source.id,
     enable: Boolean = true,
 ) {
@@ -305,7 +306,7 @@ suspend fun BotApi.cqSetGroupWholeBan(
  * @param userId 用户id
  * @param enabled 启用管理员
  */
-suspend fun BotApi.cqSetGroupAdmin(
+suspend fun GoCQHttpBotApi.setGroupAdmin(
     groupId: String = this.receiveMessage.source.id,
     userId: String = this.receiveMessage.sender.id,
     enabled: Boolean = true,
@@ -327,7 +328,7 @@ suspend fun BotApi.cqSetGroupAdmin(
  * @param userId 用户id
  * @param card 备注
  */
-suspend fun BotApi.cqSetGroupCard(
+suspend fun GoCQHttpBotApi.setGroupCard(
     groupId: String = this.receiveMessage.source.id,
     userId: String = this.receiveMessage.sender.id,
     card: String
@@ -348,7 +349,7 @@ suspend fun BotApi.cqSetGroupCard(
  * @param groupId 群组id
  * @param groupName 群名称
  */
-suspend fun BotApi.cqSetGroupName(
+suspend fun GoCQHttpBotApi.setGroupName(
     groupId: String = this.receiveMessage.source.id,
     groupName: String
 ) {
@@ -368,7 +369,7 @@ suspend fun BotApi.cqSetGroupName(
  * @param file 文件(支持文件路径/网络url/base64编码)
  * @param cache 是否使用缓存
  */
-suspend fun BotApi.cqSetGroupPortrait(
+suspend fun GoCQHttpBotApi.setGroupPortrait(
     groupId: String = this.receiveMessage.source.id,
     file: String,
     cache: Boolean = true
@@ -388,7 +389,7 @@ suspend fun BotApi.cqSetGroupPortrait(
  *
  * @param messageId 消息id
  */
-suspend fun BotApi.cqSetEssenceMsg(messageId: String = this.receiveMessage.id) {
+suspend fun GoCQHttpBotApi.setEssenceMsg(messageId: String = this.receiveMessage.id) {
     apiRequest<Unit>("set_essence_msg", mapOf("message_id" to convertMessageId(messageId)))
 }
 
@@ -397,7 +398,7 @@ suspend fun BotApi.cqSetEssenceMsg(messageId: String = this.receiveMessage.id) {
  *
  * @param messageId 消息id
  */
-suspend fun BotApi.cqDeleteEssenceMsg(messageId: String = this.receiveMessage.id) {
+suspend fun GoCQHttpBotApi.deleteEssenceMsg(messageId: String = this.receiveMessage.id) {
     apiRequest<Unit>("delete_essence_msg", mapOf("message_id" to convertMessageId(messageId)))
 }
 
@@ -406,7 +407,7 @@ suspend fun BotApi.cqDeleteEssenceMsg(messageId: String = this.receiveMessage.id
  *
  * @param groupId 群组id
  */
-suspend fun BotApi.cqSendGroupSign(groupId: String = this.receiveMessage.source.id) {
+suspend fun GoCQHttpBotApi.sendGroupSign(groupId: String = this.receiveMessage.source.id) {
     apiRequest<Unit>("send_group_sign", mapOf("group_id" to groupId))
 }
 
@@ -417,7 +418,7 @@ suspend fun BotApi.cqSendGroupSign(groupId: String = this.receiveMessage.source.
  * @param content 公告内容
  * @param image 图片路径
  */
-suspend fun BotApi.cqSendGroupNotice(
+suspend fun GoCQHttpBotApi.sendGroupNotice(
     groupId: String = this.receiveMessage.source.id,
     content: String,
     image: String? = null
@@ -435,7 +436,7 @@ suspend fun BotApi.cqSendGroupNotice(
  *
  * @param groupId 群组id
  */
-suspend fun BotApi.cqGetGroupNotice(groupId: String = this.receiveMessage.source.id): GroupNotice {
+suspend fun GoCQHttpBotApi.getGroupNotice(groupId: String = this.receiveMessage.source.id): GroupNotice {
     return apiRequest("_get_group_notice", mapOf("group_id" to groupId))!!
 }
 
@@ -447,7 +448,7 @@ suspend fun BotApi.cqGetGroupNotice(groupId: String = this.receiveMessage.source
  * @param name 文件储存名称
  * @param groupFolder 文件上传位置,不传为根目录
  */
-suspend fun BotApi.cqUploadGroupFile(
+suspend fun GoCQHttpBotApi.uploadGroupFile(
     groupId: String = this.receiveMessage.source.id,
     file: String,
     name: String,
@@ -465,7 +466,7 @@ suspend fun BotApi.cqUploadGroupFile(
 /**
  * 删除群文件
  */
-suspend fun BotApi.cqDeleteGroupFile(groupFile: GroupFile) {
+suspend fun GoCQHttpBotApi.deleteGroupFile(groupFile: GroupFile) {
     apiRequest<Unit>(
         "delete_group_file",
         mapOf(
@@ -482,7 +483,7 @@ suspend fun BotApi.cqDeleteGroupFile(groupFile: GroupFile) {
  * @param groupId 群组id
  * @param name 文件夹名称
  */
-suspend fun BotApi.cqCreateGroupFileFolder(
+suspend fun GoCQHttpBotApi.createGroupFileFolder(
     groupId: String = this.receiveMessage.source.id,
     name: String
 ) {
@@ -501,7 +502,7 @@ suspend fun BotApi.cqCreateGroupFileFolder(
  *
  * @param groupFolder 目录
  */
-suspend fun BotApi.cqDeleteGroupFolder(groupFolder: GroupFolder) {
+suspend fun GoCQHttpBotApi.deleteGroupFolder(groupFolder: GroupFolder) {
     apiRequest<Unit>(
         "delete_group_folder",
         mapOf(
@@ -516,7 +517,7 @@ suspend fun BotApi.cqDeleteGroupFolder(groupFolder: GroupFolder) {
  *
  * @param groupId 群组id
  */
-suspend fun BotApi.cqGetGroupFileSystemInfo(groupId: String = this.receiveMessage.source.id): GroupFileSystemInfo {
+suspend fun GoCQHttpBotApi.getGroupFileSystemInfo(groupId: String = this.receiveMessage.source.id): GroupFileSystemInfo {
     return apiRequest("get_group_file_system_info", mapOf("group_id" to groupId))!!
 }
 
@@ -525,7 +526,7 @@ suspend fun BotApi.cqGetGroupFileSystemInfo(groupId: String = this.receiveMessag
  *
  * @param groupId 群组id
  */
-suspend fun BotApi.cqGetGroupRootFiles(groupId: String = this.receiveMessage.source.id): GroupFileInfo {
+suspend fun GoCQHttpBotApi.getGroupRootFiles(groupId: String = this.receiveMessage.source.id): GroupFileInfo {
     return apiRequest("get_group_root_files", mapOf("group_id" to groupId))!!
 }
 
@@ -534,7 +535,7 @@ suspend fun BotApi.cqGetGroupRootFiles(groupId: String = this.receiveMessage.sou
  *
  * @param groupFolder 父目录
  */
-suspend fun BotApi.cqGetGroupFilesByFolder(groupFolder: GroupFolder): GroupFileInfo {
+suspend fun GoCQHttpBotApi.getGroupFilesByFolder(groupFolder: GroupFolder): GroupFileInfo {
     return apiRequest(
         "get_group_files_by_folder",
         mapOf(
@@ -549,7 +550,7 @@ suspend fun BotApi.cqGetGroupFilesByFolder(groupFolder: GroupFolder): GroupFileI
  *
  * @param groupFile 群组文件
  */
-suspend fun BotApi.cqGetGroupFileUrl(groupFile: GroupFile): String {
+suspend fun GoCQHttpBotApi.getGroupFileUrl(groupFile: GroupFile): String {
     return apiRequest<Map<String, String>>(
         "get_group_file_url",
         mapOf(
@@ -566,7 +567,7 @@ suspend fun BotApi.cqGetGroupFileUrl(groupFile: GroupFile): String {
  * @param groupId 群组id
  * @param isDismiss 是否解散
  */
-suspend fun BotApi.cqSetGroupLeave(
+suspend fun GoCQHttpBotApi.setGroupLeave(
     groupId: String = this.receiveMessage.source.id,
     isDismiss: Boolean = false
 ) {
@@ -583,7 +584,7 @@ suspend fun BotApi.cqSetGroupLeave(
  * @param userId 用户id
  * @param specialTitle 头衔 为空则删除头衔
  */
-suspend fun BotApi.cqSetGroupSpecialTitle(
+suspend fun GoCQHttpBotApi.setGroupSpecialTitle(
     groupId: String = this.receiveMessage.source.id,
     userId: String = this.receiveMessage.sender.id,
     specialTitle: String = "",
@@ -605,7 +606,7 @@ suspend fun BotApi.cqSetGroupSpecialTitle(
  * @param file 本地文件路径
  * @param fileName 文件名称
  */
-suspend fun BotApi.cqUploadPrivateFile(
+suspend fun GoCQHttpBotApi.uploadPrivateFile(
     userId: String = this.receiveMessage.sender.id,
     file: String,
     fileName: String
@@ -627,7 +628,7 @@ suspend fun BotApi.cqUploadPrivateFile(
  * @param approve 是否同意
  * @param reason 如果拒绝,拒绝原因
  */
-suspend fun BotApi.cqSetFriendAddRequest(event: RequestAddFriendEvent, approve: Boolean, reason: String = "") {
+suspend fun GoCQHttpBotApi.setFriendAddRequest(event: RequestAddFriendEvent, approve: Boolean, reason: String = "") {
     apiRequest<Unit>(
         "set_friend_add_request",
         mapOf(
@@ -643,7 +644,7 @@ suspend fun BotApi.cqSetFriendAddRequest(event: RequestAddFriendEvent, approve: 
  *
  * @param userId 用户id
  */
-suspend fun BotApi.cqDeleteFriend(userId: String = this.receiveMessage.sender.id) {
+suspend fun GoCQHttpBotApi.deleteFriend(userId: String = this.receiveMessage.sender.id) {
     apiRequest<Unit>("delete_friend", mapOf("user_id" to userId))
 }
 
@@ -654,7 +655,7 @@ suspend fun BotApi.cqDeleteFriend(userId: String = this.receiveMessage.sender.id
  * @param approve 是否同意
  * @param reason 如果拒绝,拒绝原因
  */
-suspend fun BotApi.cqSetGroupAddRequest(event: RequestJoinGroupEvent, approve: Boolean, reason: String = "") {
+suspend fun GoCQHttpBotApi.setGroupAddRequest(event: RequestJoinGroupEvent, approve: Boolean, reason: String = "") {
     apiRequest<Unit>(
         "set_group_add_request",
         mapOf(
@@ -671,14 +672,14 @@ suspend fun BotApi.cqSetGroupAddRequest(event: RequestJoinGroupEvent, approve: B
  *
  * @param image 图片id
  */
-suspend fun BotApi.cqOcrImage(image: String): OcrImage {
+suspend fun GoCQHttpBotApi.ocrImage(image: String): OcrImage {
     return apiRequest("ocr_image", mapOf("image" to image))!!
 }
 
 /**
  * 获取登录号信息
  */
-suspend fun BotApi.cqGetLoginInfo(): LoginInfo {
+suspend fun GoCQHttpBotApi.getLoginInfo(): LoginInfo {
     return apiRequest("get_login_info")!!
 }
 
@@ -687,7 +688,7 @@ suspend fun BotApi.cqGetLoginInfo(): LoginInfo {
  *
  * @param userId 用户id
  */
-suspend fun BotApi.cqGetStrangerInfo(userId: String = this.receiveMessage.sender.id): StrangerInfo {
+suspend fun GoCQHttpBotApi.getStrangerInfo(userId: String = this.receiveMessage.sender.id): StrangerInfo {
     return apiRequest(
         "get_stranger_info",
         mapOf("user_id" to userId)
@@ -697,7 +698,7 @@ suspend fun BotApi.cqGetStrangerInfo(userId: String = this.receiveMessage.sender
 /**
  * 获取好友列表
  */
-suspend fun BotApi.cqGetFriendList(): List<FriendInfo> {
+suspend fun GoCQHttpBotApi.getFriendList(): List<FriendInfo> {
     return apiRequest("get_friend_list")!!
 }
 
@@ -707,7 +708,7 @@ suspend fun BotApi.cqGetFriendList(): List<FriendInfo> {
  * @param groupId 群组id
  * @param cache 缓存
  */
-suspend fun BotApi.cqGetGroupInfo(
+suspend fun GoCQHttpBotApi.getGroupInfo(
     groupId: String = this.receiveMessage.source.id,
     cache: Boolean = true
 ): GroupInfo {
@@ -722,7 +723,7 @@ suspend fun BotApi.cqGetGroupInfo(
  *
  * @param cache 缓存
  */
-suspend fun BotApi.cqGetGroupList(cache: Boolean = true): List<GroupInfo> {
+suspend fun GoCQHttpBotApi.getGroupList(cache: Boolean = true): List<GroupInfo> {
     return apiRequest("get_group_list", mapOf("no_cache" to !cache))!!
 }
 
@@ -733,7 +734,7 @@ suspend fun BotApi.cqGetGroupList(cache: Boolean = true): List<GroupInfo> {
  * @param userId 用户id
  * @param cache 缓存
  */
-suspend fun BotApi.cqGetGroupMemberInfo(
+suspend fun GoCQHttpBotApi.getGroupMemberInfo(
     groupId: String = this.receiveMessage.source.id,
     userId: String = this.receiveMessage.sender.id,
     cache: Boolean = true
@@ -750,7 +751,7 @@ suspend fun BotApi.cqGetGroupMemberInfo(
  * @param groupId 群组id
  * @param cache 缓存
  */
-suspend fun BotApi.cqGetGroupMemberList(
+suspend fun GoCQHttpBotApi.getGroupMemberList(
     groupId: String = this.receiveMessage.source.id,
     cache: Boolean = true
 ): List<GroupMemberRoughInfo> {
@@ -766,7 +767,7 @@ suspend fun BotApi.cqGetGroupMemberList(
  * @param groupId 群组id
  * @param type 要获取的群荣誉类型,可传入 talkative performer legend strong_newbie emotion 以分别获取单个类型的群荣誉数据 或传入 all 获取所有数据
  */
-suspend fun BotApi.cqGetGroupHonorInfo(
+suspend fun GoCQHttpBotApi.getGroupHonorInfo(
     groupId: String = this.receiveMessage.source.id,
     type: String = "all"
 ): GroupHonorInfo {
@@ -783,7 +784,7 @@ suspend fun BotApi.cqGetGroupHonorInfo(
  * @param outFormat 要转换到的格式,目前支持 mp3、amr、wma、m4a、spx、ogg、wav、flac
  * @return 转换后的语音文件路径
  */
-suspend fun BotApi.cqGetRecord(file: String, outFormat: String = "mp3"): String {
+suspend fun GoCQHttpBotApi.getRecord(file: String, outFormat: String = "mp3"): String {
     return apiRequest<Map<String, String>>(
         "get_record",
         mapOf("file" to file, "out_format" to outFormat)
@@ -795,7 +796,7 @@ suspend fun BotApi.cqGetRecord(file: String, outFormat: String = "mp3"): String 
  *
  * @param file 文件缓存名
  */
-suspend fun BotApi.cqGetImage(file: String): Image? {
+suspend fun GoCQHttpBotApi.getImage(file: String): Image {
     return apiRequest("get_image", mapOf("file" to file))!!
 }
 
@@ -804,42 +805,42 @@ suspend fun BotApi.cqGetImage(file: String): Image? {
  *
  * @param userId 用户id
  */
-fun BotApi.cqAvatar(userId: String = this.receiveMessage.sender.id): ImageUrl {
-    return ImageUrl("https://q1.qlogo.cn/g?b=qq&nk=$userId&s=640")
+fun GoCQHttpBotApi.avatar(userId: String = this.receiveMessage.sender.id): ImageUrl {
+    return "https://q1.qlogo.cn/g?b=qq&nk=$userId&s=640".toImageUrl()
 }
 
 /**
  * 检查是否可以发送图片
  */
-suspend fun BotApi.cqCanSendImage(): Boolean {
+suspend fun GoCQHttpBotApi.canSendImage(): Boolean {
     return apiRequest<Map<String, Boolean>>("can_send_image")!!["yes"]!!
 }
 
 /**
  * 检查是否可以发送语音
  */
-suspend fun BotApi.cqCanSendRecord(): Boolean {
+suspend fun GoCQHttpBotApi.canSendRecord(): Boolean {
     return apiRequest<Map<String, Boolean>>("can_send_record")!!["yes"]!!
 }
 
 /**
  * 获取运行状态
  */
-suspend fun BotApi.cqGetStatus(): Status {
+suspend fun GoCQHttpBotApi.getStatus(): Status {
     return apiRequest("get_status")!!
 }
 
 /**
  * 获取版本信息
  */
-suspend fun BotApi.cqGetVersionInfo(): VersionInfo {
+suspend fun GoCQHttpBotApi.getVersionInfo(): VersionInfo {
     return apiRequest("get_version_info")!!
 }
 
 /**
  * 清理缓存
  */
-suspend fun BotApi.cqCleanCache() {
+suspend fun GoCQHttpBotApi.cleanCache() {
     apiRequest<Unit>("clean_cache")
 }
 
@@ -852,7 +853,7 @@ suspend fun BotApi.cqCleanCache() {
  * @param college 学校
  * @param personalNote 个人说明
  */
-suspend fun BotApi.cqSetQQProfile(
+suspend fun GoCQHttpBotApi.setQQProfile(
     nickname: String,
     company: String,
     email: String,
@@ -874,7 +875,7 @@ suspend fun BotApi.cqSetQQProfile(
 /**
  * 获取当前账号在线客户端列表
  */
-suspend fun BotApi.cqGetOnlineClients(cache: Boolean = true): OnlineClients {
+suspend fun GoCQHttpBotApi.getOnlineClients(cache: Boolean = true): OnlineClients {
     return apiRequest(
         "get_online_clients",
         mapOf("no_cache" to !cache)
