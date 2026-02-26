@@ -43,7 +43,7 @@ object BaiduTextCensor : Log {
             if (!body.hasArrayNode("data"))
                 return CensorResult(conclusionType)
             val detail = body["data"] as ArrayNode
-            val items = detail.map { itemDetail(it) }.toList()
+            val items = detail.elements().map { itemDetail(it) }.toList()
             return CensorResult(conclusionType, items)
         } catch (e: Exception) {
             log().info("百度文本审查失败", e)
@@ -59,7 +59,7 @@ object BaiduTextCensor : Log {
         val items = (item["hits"] as ArrayNode).mapNotNull { hit ->
             if (!hit.hasArrayNode("words"))
                 return@mapNotNull null
-            val words = (hit["words"] as ArrayNode).map { it.safeString() }.toList()
+            val words = (hit["words"] as ArrayNode).elements().map { it.safeString() }.toList()
             val probability = hit["probability"]?.safeString()?.toDouble()
             CensorResultItemHit(words, probability)
         }.toList()

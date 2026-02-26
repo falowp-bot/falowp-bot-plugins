@@ -453,7 +453,7 @@ suspend fun NapCatBotApi.getGroupNotice(groupId: String = this.receiveMessage.so
  * @param groupId 群组ID
  */
 suspend fun NapCatBotApi.deleteEssenceMsg(
-    messageId: Long? = null,
+    messageId: String? = null,
     msgSeq: String? = null,
     msgRandom: String? = null,
     groupId: String? = null

@@ -24,7 +24,7 @@ object NapCatGroupMsgEmojiLikeNotice : NapCatNotice.NapCatNoticeInterface {
         val groupId = originalMessage.path("group_id").safeString()
         val messageId = originalMessage.path("message_id").safeString()
         val add = originalMessage.path("is_add").asBoolean()
-        val likes = originalMessage.withArray("likes").map {
+        val likes = originalMessage.withArray("likes").elements().map {
             NapCatGroupMsgEmojiLikeEvent.Emoji(
                 NapCatFaceEmoji.fromValue(it.path("emoji_id").safeString(), "").toNapCatEmoji(),
                 it.path("count").asInt()

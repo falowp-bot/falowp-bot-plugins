@@ -15,6 +15,7 @@ import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.expand.toImageUrl
 import com.blr19c.falowp.bot.system.expand.toURI
 import com.blr19c.falowp.bot.system.json.Json
+import com.blr19c.falowp.bot.system.json.pathIgnoreCase
 import com.blr19c.falowp.bot.system.json.safeString
 
 
@@ -97,56 +98,58 @@ fun NapCatMessage.toBotVideo(): ReceiveMessage.Video? {
 /**
  * 分享消息
  */
-@Suppress("SpellCheckingInspection")
 fun NapCatMessage.toBotShare(): List<ReceiveMessage.Share> {
-    return this.message.filter { it.type == NapCatMessageDataType.JSON }.mapNotNull {
+    val forward = this.message.filter { it.type == NapCatMessageDataType.FORWARD }.map {
+        ReceiveMessage.Share(
+            type = NapCatMessageDataType.FORWARD.name,
+            appId = "FORWARD_MESSAGE",
+            appName = "合并转发消息",
+            title = "合并转发消息",
+            preview = ImageUrl.empty(),
+            sourceUrl = it.data.id ?: "",
+        )
+    }
+    val share = this.message.filter { it.type == NapCatMessageDataType.JSON }.mapNotNull {
         val node = Json.unwrapJsonNode(it.data.data ?: return@mapNotNull null)
         val app = node.path("app")?.safeString() ?: return@mapNotNull null
         when {
             app.startsWith("com.tencent.miniapp") -> {
                 val appInfo = node["meta"].iterator().next()
                 ReceiveMessage.Share(
-                    appId = appInfo.path("appid").safeString(),
-                    appName = appInfo.path("title").safeString(),
-                    title = appInfo.path("desc").safeString(),
-                    preview = appInfo.path("preview").safeString().toImageUrl(),
-                    sourceUrl = appInfo.path("qqdocurl").safeString()
-                        .ifBlank { appInfo.path("url").safeString() },
+                    type = app,
+                    appId = appInfo.pathIgnoreCase("appId").safeString(),
+                    appName = appInfo.pathIgnoreCase("title").safeString(),
+                    title = appInfo.pathIgnoreCase("desc").safeString(),
+                    preview = appInfo.pathIgnoreCase("preview").safeString().toImageUrl(),
+                    sourceUrl = appInfo.pathIgnoreCase("qqDocUrl").safeString()
+                        .ifBlank { appInfo.pathIgnoreCase("url").safeString() },
                 )
             }
 
             app.startsWith("com.tencent.structmsg")
-                    || app.startsWith("com.tencent.tuwen.lua")
-                    || app.startsWith("com.tencent.music.lua") -> {
+                    || app.startsWith("com.tencent.troopsharecard")
+                    || app.matches(Regex("^com\\.tencent\\..*\\.lua$")) -> {
                 val view = node["view"].safeString()
                 val meta = node["meta"][view]
                 ReceiveMessage.Share(
-                    appId = meta.path("appid").safeString(),
-                    appName = meta.path("tag").safeString(),
-                    title = meta.path("title").safeString(),
-                    preview = meta.path("preview").safeString().toImageUrl(),
-                    sourceUrl = meta.path("jumpUrl").safeString()
-                        .ifBlank { meta.path("url").safeString() },
+                    type = app,
+                    appId = meta.pathIgnoreCase("appId").safeString()
+                        .ifBlank { node.pathIgnoreCase("bizSrc").safeString() },
+                    appName = meta.pathIgnoreCase("tag").safeString(),
+                    title = meta.pathIgnoreCase("title").safeString()
+                        .ifBlank { meta.pathIgnoreCase("nickname").safeString() },
+                    preview = meta.pathIgnoreCase("preView").safeString()
+                        .ifBlank { meta.pathIgnoreCase("avatar").safeString() }
+                        .toImageUrl(),
+                    sourceUrl = meta.pathIgnoreCase("jumpUrl").safeString()
+                        .ifBlank { meta.pathIgnoreCase("url").safeString() },
                 )
             }
-
-            app.startsWith("com.tencent.troopsharecard")
-                    || app.startsWith("com.tencent.contact.lua") -> {
-                val contact = node["meta"]["contact"]
-                ReceiveMessage.Share(
-                    appId = contact.path("appid").safeString(),
-                    appName = contact.path("tag").safeString(),
-                    title = contact.path("nickname").safeString(),
-                    preview = contact.path("avatar").safeString().toImageUrl(),
-                    sourceUrl = contact.path("jumpUrl").safeString()
-                        .ifBlank { contact.path("url").safeString() },
-                )
-            }
-
 
             else -> null
         }
     }.toList()
+    return forward + share
 }
 
 /**

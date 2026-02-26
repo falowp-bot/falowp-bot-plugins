@@ -3,6 +3,7 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
+import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatMessageDataType
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatMessageType
@@ -293,6 +294,17 @@ class NapCatGoCqHttpExpand {
         @field:JsonProperty("login_days")
         val loginDays: Long
     )
+
+    /**
+     * 合并转发
+     */
+    sealed interface Nested<out T> {
+        data class One<T>(val value: T) : Nested<T>
+        data class Many<T>(val values: List<Nested<T>>) : Nested<T>
+    }
+
+    typealias MessageNested = Nested<NapCatMessage.Message>
+
 }
 
 /**
@@ -470,13 +482,10 @@ suspend fun NapCatBotApi.downloadFile(
 /**
  * 获取合并转发消息
  *
- * 获取合并转发消息的具体内容
- *
  * @param messageId 消息ID
- * @param id 转发ID
  */
-suspend fun NapCatBotApi.getForwardMsg(messageId: String? = null, id: String? = null): NapCatGoCqHttpExpand.ForwardMsg {
-    return apiRequest("get_forward_msg", mapOf("message_id" to messageId, "id" to id))
+suspend fun NapCatBotApi.getForwardMsg(messageId: String): NapCatGoCqHttpExpand.ForwardMsg {
+    return apiRequest("get_forward_msg", mapOf("message_id" to messageId))
 }
 
 /**
@@ -652,6 +661,68 @@ suspend fun NapCatBotApi.getStrangerInfo(
 }
 
 /**
+ * 发送多层合并转发消息
+ *
+ * @param messageType 消息类型
+ * @param userId 用户ID
+ * @param groupId 群组ID
+ * @param messageNested 消息列表
+ * @param sender 发送人
+ * @param source 顶部来源文本
+ * @param summary 底部摘要文本
+ * @param news 内容外显文本
+ */
+suspend fun NapCatBotApi.sendMultiForwardMsg(
+    messageType: NapCatMessageType,
+    userId: String? = null,
+    groupId: String? = null,
+    messageNested: NapCatGoCqHttpExpand.MessageNested,
+    sender: NapCatMessage.Sender? = null,
+    source: String = adapterConfigProperty("nc.forwardSource") {
+        when (messageType) {
+            NapCatMessageType.PRIVATE -> "${systemConfigProperty("nickname")}的聊天记录"
+            else -> "群聊的聊天记录"
+        }
+    },
+    summary: String = adapterConfigProperty("nc.forwardSummary") {
+        """${systemConfigProperty("nickname")}捏造的消息"""
+    },
+    news: List<Any> = emptyList()
+): NapCatMessageApiExpand.MessageIdInfo {
+
+    val sender = sender ?: NapCatBotApiSupport.selfSender()
+
+    fun Any.toNode(): List<Map<String, Any>> {
+        val data = mutableMapOf<String, Any>().apply {
+            putAll(Json.convertValue(sender))
+            put("content", this@toNode)
+        }
+        return listOf(mapOf("type" to "node", "data" to data))
+    }
+
+    fun NapCatGoCqHttpExpand.MessageNested.toContent(): Any = when (this) {
+        is NapCatGoCqHttpExpand.Nested.One -> this.value
+        is NapCatGoCqHttpExpand.Nested.Many -> values.flatMap { it.toContent().toNode() }
+    }
+
+    return apiRequest(
+        "send_forward_msg",
+        buildMap {
+            put("message_type", messageType)
+            put("user_id", userId)
+            put("group_id", groupId)
+            put("message", messageNested.toContent())
+            put("auto_escape", true)
+            put("source", source)
+            put("summary", summary)
+            if (news.isNotEmpty()) {
+                put("news", news)
+            }
+        }
+    )
+}
+
+/**
  * 发送合并转发消息
  *
  * @param messageType 消息类型
@@ -667,17 +738,15 @@ suspend fun NapCatBotApi.sendForwardMsg(
     userId: String? = null,
     groupId: String? = null,
     messages: List<List<NapCatMessage.Message>>,
-    sender: NapCatMessage.Sender = NapCatMessage.Sender(
-        this.receiveMessage.self.id,
-        systemConfigProperty("nickname"),
-        systemConfigProperty("nickname")
-    ),
+    sender: NapCatMessage.Sender? = null,
     source: String = adapterConfigProperty("nc.forwardSource") {
         messages.flatten().firstOrNull { it.type == NapCatMessageDataType.TEXT }
             ?.data?.text ?: "群聊的聊天记录"
     },
     summary: String = adapterConfigProperty("nc.forwardSummary") { """${systemConfigProperty("nickname")}捏造的消息""" },
-) {
+): NapCatMessageApiExpand.MessageIdInfo {
+
+    val sender = sender ?: NapCatBotApiSupport.selfSender()
 
     val forwardNodes = messages.map {
         mapOf(
@@ -688,7 +757,7 @@ suspend fun NapCatBotApi.sendForwardMsg(
             }
         )
     }
-    apiRequestUnit(
+    return apiRequest(
         "send_forward_msg",
         mapOf(
             "message_type" to messageType,

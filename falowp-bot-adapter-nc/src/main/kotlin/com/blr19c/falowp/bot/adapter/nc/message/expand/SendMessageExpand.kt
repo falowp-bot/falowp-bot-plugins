@@ -3,10 +3,7 @@
 package com.blr19c.falowp.bot.adapter.nc.message.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
-import com.blr19c.falowp.bot.adapter.nc.expand.arkShareGroup
-import com.blr19c.falowp.bot.adapter.nc.expand.arkSharePeer
-import com.blr19c.falowp.bot.adapter.nc.expand.getCustomMiniAppArk
-import com.blr19c.falowp.bot.adapter.nc.expand.getMiniAppArk
+import com.blr19c.falowp.bot.adapter.nc.expand.*
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage.MessageData
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatFaceEmoji
@@ -58,6 +55,17 @@ fun NapCatSendMessageScope.mFaceMessage(key: String, id: String, packageId: Stri
         summary = summary
     )
     this.builder.messageList.addLast(NapCatSendMessage(NapCatMessage.Message(M_FACE, messageData)))
+}
+
+/**
+ * 将其他消息拼接到此消息中
+ */
+suspend fun NapCatSendMessageScope.appendMessage(messageId: String) {
+    val messageId = NapCatBotApiSupport.convertMessageId(messageId)
+    val napCatMessage = NapCatBotApiSupport.tempBot.getMsg(messageId)
+    napCatMessage.message.forEach {
+        this.builder.messageList.addLast(NapCatSendMessage(it))
+    }
 }
 
 /**

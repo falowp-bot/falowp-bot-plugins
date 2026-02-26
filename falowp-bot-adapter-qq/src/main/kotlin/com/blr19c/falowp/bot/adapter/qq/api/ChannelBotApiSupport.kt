@@ -136,6 +136,7 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
         return webclient().get(adapterConfigProperty("qq.apiUrl") + "/users/@me/guilds") {
             header(HttpHeaders.Authorization, token)
         }.bodyAsArrayNode()
+            .elements()
             .map { it["id"].safeString() }
             .toList()
     }
@@ -144,7 +145,7 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
         return guildIdList.map {
             webclient().get(adapterConfigProperty("qq.apiUrl") + "/guilds/${it}/channels") {
                 header(HttpHeaders.Authorization, token)
-            }.bodyAsArrayNode().map { data -> data["id"].safeString() }
+            }.bodyAsArrayNode().elements().map { data -> data["id"].safeString() }
         }.flatMap { it.stream().asSequence() }.toList()
     }
 
@@ -162,7 +163,7 @@ object ChannelBotApiSupport : SchedulingBotApiSupport, Log {
             }.bodyAsJsonNode()
         val opUser = Json.readObj<OpChannelUser>(jsonNode["user"])
         val nick = jsonNode["nick"].safeString()
-        val roles = (jsonNode["roles"] as ArrayNode).map { it.safeString() }
+        val roles = (jsonNode["roles"] as ArrayNode).elements().map { it.safeString() }
         return opUser.copy(nick = nick, roles = roles)
     }
 }

@@ -1,9 +1,7 @@
 package com.blr19c.falowp.bot.adapter.nc.api
 
-import com.blr19c.falowp.bot.adapter.nc.expand.getGroupList
-import com.blr19c.falowp.bot.adapter.nc.expand.sendForwardMsg
-import com.blr19c.falowp.bot.adapter.nc.expand.sendGroupMsg
-import com.blr19c.falowp.bot.adapter.nc.expand.sendPoke
+import com.blr19c.falowp.bot.adapter.nc.expand.*
+import com.blr19c.falowp.bot.adapter.nc.expand.NapCatGoCqHttpExpand.Nested
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatMessageDataType
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatMessageType
@@ -24,15 +22,26 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
         reference: Boolean,
         forward: Boolean
     ) {
-        if (forward) {
-            val messages = sendMessageChain.flatMap { buildMessage(it) }
+        if (forward && sendMessageChain.size == 1) {
+            val messages = sendMessageChain.map { buildMessage(it) }
             this.sendForwardMsg(messageType = GROUP, groupId = sourceId, messages = messages)
+                .saveHistory(*sendMessageChain, forward = true)
+            return
+        }
+        if (forward) {
+            val messages = sendMessageChain.map { buildMessage(it) }
+            val messageNested = messages.map { innerList -> Nested.Many(innerList.map { msg -> Nested.One(msg) }) }
+            val messageNestedMany = Nested.Many(messageNested)
+            this.sendMultiForwardMsg(messageType = GROUP, groupId = sourceId, messageNested = messageNestedMany)
+                .saveHistory(*sendMessageChain, forward = true)
             return
         }
         dealPoke(*sendMessageChain, messageType = GROUP, sourceId = sourceId)
-        sendMessageChain.flatMap { buildMessage(it) }.forEach {
-            val message = buildReference(reference, it)
-            if (message.isNotEmpty()) this.sendGroupMsg(sourceId, message)
+        sendMessageChain.map { it to buildMessage(it).splitIndependent() }.forEach {
+            it.second.forEach { messages ->
+                val message = buildReference(reference, messages)
+                if (message.isNotEmpty()) this.sendGroupMsg(sourceId, message).saveHistory(it.first)
+            }
         }
     }
 
@@ -52,15 +61,26 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
         reference: Boolean,
         forward: Boolean
     ) {
-        if (forward) {
-            val messages = sendMessageChain.flatMap { buildMessage(it) }
+        if (forward && sendMessageChain.size == 1) {
+            val messages = sendMessageChain.map { buildMessage(it) }
             this.sendForwardMsg(messageType = PRIVATE, userId = sourceId, messages = messages)
+                .saveHistory(*sendMessageChain, forward = true)
+            return
+        }
+        if (forward) {
+            val messages = sendMessageChain.map { buildMessage(it) }
+            val messageNested = messages.map { innerList -> Nested.Many(innerList.map { msg -> Nested.One(msg) }) }
+            val messageNestedMany = Nested.Many(messageNested)
+            this.sendMultiForwardMsg(messageType = PRIVATE, userId = sourceId, messageNested = messageNestedMany)
+                .saveHistory(*sendMessageChain, forward = true)
             return
         }
         dealPoke(*sendMessageChain, messageType = PRIVATE, sourceId = sourceId)
-        sendMessageChain.flatMap { buildMessage(it) }.forEach {
-            val message = buildReference(reference, it)
-            if (message.isNotEmpty()) this.sendGroupMsg(sourceId, message)
+        sendMessageChain.map { it to buildMessage(it).splitIndependent() }.forEach {
+            it.second.forEach { messages ->
+                val message = buildReference(reference, messages)
+                if (message.isNotEmpty()) this.sendGroupMsg(sourceId, message).saveHistory(it.first)
+            }
         }
     }
 
@@ -102,8 +122,8 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
     /**
      * 单个消息
      */
-    private suspend fun buildMessage(sendMessageChain: SendMessageChain) = splitIndependent {
-        sendMessageChain.messageList.mapNotNull { sendMessage ->
+    private suspend fun buildMessage(sendMessageChain: SendMessageChain): List<NapCatMessage.Message> {
+        return sendMessageChain.messageList.mapNotNull { sendMessage ->
             when (sendMessage) {
                 is AtSendMessage -> NapCatMessage.Message(
                     NapCatMessageDataType.AT,
@@ -149,7 +169,7 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
     /**
      * 独立消息拆分
      */
-    private suspend fun splitIndependent(function: suspend () -> List<NapCatMessage.Message>): List<List<NapCatMessage.Message>> {
+    private fun List<NapCatMessage.Message>.splitIndependent(): List<List<NapCatMessage.Message>> {
         val result = mutableListOf<MutableList<NapCatMessage.Message>>()
         var buffer = mutableListOf<NapCatMessage.Message>()
 
@@ -165,7 +185,7 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
             result.add(mutableListOf(message))
         }
 
-        for (message in function()) {
+        for (message in this) {
             if (message.type.independent()) {
                 single(message)
             } else {

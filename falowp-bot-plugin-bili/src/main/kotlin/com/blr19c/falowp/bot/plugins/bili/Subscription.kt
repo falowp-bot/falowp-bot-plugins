@@ -80,7 +80,7 @@ class Subscription : Log {
             //将已经发送过的去除
             val alreadyPushDynamicList = BiliDynamic.queryByMid(biliUpInfoVo.mid)
             val prePushDynamicList = dynamicList.filter { !alreadyPushDynamicList.contains(it.id) }
-            for (prePushDynamic in prePushDynamicList) {
+            for (prePushDynamic in prePushDynamicList.reversed()) {
                 //直播
                 if (prePushDynamic.type.startsWith("DYNAMIC_TYPE_LIVE") && !biliUpInfoVo.liveStatus) {
                     val roomId = biliUpInfoVo.roomId
@@ -175,7 +175,6 @@ class Subscription : Log {
             }
             this.sendReply("订阅:$subscriptionMid(${userInfo.name})完成")
         } catch (e: Exception) {
-            e.printStackTrace()
             this.sendReply("订阅失败:${e.message}")
         }
     }

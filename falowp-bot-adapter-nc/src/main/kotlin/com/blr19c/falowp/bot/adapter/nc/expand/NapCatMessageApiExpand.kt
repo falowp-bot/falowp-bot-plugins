@@ -3,8 +3,9 @@
 package com.blr19c.falowp.bot.adapter.nc.expand
 
 import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApi
+import com.blr19c.falowp.bot.adapter.nc.api.NapCatBotApiSupport
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
-import com.blr19c.falowp.bot.system.json.safeString
+import com.blr19c.falowp.bot.system.api.SendMessageChain
 import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
 
@@ -30,7 +31,7 @@ class NapCatMessageApiExpand {
          * 消息ID
          */
         @field:JsonProperty("message_id")
-        val messageId: Long,
+        val messageId: String,
         /**
          * 真实ID
          */
@@ -162,6 +163,21 @@ class NapCatMessageApiExpand {
         val emojiLikeList: List<EmojiLikesEmojiLikeListItem>
     )
 
+    /**
+     * 消息ID
+     */
+    data class MessageIdInfo(
+        @field:JsonProperty("message_id")
+        val messageId: String
+    ) {
+
+        fun saveHistory(vararg sendMessageChain: SendMessageChain, forward: Boolean = false) {
+            val messageHistory = NapCatBotApiSupport.MessageHistory(this.messageId, forward)
+            sendMessageChain.forEach {
+                NapCatBotApiSupport.messageHistory.put(it.id, messageHistory)
+            }
+        }
+    }
 }
 
 
@@ -174,11 +190,9 @@ class NapCatMessageApiExpand {
 suspend fun NapCatBotApi.sendGroupMsg(
     groupId: String = this.receiveMessage.source.id,
     message: List<NapCatMessage.Message>
-): String {
+): NapCatMessageApiExpand.MessageIdInfo {
     val body = mapOf("group_id" to groupId, "message" to message)
-    return apiRequest<JsonNode>("send_group_msg", body)
-        .path("message_id")
-        .safeString()
+    return apiRequest("send_group_msg", body)
 }
 
 /**
@@ -190,11 +204,9 @@ suspend fun NapCatBotApi.sendGroupMsg(
 suspend fun NapCatBotApi.sendPrivateMsg(
     userId: String = this.receiveMessage.sender.id,
     message: List<NapCatMessage.Message>
-): String {
+): NapCatMessageApiExpand.MessageIdInfo {
     val body = mapOf("user_id" to userId, "message" to message)
-    return apiRequest<JsonNode>("send_private_msg", body)
-        .path("message_id")
-        .safeString()
+    return apiRequest("send_private_msg", body)
 }
 
 /**
@@ -221,7 +233,7 @@ suspend fun NapCatBotApi.markAllAsRead() {
  *
  * @param messageId 消息ID
  */
-suspend fun NapCatBotApi.deleteMsg(messageId: Long) {
+suspend fun NapCatBotApi.deleteMsg(messageId: String) {
     apiRequestUnit("delete_msg", mapOf("message_id" to messageId))
 }
 
@@ -231,7 +243,7 @@ suspend fun NapCatBotApi.deleteMsg(messageId: Long) {
  * @param messageId 消息ID
  * @param userId 用户ID
  */
-suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, userId: String = this.receiveMessage.sender.id) {
+suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: String, userId: String = this.receiveMessage.sender.id) {
     apiRequestUnit(
         "forward_friend_single_msg",
         mapOf("message_id" to messageId, "user_id" to userId)
@@ -244,7 +256,7 @@ suspend fun NapCatBotApi.forwardFriendSingleMsg(messageId: Long, userId: String 
  * @param messageId 消息ID
  * @param groupId 群组ID
  */
-suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: Long, groupId: String = this.receiveMessage.source.id) {
+suspend fun NapCatBotApi.forwardGroupSingleMsg(messageId: String, groupId: String = this.receiveMessage.source.id) {
     apiRequestUnit(
         "forward_group_single_msg",
         mapOf("message_id" to messageId, "group_id" to groupId)
@@ -347,7 +359,7 @@ suspend fun NapCatBotApi.clickInlineKeyboardButton(
  */
 suspend fun NapCatBotApi.fetchEmojiLike(
     messageId: String,
-    emojiId: Long,
+    emojiId: String,
     emojiType: Long,
     count: Long,
     cookie: String
@@ -399,6 +411,6 @@ suspend fun NapCatBotApi.getEmojiLikes(
  * @param emojiId 表情ID
  * @param set 是否点赞
  */
-suspend fun NapCatBotApi.setMsgEmojiLike(messageId: Long, emojiId: Long, set: Boolean? = null) {
+suspend fun NapCatBotApi.setMsgEmojiLike(messageId: String, emojiId: String, set: Boolean? = null) {
     apiRequestUnit("set_msg_emoji_like", mapOf("message_id" to messageId, "emoji_id" to emojiId, "set" to set))
 }

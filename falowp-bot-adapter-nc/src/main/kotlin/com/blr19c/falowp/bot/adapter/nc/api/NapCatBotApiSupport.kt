@@ -1,14 +1,19 @@
 package com.blr19c.falowp.bot.adapter.nc.api
 
 import com.blr19c.falowp.bot.adapter.nc.expand.*
+import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatSelf
+import com.blr19c.falowp.bot.system.adapterConfigProperty
 import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.BotApi
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
+import com.blr19c.falowp.bot.system.cache.CacheMap
 import com.blr19c.falowp.bot.system.expand.ImageUrl
 import com.blr19c.falowp.bot.system.scheduling.api.SchedulingBotApiSupport
 import com.blr19c.falowp.bot.system.systemConfigListProperty
+import com.blr19c.falowp.bot.system.systemConfigProperty
 import kotlin.reflect.KClass
+import kotlin.time.Duration.Companion.days
 
 /**
  * NapCatBotApi 定时支持工具
@@ -16,6 +21,17 @@ import kotlin.reflect.KClass
 object NapCatBotApiSupport : SchedulingBotApiSupport {
 
     val tempBot = NapCatBotApi(ReceiveMessage.empty(), this::class)
+
+    val messageHistory = CacheMap<String, MessageHistory>(
+        2.days,
+        adapterConfigProperty("nc.messageCacheSize") { "50000" }.toLong()
+    ) {
+        return@CacheMap MessageHistory("", false)
+    }
+
+    private val messageHistoryRef by messageHistory
+
+    data class MessageHistory(val messageId: String, val forward: Boolean)
 
     override suspend fun supportReceive(receiveId: String): Boolean {
         return tempBot.getGroupList().any { it.groupId == receiveId }
@@ -25,6 +41,13 @@ object NapCatBotApiSupport : SchedulingBotApiSupport {
     override suspend fun bot(receiveId: String, originalClass: KClass<*>): BotApi {
         val message = ReceiveMessage.empty().copy(source = ReceiveMessage.Source.empty().copy(id = receiveId))
         return NapCatBotApi(message, originalClass)
+    }
+
+    /**
+     * 将消息ID转换为 NapCat 消息ID
+     */
+    suspend fun convertMessageId(messageId: String): String {
+        return messageHistoryRef(messageId).messageId.ifBlank { messageId }
     }
 
     /**
@@ -52,6 +75,17 @@ object NapCatBotApiSupport : SchedulingBotApiSupport {
      */
     suspend fun self(): NapCatSelf {
         return NapCatSelf(this.tempBot.getLoginInfo())
+    }
+
+    /**
+     * 自身信息的发送人对象
+     */
+    suspend fun selfSender(): NapCatMessage.Sender {
+        return NapCatMessage.Sender(
+            this.self().id,
+            systemConfigProperty("nickname"),
+            systemConfigProperty("nickname")
+        )
     }
 
     /**
