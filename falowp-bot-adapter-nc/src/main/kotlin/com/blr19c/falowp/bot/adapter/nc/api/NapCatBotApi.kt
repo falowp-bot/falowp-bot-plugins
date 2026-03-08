@@ -23,17 +23,17 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
         forward: Boolean
     ) {
         if (forward && sendMessageChain.size == 1) {
-            val messages = sendMessageChain.map { buildMessage(it) }
+            val messages = sendMessageChain.flatMap { buildMessage(it).splitIndependent() }
             this.sendForwardMsg(messageType = GROUP, groupId = sourceId, messages = messages)
                 .saveHistory(*sendMessageChain, forward = true)
             return
         }
         if (forward) {
-            val messages = sendMessageChain.map { buildMessage(it) }
-            val messageNested = messages.map { innerList -> Nested.Many(innerList.map { msg -> Nested.One(msg) }) }
-            val messageNestedMany = Nested.Many(messageNested)
-            this.sendMultiForwardMsg(messageType = GROUP, groupId = sourceId, messageNested = messageNestedMany)
-                .saveHistory(*sendMessageChain, forward = true)
+            this.sendMultiForwardMsg(
+                messageType = GROUP,
+                groupId = sourceId,
+                messageNested = multiForwardNestedBuild(*sendMessageChain)
+            ).saveHistory(*sendMessageChain, forward = true)
             return
         }
         dealPoke(*sendMessageChain, messageType = GROUP, sourceId = sourceId)
@@ -62,17 +62,17 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
         forward: Boolean
     ) {
         if (forward && sendMessageChain.size == 1) {
-            val messages = sendMessageChain.map { buildMessage(it) }
+            val messages = sendMessageChain.flatMap { buildMessage(it).splitIndependent() }
             this.sendForwardMsg(messageType = PRIVATE, userId = sourceId, messages = messages)
                 .saveHistory(*sendMessageChain, forward = true)
             return
         }
         if (forward) {
-            val messages = sendMessageChain.map { buildMessage(it) }
-            val messageNested = messages.map { innerList -> Nested.Many(innerList.map { msg -> Nested.One(msg) }) }
-            val messageNestedMany = Nested.Many(messageNested)
-            this.sendMultiForwardMsg(messageType = PRIVATE, userId = sourceId, messageNested = messageNestedMany)
-                .saveHistory(*sendMessageChain, forward = true)
+            this.sendMultiForwardMsg(
+                messageType = PRIVATE,
+                userId = sourceId,
+                messageNested = multiForwardNestedBuild(*sendMessageChain)
+            ).saveHistory(*sendMessageChain, forward = true)
             return
         }
         dealPoke(*sendMessageChain, messageType = PRIVATE, sourceId = sourceId)
@@ -167,6 +167,22 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
     }
 
     /**
+     * 多层合并转发构建
+     */
+    private suspend fun multiForwardNestedBuild(vararg sendMessageChain: SendMessageChain): Nested.Many<NapCatMessage.Message> {
+        val messages = sendMessageChain.map { buildMessage(it).ignoreIndependent() }
+        val messageNested = messages.map { innerList -> Nested.Many(innerList.map { msg -> Nested.One(msg) }) }
+        return Nested.Many(messageNested)
+    }
+
+    /**
+     * 忽略消息拆分
+     */
+    private fun List<NapCatMessage.Message>.ignoreIndependent(): List<NapCatMessage.Message> {
+        return this.filter { it.type != NapCatMessageDataType.SPLIT_INDEPENDENT }.toList()
+    }
+
+    /**
      * 独立消息拆分
      */
     private fun List<NapCatMessage.Message>.splitIndependent(): List<List<NapCatMessage.Message>> {
@@ -182,7 +198,8 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
 
         fun single(message: NapCatMessage.Message) {
             flush()
-            result.add(mutableListOf(message))
+            if (message.type != NapCatMessageDataType.SPLIT_INDEPENDENT)
+                result.add(mutableListOf(message))
         }
 
         for (message in this) {

@@ -90,6 +90,11 @@ enum class NapCatMessageDataType(@get:JsonValue val value: String) {
     RPS("rps"),
 
     /**
+     * 拆分消息
+     */
+    SPLIT_INDEPENDENT("splitIndependent"),
+
+    /**
      * 未知
      */
     UNKNOWN("unknown");

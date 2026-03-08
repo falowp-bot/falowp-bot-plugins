@@ -182,7 +182,12 @@ data class NapCatMessage(
         @field:JsonProperty("qq")
         val qq: String? = null,
         /**
-         * 文件名
+         * 名字/文件名
+         */
+        @field:JsonProperty("name")
+        val name: String? = null,
+        /**
+         * 文件
          */
         @field:JsonProperty("file")
         @field:JsonAlias("fileName")

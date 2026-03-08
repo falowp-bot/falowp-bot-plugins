@@ -9,7 +9,11 @@ import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage.MessageData
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatFaceEmoji
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatMessageDataType.*
 import com.blr19c.falowp.bot.system.api.SendMessage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import tools.jackson.databind.JsonNode
+import java.net.URI
+import java.nio.file.Path
 
 /**
  * NapCat 自定义消息
@@ -26,6 +30,47 @@ class NapCatSendMessageScope(val builder: SendMessage.Builder)
  */
 suspend fun SendMessage.Builder.nc(block: suspend NapCatSendMessageScope.() -> Unit) = apply {
     NapCatSendMessageScope(this).block()
+}
+
+/**
+ * NapCat 消息隔断
+ */
+suspend fun SendMessage.Builder.partition() = apply {
+    this.nc {
+        this.builder.messageList.addLast(
+            NapCatSendMessage(NapCatMessage.Message(SPLIT_INDEPENDENT, MessageData()))
+        )
+    }
+}
+
+/**
+ * 文件消息
+ *
+ * @param path 文件
+ * @param name 文件名
+ */
+suspend fun NapCatSendMessageScope.fileMessage(
+    path: Path,
+    name: String = path.fileName.toString()
+) = withContext(Dispatchers.IO) {
+    val message = MessageData(file = path.toRealPath().toString())
+    this@fileMessage.builder.messageList.addLast(
+        NapCatSendMessage(NapCatMessage.Message(FILE, message))
+    )
+}
+
+
+/**
+ * 文件消息
+ *
+ * @param url 网络文件
+ * @param name 文件名
+ */
+fun NapCatSendMessageScope.fileMessage(url: URI, name: String) {
+    val message = MessageData(file = url.toString(), name = name)
+    this@fileMessage.builder.messageList.addLast(
+        NapCatSendMessage(NapCatMessage.Message(FILE, message))
+    )
 }
 
 /**
