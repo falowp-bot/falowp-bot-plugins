@@ -8,7 +8,6 @@ import com.blr19c.falowp.bot.adapter.nc.message.NapCatEmoji
 import com.blr19c.falowp.bot.adapter.nc.message.NapCatMessage
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatFaceEmoji
 import com.blr19c.falowp.bot.adapter.nc.message.enums.NapCatMessageDataType
-import com.blr19c.falowp.bot.system.api.ApiAuth
 import com.blr19c.falowp.bot.system.api.ReceiveMessage
 import com.blr19c.falowp.bot.system.api.SourceTypeEnum
 import com.blr19c.falowp.bot.system.expand.ImageUrl
@@ -202,11 +201,14 @@ suspend fun NapCatMessage.toBotContent(reference: suspend (String) -> ReceiveMes
 /**
  * Bot用户
  */
-fun NapCatMessage.toBotUser(): ReceiveMessage.User {
+suspend fun NapCatMessage.toBotUser(): ReceiveMessage.User {
+    val auth = if (this.toBotSource().type == SourceTypeEnum.GROUP)
+        NapCatBotApiSupport.getGroupMemberInfo(this.groupId!!, this.sender.userId).auth
+    else NapCatBotApiSupport.apiAuth(this.sender.userId)
     return ReceiveMessage.User(
         this.sender.userId,
         this.sender.nickname,
-        ApiAuth.ADMINISTRATOR,
+        auth,
         NapCatBotApiSupport.avatar(this.sender.userId)
     )
 }
