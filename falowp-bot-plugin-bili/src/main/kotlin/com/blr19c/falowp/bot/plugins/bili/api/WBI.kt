@@ -6,12 +6,6 @@ import com.blr19c.falowp.bot.plugins.bili.api.api.WBI_NAV
 import com.blr19c.falowp.bot.system.json.safeString
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.http.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import java.net.URLDecoder
 import java.security.MessageDigest
 
 object WBI {
@@ -40,7 +34,7 @@ object WBI {
                 }
             }
 
-        suspend fun enc(params: Map<String, String>): Map<String, String> {
+        fun enc(params: Map<String, String>): Map<String, String> {
             val map = mutableMapOf(
                 "dm_img_list" to "[]",
                 "dm_img_str" to "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ",

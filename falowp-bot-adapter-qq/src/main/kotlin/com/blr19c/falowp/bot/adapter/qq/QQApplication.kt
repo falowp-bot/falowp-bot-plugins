@@ -22,6 +22,7 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * QQ适配器
@@ -87,7 +88,7 @@ class QQApplication : BotAdapterInterface, Log {
         } catch (e: Exception) {
             val delay = if (e is OpException) 0 else 1000 * minOf(reconnectCount, 10)
             errorLog("websocket连接中断将在${delay}ms后重新连接", e)
-            delay(delay)
+            delay(delay.milliseconds)
             autoReconnectCreateWebSocket(
                 address,
                 loopParameters,
@@ -195,7 +196,7 @@ class QQApplication : BotAdapterInterface, Log {
     private fun heartbeat(webSocketSession: DefaultClientWebSocketSession, lastS: AtomicReference<Int>) {
         webSocketSession.async {
             while (true) {
-                delay(TimeUnit.SECONDS.toMillis(5))
+                delay(TimeUnit.SECONDS.toMillis(5).milliseconds)
                 val map = mapOf("op" to HEARTBEAT, "d" to lastS.get())
                 webSocketSession.sendMessage(map, false)
             }

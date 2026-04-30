@@ -3,7 +3,7 @@ val falowpBotVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.3.10"
-    id("com.github.ben-manes.versions") version "0.53.0"
+    id("com.github.ben-manes.versions") version "0.54.0"
     id("com.vanniktech.maven.publish") version "0.36.0"
     id("maven-publish")
     signing
@@ -27,16 +27,16 @@ dependencies {
 }
 
 subprojects {
-    apply(plugin = "kotlin")
+    plugins.apply("kotlin")
 
     kotlin {
         version = kotlinVersion
         jvmToolchain(25)
     }
 
-    apply(plugin = "maven-publish")
-    apply(plugin = "com.vanniktech.maven.publish")
-    apply(plugin = "signing")
+    plugins.apply("maven-publish")
+    plugins.apply("com.vanniktech.maven.publish")
+    plugins.apply("signing")
 
     group = rootProject.group
     version = rootProject.version
@@ -47,11 +47,13 @@ subprojects {
     }
 
     tasks.register<Jar>("javadocJar") {
+        description = "javadoc"
         archiveClassifier.set("javadoc")
         from(tasks.getByName("javadoc"))
     }
 
     tasks.register<Jar>("sourcesJar") {
+        description = "sources"
         archiveClassifier.set("sources")
         from(sourceSets.main.get().allSource)
     }

@@ -22,6 +22,7 @@ import kotlinx.coroutines.*
 import tools.jackson.databind.JsonNode
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -62,7 +63,7 @@ object NapCatWebSocket : Log {
             }
             val wsRetryInterval = adapterConfigProperty("nc.wsRetryInterval") { "5000" }
             log().info("等待${wsRetryInterval}ms后重试")
-            delay(wsRetryInterval.toLong())
+            delay(wsRetryInterval.toLong().milliseconds)
         }
     }
 

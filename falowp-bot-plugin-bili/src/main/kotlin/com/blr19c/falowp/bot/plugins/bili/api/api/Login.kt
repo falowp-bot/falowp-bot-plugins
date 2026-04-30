@@ -6,15 +6,16 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.milliseconds
 
 suspend fun BiliClient.login(push: suspend (url: String) -> Unit) {
     val qrcode = get(QRCODE_GENERATE) {
         // ...
     }
     push(qrcode["url"].safeString())
-    withTimeout(300_000) {
+    withTimeout(300_000.milliseconds) {
         while (isActive) {
-            delay(3_000)
+            delay(3_000.milliseconds)
             val status = get(QRCODE_POLL) {
                 parameter("qrcode_key", qrcode["qrcode_key"].safeString())
             }

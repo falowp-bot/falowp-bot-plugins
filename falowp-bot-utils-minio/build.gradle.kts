@@ -1,5 +1,5 @@
 dependencies {
     implementation("com.blr19c.falowp:falowp-bot-system:${rootProject.version}")
     //minIO
-    api("io.minio:minio:8.6.0")
+    api("io.minio:minio:9.0.0")
 }
