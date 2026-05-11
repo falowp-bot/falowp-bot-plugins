@@ -50,7 +50,7 @@ class TGApplication : BotAdapterInterface, Log {
     }
 
     companion object {
-        private lateinit var telegramLongPollingBot: TelegramLongPollingBot
+        private lateinit var telegramLongPollingBot: TelegramLongPollingBotImpl
 
         fun telegramLongPollingBot() = telegramLongPollingBot
     }
@@ -68,7 +68,7 @@ class TGApplication : BotAdapterInterface, Log {
         return telegramLongPollingBot
     }
 
-    private class TelegramLongPollingBotImpl(
+    class TelegramLongPollingBotImpl(
         botOptions: DefaultBotOptions,
         private val botToken: String,
     ) : TelegramLongPollingBot(botOptions, botToken), Log {
@@ -222,7 +222,7 @@ class TGApplication : BotAdapterInterface, Log {
             }
         }
 
-        private fun getAvatar(userId: Long): ImageUrl? {
+        fun getAvatar(userId: Long): ImageUrl? {
             val avatarFileId = this.executeIgnoreException(GetUserProfilePhotos(userId, 0, 1))
                 ?.photos?.firstOrNull()
                 ?.maxBy { it.fileSize ?: 0 }
