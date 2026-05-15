@@ -17,6 +17,7 @@ import com.blr19c.falowp.bot.system.plugin.message.MessageMatch
 import com.blr19c.falowp.bot.system.plugin.message.MessagePluginInfo
 import com.blr19c.falowp.bot.system.plugin.message.queueMessage
 import com.blr19c.falowp.bot.system.pluginConfigProperty
+import io.github.oshai.kotlinlogging.KotlinLoggingConfiguration
 import kotlinx.serialization.Serializable
 
 /**
@@ -133,6 +134,7 @@ class AiChat {
     }
 
     init {
+        KotlinLoggingConfiguration.logStartupMessage = false
         chat.register()
     }
 }
