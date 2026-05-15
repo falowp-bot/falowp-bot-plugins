@@ -47,8 +47,8 @@ class AiChat {
             llmModel = llmModel(),
             toolRegistry = toolRegistry(botApi, pluginInvoked),
             systemPrompt = pluginConfigProperty("systemPrompt"),
-            temperature = pluginConfigProperty("temperature").toDoubleOrNull(),
-            maxIterations = pluginConfigProperty("maxIterations").toIntOrNull() ?: 10,
+            temperature = pluginConfigProperty("temperature") { "" }.toDoubleOrNull(),
+            maxIterations = pluginConfigProperty("maxIterations") { "" }.toIntOrNull() ?: 10,
         )
     }
 
