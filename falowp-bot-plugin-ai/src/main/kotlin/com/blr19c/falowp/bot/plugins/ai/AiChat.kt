@@ -108,10 +108,12 @@ class AiChat {
         }
     ) {
         override suspend fun execute(args: InvokePluginArgs): String {
+            val message = "识别到可能需要使用工具，接下来的对话已转接到${info.pluginName}插件"
+            botApi.sendReply(message, reference = true)
             with(PluginManagement) {
                 botApi.invokeMessagePlugin(info.pluginId, args.args.toTypedArray())
             }
-            return "已触发插件：${info.pluginName}"
+            return message
         }
     }
 
