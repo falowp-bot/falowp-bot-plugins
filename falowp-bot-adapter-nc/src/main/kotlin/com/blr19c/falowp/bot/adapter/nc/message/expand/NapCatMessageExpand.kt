@@ -202,13 +202,13 @@ suspend fun NapCatMessage.toBotContent(reference: suspend (String) -> ReceiveMes
  * Bot用户
  */
 suspend fun NapCatMessage.toBotUser(): ReceiveMessage.User {
-    val auth = if (this.toBotSource().type == SourceTypeEnum.GROUP)
-        NapCatBotApiSupport.getGroupMemberInfo(this.groupId!!, this.sender.userId).auth
-    else NapCatBotApiSupport.apiAuth(this.sender.userId)
+    if (this.toBotSource().type == SourceTypeEnum.GROUP) {
+        return NapCatBotApiSupport.getGroupMemberInfo(this.groupId!!, this.sender.userId)
+    }
     return ReceiveMessage.User(
         this.sender.userId,
         this.sender.nickname,
-        auth,
+        NapCatBotApiSupport.apiAuth(this.sender.userId),
         NapCatBotApiSupport.avatar(this.sender.userId)
     )
 }
