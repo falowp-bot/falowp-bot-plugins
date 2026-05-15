@@ -34,15 +34,18 @@ class AiChat {
     private val chat = queueMessage(match = MessageMatch(atMe = true), order = Int.MAX_VALUE, onSuccess = {}) {
         val question = this.receiveMessage.content.message
         if (question.isBlank()) return@queueMessage
-        val res = buildAgent(this).run(question, this.receiveMessage.sender.id).trim()
-        this.sendReply(res)
+        val pluginInvoked = PluginInvoked()
+        val res = buildAgent(this, pluginInvoked).run(question, this.receiveMessage.sender.id).trim()
+        if (!pluginInvoked.value && res.isNotBlank()) {
+            this.sendReply(res)
+        }
     }
 
-    private fun buildAgent(botApi: BotApi): AIAgent<String, String> {
+    private fun buildAgent(botApi: BotApi, pluginInvoked: PluginInvoked): AIAgent<String, String> {
         return AIAgent(
             promptExecutor = promptExecutor(),
             llmModel = llmModel(),
-            toolRegistry = toolRegistry(botApi),
+            toolRegistry = toolRegistry(botApi, pluginInvoked),
             systemPrompt = pluginConfigProperty("systemPrompt"),
             temperature = pluginConfigProperty("temperature").toDoubleOrNull(),
             maxIterations = pluginConfigProperty("maxIterations").toIntOrNull() ?: 10,
@@ -65,13 +68,20 @@ class AiChat {
         return OpenAIModels.models.find { it.id == model } ?: throw IllegalArgumentException("无法识别模型:${model}")
     }
 
-    private fun toolRegistry(botApi: BotApi): ToolRegistry {
+    private fun toolRegistry(botApi: BotApi, pluginInvoked: PluginInvoked): ToolRegistry {
         val infos = PluginManagement.messagePluginInfos()
             .filter { it.pluginEnable }
             .filterNot { it.originalClass == this::class }
 
         return ToolRegistry {
-            tools(infos.mapIndexed { index, info -> MessagePluginTool(info, toolName(index, info), botApi) })
+            tools(infos.mapIndexed { index, info ->
+                MessagePluginTool(
+                    info,
+                    toolName(index, info),
+                    botApi,
+                    pluginInvoked
+                )
+            })
         }
     }
 
@@ -93,6 +103,7 @@ class AiChat {
         private val info: MessagePluginInfo,
         name: String,
         private val botApi: BotApi,
+        private val pluginInvoked: PluginInvoked,
     ) : SimpleTool<InvokePluginArgs>(
         argsType = typeToken<InvokePluginArgs>(),
         name = name,
@@ -108,13 +119,17 @@ class AiChat {
         }
     ) {
         override suspend fun execute(args: InvokePluginArgs): String {
-            val message = "识别到可能需要使用工具，接下来的对话已转接到${info.pluginName}插件"
-            botApi.sendReply(message, reference = true)
+            pluginInvoked.value = true
+            botApi.sendReply("识别到可能需要使用工具，接下来的对话已转接到${info.pluginName}插件", reference = true)
             with(PluginManagement) {
                 botApi.invokeMessagePlugin(info.pluginId, args.args.toTypedArray())
             }
-            return message
+            return "插件${info.pluginName}已触发，插件会自行处理后续回复。"
         }
+    }
+
+    private class PluginInvoked {
+        var value: Boolean = false
     }
 
     init {
