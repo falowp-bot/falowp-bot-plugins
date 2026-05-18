@@ -61,8 +61,10 @@ internal object AiChatAgentFactory {
         val infos = PluginManagement.messagePluginInfos()
             .filter { it.pluginEnable }
             .filterNot { it.originalClass == selfClass }
+        val aiTools = AiToolUtils.tools(botApi)
 
         return ToolRegistry {
+            tools(aiTools)
             tools(infos.mapIndexed { index, info ->
                 MessagePluginTool(
                     info,
