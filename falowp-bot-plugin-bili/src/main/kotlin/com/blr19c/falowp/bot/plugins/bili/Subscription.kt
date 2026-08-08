@@ -56,12 +56,12 @@ class Subscription : Log {
         subscriptionList: List<BiliSubscriptionVo>,
         sendMessageChain: SendMessageChain
     ) {
-        for (biliSubscriptionVo in subscriptionList) {
-            if (biliSubscriptionVo.sourceType == SourceTypeEnum.PRIVATE.name) {
-                this.sendPrivate(sendMessageChain, sourceId = biliSubscriptionVo.sourceId)
+        for ((_, _, sourceId, sourceType) in subscriptionList) {
+            if (sourceType == SourceTypeEnum.PRIVATE.name) {
+                this.sendPrivate(sendMessageChain, sourceId = sourceId)
             }
-            if (biliSubscriptionVo.sourceType == SourceTypeEnum.GROUP.name) {
-                this.sendGroup(sendMessageChain, sourceId = biliSubscriptionVo.sourceId)
+            if (sourceType == SourceTypeEnum.GROUP.name) {
+                this.sendGroup(sendMessageChain, sourceId = sourceId)
             }
         }
     }
@@ -80,9 +80,9 @@ class Subscription : Log {
             //将已经发送过的去除
             val alreadyPushDynamicList = BiliDynamic.queryByMid(biliUpInfoVo.mid)
             val prePushDynamicList = dynamicList.filter { !alreadyPushDynamicList.contains(it.id) }
-            for (prePushDynamic in prePushDynamicList.reversed()) {
+            for ((id, type) in prePushDynamicList.reversed()) {
                 //直播
-                if (prePushDynamic.type.startsWith("DYNAMIC_TYPE_LIVE") && !biliUpInfoVo.liveStatus) {
+                if (type.startsWith("DYNAMIC_TYPE_LIVE") && !biliUpInfoVo.liveStatus) {
                     val roomId = biliUpInfoVo.roomId
                     val liveInfo = client.getLiveInfo(roomId.toLong())
                     val liveCard = BLiveUtils.liveCard(liveInfo, biliUpInfoVo)
@@ -95,21 +95,21 @@ class Subscription : Log {
                     send(subscriptionList, message)
                     multiTransaction {
                         BiliUpInfo.updateLiveStatus(biliUpInfoVo.mid, true)
-                        BiliDynamic.insert(biliUpInfoVo.mid, prePushDynamic.id)
+                        BiliDynamic.insert(biliUpInfoVo.mid, id)
                     }
                     continue
                 }
                 //动态
-                val dynamicScreenshot = BLiveUtils.dynamicScreenshot(prePushDynamic.id) ?: continue
-                val url = "https://www.bilibili.com/opus/${prePushDynamic.id}"
+                val dynamicScreenshot = BLiveUtils.dynamicScreenshot(id) ?: continue
+                val url = "https://www.bilibili.com/opus/$id"
                 val message = SendMessage.builder()
                     .text("${biliUpInfoVo.name}猪有新动态!")
                     .image(dynamicScreenshot)
-                    .biliMessage(biliUpInfoVo, url, prePushDynamic.id)
+                    .biliMessage(biliUpInfoVo, url, id)
                     .build()
                 log().info("定时查询动态/直播-${biliUpInfoVo.name}猪有新动态!")
                 send(subscriptionList, message)
-                BiliDynamic.insert(biliUpInfoVo.mid, prePushDynamic.id)
+                BiliDynamic.insert(biliUpInfoVo.mid, id)
             }
         }
     }
@@ -137,11 +137,11 @@ class Subscription : Log {
      */
     private val updateUserInfoTask = periodicScheduling(1.days) {
         log().info("更新up信息")
-        for (biliUpInfo in BiliUpInfo.queryAll()) {
-            val userInfo = client.getUserInfo(biliUpInfo.mid.toLong())
-            if (biliUpInfo.name != userInfo.name) multiTransaction {
-                BiliUpInfo.update({ BiliUpInfo.mid eq biliUpInfo.mid }) {
-                    it[name] = userInfo.name
+        for ((_, mid, _, name) in BiliUpInfo.queryAll()) {
+            val userInfo = client.getUserInfo(mid.toLong())
+            if (name != userInfo.name) multiTransaction {
+                BiliUpInfo.update({ BiliUpInfo.mid eq mid }) {
+                    it[BiliUpInfo.name] = userInfo.name
                 }
             }
         }

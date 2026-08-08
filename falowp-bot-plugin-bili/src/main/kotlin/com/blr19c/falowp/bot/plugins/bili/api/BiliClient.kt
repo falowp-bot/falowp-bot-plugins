@@ -41,6 +41,10 @@ class BiliClient : Log {
         return client.post(url) { block() }.bodyAsJsonNode()["data"]
     }
 
+    suspend fun postJson(url: String, block: HttpRequestBuilder.() -> Unit = {}): JsonNode {
+        return client.post(url) { block() }.bodyAsJsonNode()
+    }
+
     suspend fun wbiGet(url: String, block: MutableMap<String, String>.() -> Unit = {}): JsonNode {
         val build = mutableMapOf<String, String>()
         build.block()

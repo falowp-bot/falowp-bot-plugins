@@ -58,12 +58,12 @@ class WordCloud {
     }
 
     private val sendMessage = eventListener<SendMessageEvent> { (sendMessage) ->
-        for (textSendMessage in sendMessage.flatMap { it.messageList }.filterIsInstance<TextSendMessage>()) {
+        for ((content) in sendMessage.flatMap { it.messageList }.filterIsInstance<TextSendMessage>()) {
             if (this@eventListener.receiveMessage.sender.id.isBlank()) continue
             if (this@eventListener.receiveMessage.source.id.isBlank()) continue
-            if (textSendMessage.content.isBlank()) continue
+            if (content.isBlank()) continue
             addMessage(
-                textSendMessage.content,
+                content,
                 this@eventListener.receiveMessage.sender.id,
                 this@eventListener.receiveMessage.source.id,
                 this@eventListener.receiveMessage.source.type
@@ -80,9 +80,9 @@ class WordCloud {
             val segmentCountMap = mutableMapOf<String, Int>()
             lateinit var sourceType: String
 
-            for (wordCloudTextInfoVo in WordCloudTextInfo.queryBySourceId(sourceId, date)) {
-                sourceType = wordCloudTextInfoVo.sourceType
-                HanLP.segment(wordCloudTextInfoVo.text)
+            for ((_, text, _, _, sourceType1) in WordCloudTextInfo.queryBySourceId(sourceId, date)) {
+                sourceType = sourceType1
+                HanLP.segment(text)
                     .map { it.word.replace(Regex("[\\pP\\p{Punct}]"), "") }
                     .filter { it.isNotBlank() }
                     .forEach { segmentCountMap.compute(it) { _, v -> v?.plus(1) ?: 1 } }

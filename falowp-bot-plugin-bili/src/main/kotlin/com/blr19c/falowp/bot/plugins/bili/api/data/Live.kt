@@ -1,6 +1,7 @@
 package com.blr19c.falowp.bot.plugins.bili.api.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import tools.jackson.databind.JsonNode
 
 data class BiliLiveInfo(
     @field:JsonProperty("room_info")
@@ -34,4 +35,10 @@ data class BaseInfo(
     val gender: String?,
     @field:JsonProperty("uname")
     val uname: String,
+)
+
+data class BiliLiveSendMessageResult(
+    val code: Int,
+    val message: String,
+    val data: JsonNode,
 )

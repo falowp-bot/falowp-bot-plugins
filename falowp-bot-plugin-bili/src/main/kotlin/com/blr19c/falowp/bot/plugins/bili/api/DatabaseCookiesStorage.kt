@@ -52,6 +52,12 @@ object DatabaseCookiesStorage : CookiesStorage, Log {
 
     suspend fun getAll(): List<Cookie> = mutex.withLock { container }
 
+    suspend fun csrfToken(): String? = mutex.withLock {
+        container.firstOrNull { it.name == "bili_jct" }
+            ?.value
+            ?.takeIf { it.isNotBlank() }
+    }
+
     override fun close() {
 
     }

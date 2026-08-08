@@ -1,6 +1,6 @@
 package com.blr19c.falowp.bot.plugins.ai
 
-import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.Prompt
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.params.LLMParams
 import com.blr19c.falowp.bot.plugins.ai.database.AiChatHistory

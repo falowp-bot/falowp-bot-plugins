@@ -26,3 +26,5 @@ const val SPACE_DYNAMIC_INFO = "https://api.bilibili.com/x/polymer/web-dynamic/v
 
 // Live
 const val ROOM_INFO = "https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom"
+const val LIVE_MESSAGE_SEND = "https://api.live.bilibili.com/msg/send"
+const val LIVE_ORIGIN = "https://live.bilibili.com"

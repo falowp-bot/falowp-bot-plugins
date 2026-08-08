@@ -36,14 +36,14 @@ class Ban {
     private val ban = message(Regex("ban"), auth = ApiAuth.ADMINISTRATOR) {
         val banList = multiTransaction {
             val banList = mutableListOf<String>()
-            for (user in this@message.receiveMessage.content.at) {
-                if (user.auth == ApiAuth.ADMINISTRATOR) continue
+            for ((id1, nickname, auth) in this@message.receiveMessage.content.at) {
+                if (auth == ApiAuth.ADMINISTRATOR) continue
                 BanInfo.insertIgnore {
-                    it[userId] = user.id
+                    it[userId] = id1
                     it[sourceId] = receiveMessage.source.id
                 }
-                banList.addLast(user.nickname)
-                banSet.add(user.id + receiveMessage.source.id)
+                banList.addLast(nickname)
+                banSet.add(id1 + receiveMessage.source.id)
             }
             banList
         }
@@ -55,12 +55,12 @@ class Ban {
     private val unban = message(Regex("unban"), auth = ApiAuth.ADMINISTRATOR) {
         val unbanList = multiTransaction {
             val unbanList = mutableListOf<String>()
-            for (user in this@message.receiveMessage.content.at) {
+            for ((id1, nickname) in this@message.receiveMessage.content.at) {
                 BanInfo.deleteWhere {
-                    (userId eq user.id).and(sourceId eq receiveMessage.source.id)
+                    (userId eq id1).and(sourceId eq receiveMessage.source.id)
                 }
-                unbanList.addLast(user.nickname)
-                banSet.remove(user.id + receiveMessage.source.id)
+                unbanList.addLast(nickname)
+                banSet.remove(id1 + receiveMessage.source.id)
             }
             unbanList
         }

@@ -55,8 +55,8 @@ object BLiveUtils : Log {
             append("csrf", "")
         }
         return webclient().post("https://api.bilibili.com/bapis/bilibili.api.ticket.v1.Ticket/GenWebTicket?${formData.formUrlEncode()}") {
-            for (cookie in DatabaseCookiesStorage.getAll()) {
-                cookie(cookie.name, cookie.value)
+            for ((name, value) in DatabaseCookiesStorage.getAll()) {
+                cookie(name, value)
             }
         }.bodyAsJsonNode()["data"]["ticket"].safeString()
     }
@@ -241,12 +241,12 @@ object BLiveUtils : Log {
         val htmlBody = Jsoup.parse(htmlString)
         htmlBody.select("#summary").html(biliVideoAiSummary.modelResult.summary)
         val lineList = mutableListOf<String>()
-        for (outline in biliVideoAiSummary.modelResult.outline) {
-            val titleLine = """<div class="section-title" id="title">${outline.title}</div>"""
+        for ((title, part) in biliVideoAiSummary.modelResult.outline) {
+            val titleLine = """<div class="section-title" id="title">$title</div>"""
             val partList = mutableListOf<String>()
-            for (part in outline.part) {
-                val time = formatTimestamp(part.timestamp)
-                val contentLine = """<span class="content">${part.content}</span>"""
+            for ((timestamp, content) in part) {
+                val time = formatTimestamp(timestamp)
+                val contentLine = """<span class="content">$content</span>"""
                 val timeLine = """<span class="timestamp"><span class="timestamp-inner">$time</span></span>"""
                 val partLine = """<div class="bullet">$timeLine$contentLine</div>"""
                 partList.add(partLine)

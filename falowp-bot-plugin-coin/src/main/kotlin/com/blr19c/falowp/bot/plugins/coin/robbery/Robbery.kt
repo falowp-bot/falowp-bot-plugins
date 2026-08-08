@@ -46,9 +46,9 @@ class Robbery {
         try {
             var sum = BigDecimal.ZERO
             multiTransaction {
-                for (user in atList) {
+                for ((id1) in atList) {
                     if (successRate(currentUser)) {
-                        val toUser = queryByUserId(user.id, receiveMessage.source.id)!!
+                        val toUser = queryByUserId(id1, receiveMessage.source.id)!!
                         val coins = Random.nextDouble(10.0, 300.0)
                             .toBigDecimal()
                             .setScale(2, RoundingMode.HALF_UP)
@@ -59,7 +59,7 @@ class Robbery {
                     }
                     RobberyInfo.insert {
                         it[userId] = currentUser.userId
-                        it[robbedUserId] = user.id
+                        it[robbedUserId] = id1
                         it[createDate] = LocalDate.now()
                     }
                 }
