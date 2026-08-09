@@ -1,8 +1,8 @@
 package com.blr19c.falowp.bot.plugins.bili.api.data
 
-import com.blr19c.falowp.bot.system.json.safeString
 import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
+import java.math.BigDecimal
 
 /**
  * 直播间的基本信息
@@ -58,18 +58,19 @@ data class BiliLiveStreamMessage(
     val command: String,
     val data: BiliLiveMessageData?,
     val raw: JsonNode,
-) {
-    companion object {
-        /**
-         * 把原始消息整理成方便使用的格式
-         */
-        fun from(raw: JsonNode): BiliLiveStreamMessage {
-            val command = raw.path("cmd").safeString()
-            val type = BiliLiveMessageType.from(command)
-            return BiliLiveStreamMessage(type, command, BiliLiveMessageData.from(type, raw), raw)
-        }
-    }
-}
+)
+
+/**
+ * 用户当前佩戴的粉丝灯牌。
+ *
+ * 灯牌可能属于其他直播间，可使用 [anchorId] 与当前主播 UID 比较。
+ */
+data class BiliFansMedal(
+    val level: Int,
+    val name: String,
+    val anchorId: Long,
+    val anchorRoomId: Long,
+)
 
 /**
  * 从直播消息里整理出的常用数据
@@ -77,20 +78,28 @@ data class BiliLiveStreamMessage(
 @Suppress("SpellCheckingInspection")
 sealed interface BiliLiveMessageData {
 
+    /** 用户当前佩戴的粉丝灯牌，没有携带灯牌信息时为 `null`。 */
+    val fansMedal: BiliFansMedal?
+
     /**
      * 普通弹幕
      *
-     * @property fansMedalLevel 当前佩戴的粉丝勋章等级，没有佩戴时为 0
      */
     data class Danmu(
         val userId: Long,
         val userName: String,
         val content: String,
-        val fansMedalLevel: Int,
+        override val fansMedal: BiliFansMedal?,
     ) : BiliLiveMessageData
 
     /**
      * 赠送礼物
+     *
+     * @property price 礼物单价，单位为金瓜子或银瓜子
+     * @property totalCoin 本次送礼的实际瓜子总数，不一定等于 `price * count`
+     * @property coinType 货币类型，`gold` 为付费金瓜子，`silver` 为免费银瓜子
+     * @property batteryValue 付费礼物折算的电池价值，100 金瓜子为 1 电池
+     * @property yuanValue 付费礼物折算的人民币价值，10 电池为 1 元
      */
     data class Gift(
         val userId: Long,
@@ -98,12 +107,33 @@ sealed interface BiliLiveMessageData {
         val giftName: String,
         val count: Long,
         val price: Long,
-    ) : BiliLiveMessageData
+        val totalCoin: Long,
+        val coinType: String,
+        override val fansMedal: BiliFansMedal?,
+    ) : BiliLiveMessageData {
+        val batteryValue: BigDecimal?
+            get() = totalCoin.takeIf { coinType == "gold" }
+                ?.let(BigDecimal::valueOf)
+                ?.movePointLeft(2)
+                ?.stripTrailingZeros()
+
+        val yuanValue: BigDecimal?
+            get() = batteryValue
+                ?.movePointLeft(1)
+                ?.stripTrailingZeros()
+    }
 
     /**
-     * 用户进入直播间
+     * 用户交互消息
+     *
+     * @property msgType 1 进入直播间，2 关注主播，3 分享直播间
      */
-    data class Enter(val userId: Long, val userName: String) : BiliLiveMessageData
+    data class Enter(
+        val userId: Long,
+        val userName: String,
+        val msgType: Int,
+        override val fansMedal: BiliFansMedal?,
+    ) : BiliLiveMessageData
 
     /**
      * 购买大航海 1 总督 2 提督 3 舰长
@@ -114,6 +144,7 @@ sealed interface BiliLiveMessageData {
         val guardLevel: Int,
         val count: Int,
         val price: Long,
+        override val fansMedal: BiliFansMedal? = null,
     ) : BiliLiveMessageData
 
     /**
@@ -124,56 +155,9 @@ sealed interface BiliLiveMessageData {
         val userName: String,
         val content: String,
         val price: Int,
+        override val fansMedal: BiliFansMedal?,
     ) : BiliLiveMessageData
 
-    companion object {
-        internal fun from(type: BiliLiveMessageType, raw: JsonNode): BiliLiveMessageData? = when (type) {
-            BiliLiveMessageType.DANMU -> raw.path("info").let { info ->
-                Danmu(
-                    userId = info.path(2).path(0).asLong(),
-                    userName = info.path(2).path(1).safeString(),
-                    content = info.path(1).safeString(),
-                    fansMedalLevel = info.path(3).path(0).asInt(),
-                )
-            }
-
-            BiliLiveMessageType.GIFT -> raw.path("data").let { data ->
-                Gift(
-                    userId = data.path("uid").asLong(),
-                    userName = data.path("uname").safeString(),
-                    giftName = data.path("giftName").safeString(),
-                    count = data.path("num").asLong(data.path("batch_combo_num").asLong()),
-                    price = data.path("price").asLong(),
-                )
-            }
-
-            BiliLiveMessageType.ENTER -> raw.path("data").let { data ->
-                val userName = data.path("uname").safeString()
-                if (userName.isBlank()) null else Enter(data.path("uid").asLong(), userName)
-            }
-
-            BiliLiveMessageType.GUARD -> raw.path("data").let { data ->
-                Guard(
-                    userId = data.path("uid").asLong(),
-                    userName = data.path("username").safeString().ifBlank { data.path("uname").safeString() },
-                    guardLevel = data.path("guard_level").asInt(),
-                    count = data.path("num").asInt(),
-                    price = data.path("price").asLong(),
-                )
-            }
-
-            BiliLiveMessageType.SUPER_CHAT -> raw.path("data").let { data ->
-                SuperChat(
-                    userId = data.path("uid").asLong(),
-                    userName = data.path("user_info").path("uname").safeString(),
-                    content = data.path("message").safeString(),
-                    price = data.path("price").asInt(),
-                )
-            }
-
-            else -> null
-        }
-    }
 }
 
 /**
