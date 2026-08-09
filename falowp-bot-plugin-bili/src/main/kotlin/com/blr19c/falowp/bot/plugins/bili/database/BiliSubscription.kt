@@ -9,28 +9,28 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
 /**
- * b站订阅
+ * B 站订阅记录
  */
 object BiliSubscription : Table("bili_subscription") {
     val id = integer("id").autoIncrement()
 
     /**
-     * b站id
+     * UP 主 UID
      */
     val mid = varchar("mid", 32).index()
 
     /**
-     * 来源id
+     * 接收推送的好友或群 ID
      */
     val sourceId = varchar("source_id", 128).index()
 
     /**
-     * 来源类型
+     * 接收推送的会话类型
      */
     val sourceType = varchar("source_type", 16)
 
     /**
-     * 动态列表
+     * 表主键
      */
     override val primaryKey = PrimaryKey(id, name = "pk_bili_subscription_id")
 
@@ -41,6 +41,9 @@ object BiliSubscription : Table("bili_subscription") {
         }
     }
 
+    /**
+     * 添加一条订阅
+     */
     fun insert(mid: String, sourceId: String, sourceType: String) {
         multiTransaction {
             BiliSubscription.insert {
@@ -51,6 +54,9 @@ object BiliSubscription : Table("bili_subscription") {
         }
     }
 
+    /**
+     * 查询一个 UP 主的全部订阅
+     */
     fun queryByMid(mid: String): List<BiliSubscriptionVo> {
         return multiTransaction {
             BiliSubscription.selectAll().where(BiliSubscription.mid eq mid).map {
@@ -64,6 +70,9 @@ object BiliSubscription : Table("bili_subscription") {
         }
     }
 
+    /**
+     * 查询一个会话里的全部订阅
+     */
     fun queryBySourceId(sourceId: String): List<BiliSubscriptionVo> {
         return multiTransaction {
             BiliSubscription.selectAll().where(BiliSubscription.sourceId eq sourceId).map {

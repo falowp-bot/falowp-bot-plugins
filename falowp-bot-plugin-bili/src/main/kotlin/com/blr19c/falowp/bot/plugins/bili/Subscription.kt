@@ -7,7 +7,9 @@ import com.blr19c.falowp.bot.plugins.bili.api.api.*
 import com.blr19c.falowp.bot.plugins.bili.database.BiliDynamic
 import com.blr19c.falowp.bot.plugins.bili.database.BiliSubscription
 import com.blr19c.falowp.bot.plugins.bili.database.BiliUpInfo
-import com.blr19c.falowp.bot.plugins.bili.message.biliMessage
+import com.blr19c.falowp.bot.plugins.bili.event.BiliDynamicEvent
+import com.blr19c.falowp.bot.plugins.bili.event.BiliLiveEndEvent
+import com.blr19c.falowp.bot.plugins.bili.event.BiliLiveStartEvent
 import com.blr19c.falowp.bot.plugins.bili.vo.BiliSubscriptionVo
 import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.system.Log
@@ -29,7 +31,6 @@ import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @Plugin(
     name = "b站订阅",
@@ -67,73 +68,72 @@ class Subscription : Log {
     }
 
     /**
-     * 定时查询动态/直播
+     * 定时检查新动态
      */
-    private val dynamicTask = periodicScheduling(30.seconds) {
+    private val dynamicTask = periodicScheduling(1.minutes) {
         log().info("定时查询动态/直播")
-        for (biliUpInfoVo in BiliUpInfo.queryAll()) {
-            //订阅列表
-            val subscriptionList = BiliSubscription.queryByMid(biliUpInfoVo.mid)
+        for ((_, mid, _, name, liveStatus) in BiliUpInfo.queryAll()) {
+            // 找到需要接收这个 UP 主消息的会话
+            val subscriptionList = BiliSubscription.queryByMid(mid)
             if (subscriptionList.isEmpty()) continue
-            //动态列表
-            val dynamicList = client.spaceDynamicInfo(biliUpInfoVo.mid.toLong()).items
-            //将已经发送过的去除
-            val alreadyPushDynamicList = BiliDynamic.queryByMid(biliUpInfoVo.mid)
+            // 拉取 UP 主最新一页动态
+            val dynamicList = client.spaceDynamicInfo(mid.toLong()).items
+            // 去掉已经推送过的动态
+            val alreadyPushDynamicList = BiliDynamic.queryByMid(mid)
             val prePushDynamicList = dynamicList.filter { !alreadyPushDynamicList.contains(it.id) }
             for ((id, type) in prePushDynamicList.reversed()) {
-                //直播
-                if (type.startsWith("DYNAMIC_TYPE_LIVE") && !biliUpInfoVo.liveStatus) {
-                    val roomId = biliUpInfoVo.roomId
-                    val liveInfo = client.getLiveInfo(roomId.toLong())
-                    val liveCard = BLiveUtils.liveCard(liveInfo, biliUpInfoVo)
-                    val message = SendMessage.builder()
-                        .text("${biliUpInfoVo.name}猪开播啦!")
-                        .image(liveCard)
-                        .biliMessage(biliUpInfoVo, "https://live.bilibili.com/$roomId", roomId)
-                        .build()
-                    log().info("定时查询动态/直播-${biliUpInfoVo.name}猪开播啦!")
-                    send(subscriptionList, message)
-                    multiTransaction {
-                        BiliUpInfo.updateLiveStatus(biliUpInfoVo.mid, true)
-                        BiliDynamic.insert(biliUpInfoVo.mid, id)
-                    }
+                // 开播提醒交给直播任务处理
+                if (type.startsWith("DYNAMIC_TYPE_LIVE") && !liveStatus) {
+                    BiliDynamic.insert(mid, id)
                     continue
                 }
-                //动态
+                // 普通动态截图后推送
                 val dynamicScreenshot = BLiveUtils.dynamicScreenshot(id) ?: continue
-                val url = "https://www.bilibili.com/opus/$id"
                 val message = SendMessage.builder()
-                    .text("${biliUpInfoVo.name}猪有新动态!")
+                    .text("${name}猪有新动态!")
                     .image(dynamicScreenshot)
-                    .biliMessage(biliUpInfoVo, url, id)
                     .build()
-                log().info("定时查询动态/直播-${biliUpInfoVo.name}猪有新动态!")
+                log().info("定时查询动态/直播-${name}猪有新动态!")
                 send(subscriptionList, message)
-                BiliDynamic.insert(biliUpInfoVo.mid, id)
+                publishEvent(BiliDynamicEvent(mid, name, id, type))
+                BiliDynamic.insert(mid, id)
             }
         }
     }
 
     /**
-     * 定时查询已开播的up的开播状态
+     * 定时检查 UP 主的开播状态
      */
     private val liveTask = periodicScheduling(1.minutes) {
         log().info("定时查询开播状态")
-        for (biliUpInfoVo in BiliUpInfo.queryByLiveStatus(true)) {
-            val roomId = biliUpInfoVo.roomId
-            if (!client.getLiveInfo(roomId.toLong()).roomInfo.liveStatus) {
-                BiliUpInfo.updateLiveStatus(biliUpInfoVo.mid, false)
+        val upInfoList = BiliUpInfo.queryAll()
+        val roomInfoList = client.batchRoomInfo(upInfoList.map { it.mid })
+        for (roomInfo in roomInfoList) {
+            val upInfo = upInfoList.single { it.mid == roomInfo.uid }
+            if (roomInfo.liveStatus == 1 && !upInfo.liveStatus) {
+                BiliUpInfo.updateLiveStatus(roomInfo.uid, true)
+                val liveCard = BLiveUtils.liveCard(roomInfo)
                 val message = SendMessage.builder()
-                    .text("${biliUpInfoVo.name}猪直播结束了,下次再看吧～")
-                    .biliMessage(biliUpInfoVo, "https://live.bilibili.com/$roomId", roomId)
+                    .text("${roomInfo.name}猪开播啦!")
+                    .image(liveCard)
                     .build()
-                send(BiliSubscription.queryByMid(biliUpInfoVo.mid), message)
+                log().info("定时查询动态/直播-${roomInfo.name}猪开播啦!")
+                send(BiliSubscription.queryByMid(roomInfo.uid), message)
+                publishEvent(BiliLiveStartEvent(roomInfo))
+            }
+            if (roomInfo.liveStatus != 1 && upInfo.liveStatus) {
+                BiliUpInfo.updateLiveStatus(roomInfo.uid, false)
+                val message = SendMessage.builder()
+                    .text("${roomInfo.name}猪直播结束了,下次再看吧～")
+                    .build()
+                send(BiliSubscription.queryByMid(roomInfo.uid), message)
+                publishEvent(BiliLiveEndEvent(roomInfo))
             }
         }
     }
 
     /**
-     * 更新up信息
+     * 每天更新一次 UP 主昵称
      */
     private val updateUserInfoTask = periodicScheduling(1.days) {
         log().info("更新up信息")
@@ -148,7 +148,7 @@ class Subscription : Log {
     }
 
     /**
-     * 订阅
+     * 添加 B 站订阅
      */
     private val subscription = message(Regex("[bB]站订阅\\s?(\\d+)"), auth = ApiAuth.MANAGER) { (subscriptionMid) ->
         try {
@@ -180,7 +180,7 @@ class Subscription : Log {
     }
 
     /**
-     * 删除订阅
+     * 删除 B 站订阅
      */
     private val delSubscription = message(Regex("删除[bB]站订阅\\s?(\\d+)"), auth = ApiAuth.MANAGER) { (deleteMid) ->
         val subscriptionList = BiliSubscription.queryByMid(deleteMid)
@@ -201,7 +201,7 @@ class Subscription : Log {
     }
 
     /**
-     * 登录
+     * 扫码登录 B 站
      */
     private val login = message(Regex("[bB]站登录"), auth = ApiAuth.ADMINISTRATOR) {
         try {
@@ -223,7 +223,7 @@ class Subscription : Log {
     }
 
     /**
-     * 视频ai描述
+     * 收到 B 站视频分享后生成 AI 摘要卡片
      */
     private val videoAi = message(
         MessageMatch(
@@ -251,7 +251,7 @@ class Subscription : Log {
     }
 
     /**
-     * 查看b站订阅
+     * 查看当前会话的 B 站订阅
      */
     private val viewSubscription = message(Regex("查看[bB]站订阅")) {
         val subscriptionList = BiliSubscription.queryBySourceId(this.receiveMessage.source.id)

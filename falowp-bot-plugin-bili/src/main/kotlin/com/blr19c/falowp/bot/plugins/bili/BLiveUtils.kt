@@ -3,9 +3,8 @@
 package com.blr19c.falowp.bot.plugins.bili
 
 import com.blr19c.falowp.bot.plugins.bili.api.DatabaseCookiesStorage
-import com.blr19c.falowp.bot.plugins.bili.api.data.BiliLiveInfo
+import com.blr19c.falowp.bot.plugins.bili.api.data.BiliRoomInfo
 import com.blr19c.falowp.bot.plugins.bili.api.data.BiliVideoAiSummary
-import com.blr19c.falowp.bot.plugins.bili.vo.BiliUpInfoVo
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.cache.CacheReference
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
@@ -34,13 +33,19 @@ import kotlin.time.Duration.Companion.days
 
 
 /**
- * b站获取信息工具
+ * B 站页面截图和卡片工具
  */
 @Suppress("SpellCheckingInspection")
 object BLiveUtils : Log {
 
+    /**
+     * 网页请求使用的 bili_ticket
+     */
     private val ticket by CacheReference(1.days) { genWebTicket() }
 
+    /**
+     * 获取新的 bili_ticket
+     */
     private suspend fun genWebTicket(): String {
         val ts = System.currentTimeMillis() / 1000
         val hmacKey = SecretKeySpec("XgwSnGZ1p".toByteArray(), "HmacSHA256")
@@ -62,6 +67,9 @@ object BLiveUtils : Log {
     }
 
 
+    /**
+     * 创建带 B 站登录信息的浏览器环境
+     */
     private suspend fun <T> browserContext(block: BrowserContext.() -> T): T {
         return withContext(Dispatchers.IO) {
             val cookies = DatabaseCookiesStorage.getAll().map {
@@ -80,7 +88,7 @@ object BLiveUtils : Log {
     }
 
     /**
-     * b站动态截屏
+     * 截取一条 B 站动态
      */
     suspend fun dynamicScreenshot(dynamicId: String): String? = coroutineScope {
         val url = "https://www.bilibili.com/opus/$dynamicId"
@@ -98,15 +106,15 @@ object BLiveUtils : Log {
                     return@browserContext null
                 }
                 removeDynamicUselessParts(page)
-                //老页面
+                // 旧版动态页面
                 val biliDynPage = page.existsToExecute(".bili-dyn-item__main") {
                     biliDynPage(page)
                 }
-                //新页面
+                // 新版图文页面
                 val biliOpusPage = page.existsToExecute(".bili-opus-view") {
                     biliOpusPage(page)
                 }
-                //专栏页面
+                // 专栏页面
                 val articlePage = page.existsToExecute(".article-container") {
                     articlePage(page)
                 }
@@ -117,45 +125,45 @@ object BLiveUtils : Log {
     }
 
     /**
-     * 删除动态列表中的无用处部分
+     * 移除截图里不需要的页面元素
      */
     private fun removeDynamicUselessParts(page: Page) {
         scrollToBottom(page)
-        //通用的头
+        // 顶部导航
         page.existsToExecute(".bili-header") {
             page.evaluate("""document.querySelector(".bili-header").remove();""")
         }
-        //消除当页面下滑时固定顶部的浮动的header
+        // 滚动后固定在顶部的导航
         page.existsToExecute(".fixed-top-header") {
             page.evaluate("""document.querySelector(".fixed-top-header").remove();""")
         }
-        //消除推荐内容
+        // 推荐内容
         page.existsToExecute(".bili-dyn-card-link-common") {
             page.evaluate("""document.querySelector(".bili-dyn-card-link-common").remove();""")
         }
-        //消除自己的回复输入框
+        // 回复输入框
         page.existsToExecute(".fixed-reply-box") {
             page.evaluate("""document.querySelector(".fixed-reply-box").remove();""")
         }
-        //消除推荐关注当前UP
+        // 关注推荐
         page.existsToExecute(".fixed-author-header") {
             page.evaluate("""document.querySelector(".fixed-author-header").remove();""")
         }
     }
 
     /**
-     * 处理专栏的article-container页面
+     * 整理专栏页面
      */
     private fun articlePage(page: Page): String {
-        //消除底部版权信息
+        // 底部版权信息
         page.existsToExecute(".article-footer-box") {
             page.evaluate("""document.querySelector(".article-footer-box").remove();""")
         }
-        //消除分享
+        // 分享区域
         page.existsToExecute(".interaction-info") {
             page.evaluate("""document.querySelector(".interaction-info").remove();""")
         }
-        //消除评论(专栏一般比较长)
+        // 专栏较长 截图不带评论
         page.existsToExecute(".comment-wrapper") {
             page.evaluate("""document.querySelector(".comment-wrapper").remove();""")
         }
@@ -163,10 +171,10 @@ object BLiveUtils : Log {
     }
 
     /**
-     * 处理新的bili-opus页面
+     * 整理新版图文页面
      */
     private fun biliOpusPage(page: Page): String {
-        //获取前三个评论
+        // 只保留前三条评论
         page.existsToExecute(".bili-comment-container") {
             page.evaluate(
                 """const replyList = Array.from(document.querySelectorAll(".reply-item")).slice(0, 3);
@@ -178,10 +186,10 @@ object BLiveUtils : Log {
     }
 
     /**
-     * 处理老的bili-dyn动态页面
+     * 整理旧版动态页面
      */
     private fun biliDynPage(page: Page): String {
-        //获取前三个评论
+        // 只保留前三条评论
         page.existsToExecute(".bili-dyn-item") {
             page.evaluate(
                 """const replyList = Array.from(document.querySelectorAll(".reply-item")).slice(0, 3);
@@ -218,7 +226,7 @@ object BLiveUtils : Log {
     }
 
     /**
-     * 通过url获取bv号
+     * 从 B 站视频地址中取出 BV 号
      */
     fun extractBvFromBiliUrl(biliUrl: String): String? {
         val url = URI.create(biliUrl)
@@ -231,7 +239,7 @@ object BLiveUtils : Log {
     }
 
     /**
-     * ai总结
+     * 把视频 AI 摘要做成图片
      */
     suspend fun videoSummarize(biliVideoAiSummary: BiliVideoAiSummary): String? {
         if (!biliVideoAiSummary.support()) return null
@@ -265,9 +273,9 @@ object BLiveUtils : Log {
     }
 
     /**
-     * b站直播卡片
+     * 生成 B 站开播卡片
      */
-    suspend fun liveCard(liveInfo: BiliLiveInfo, userInfo: BiliUpInfoVo): String {
+    suspend fun liveCard(roomInfo: BiliRoomInfo): String {
         val liveLogoImg = withContext(Dispatchers.IO) {
             readPluginResource("live/live-logo.png").encodeToBase64String()
         }
@@ -275,23 +283,26 @@ object BLiveUtils : Log {
             inputStream.bufferedReader().use { it.readText() }
         }
         val htmlBody = Jsoup.parse(htmlString)
-        val cover = "data:image/png;base64,${liveInfo.roomInfo.cover.trim().toImageUrl().toBase64()}"
+        val cover = "data:image/png;base64,${roomInfo.cover.trim().toImageUrl().toBase64()}"
         htmlBody.select("#background").attr("src", cover)
-        //标题
-        htmlBody.select(".title").html(liveInfo.roomInfo.title)
-        //头像
-        htmlBody.select(".face").backgroundUrl(liveInfo.anchorInfo.baseInfo.face)
-        //头像添加直播
+        // 标题
+        htmlBody.select(".title").html(roomInfo.title)
+        // 主播头像
+        htmlBody.select(".face").backgroundUrl(roomInfo.face)
+        // 直播角标
         htmlBody.select(".live-logo").backgroundUrl(liveLogoImg)
-        //直播人
-        htmlBody.select(".live-user").html("UP猪: ${userInfo.name}")
-        //房间号
-        htmlBody.select(".room-id").html("房间号: ${liveInfo.roomInfo.roomId}")
-        //底栏
+        // 主播昵称
+        htmlBody.select(".live-user").html("UP猪: ${roomInfo.name}")
+        // 直播间 ID
+        htmlBody.select(".room-id").html("房间号: ${roomInfo.roomId}")
+        // 底栏标题
         htmlBody.select(".bottom-bar-title").html("${systemConfigProperty("nickname")}直播推送")
         return htmlToImageBase64(htmlBody.html(), "#background")
     }
 
+    /**
+     * 把图片写进元素的背景样式
+     */
     private suspend fun Elements.backgroundUrl(url: String) {
         var style = this.attr("style")
         if (style.isNotBlank() && !style.endsWith(";")) {
@@ -301,6 +312,9 @@ object BLiveUtils : Log {
         this.attr("style", style)
     }
 
+    /**
+     * 把视频秒数显示成分秒
+     */
     private fun formatTimestamp(time: Long): String {
         val minutes = time / 60
         val seconds = time % 60

@@ -5,13 +5,13 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 
 /**
- * b站登录的cookie
+ * B 站登录 Cookie
  */
 object BiliCookie : Table("bili_cookie") {
     val id = integer("id").autoIncrement()
 
     /**
-     * cookie
+     * 序列化后的 Cookie
      */
     val cookie = text("cookie")
     override val primaryKey = PrimaryKey(id, name = "pk_bili_cookie_id")

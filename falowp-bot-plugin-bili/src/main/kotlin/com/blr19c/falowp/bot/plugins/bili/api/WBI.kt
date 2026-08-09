@@ -8,23 +8,38 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.http.*
 import java.security.MessageDigest
 
+/**
+ * 给需要鉴权的请求补上 WBI 签名
+ */
 object WBI {
+    /**
+     * B 站规定的密钥打乱顺序
+     */
     private val mixinKeyEncTab = intArrayOf(
         46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35,
         27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0,
         1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52
     )
 
+    /**
+     * 签好参数后返回一份新 Map
+     */
     suspend fun BiliClient.wbiParams(params: Map<String, String>): Map<String, String> {
         return getWbiImg().enc(params)
     }
 
+    /**
+     * 导航接口下发的两段 WBI 密钥地址
+     */
     private data class WbiImg(
         @field:JsonProperty("img_url")
         val imgUrl: String,
         @field:JsonProperty("sub_url")
         val subUrl: String,
     ) {
+        /**
+         * 把两段密钥按固定顺序混合成签名密钥
+         */
         private val mixinKey: String
             get() = (splitUrl(imgUrl) + splitUrl(subUrl)).let { s ->
                 buildString {
@@ -34,6 +49,9 @@ object WBI {
                 }
             }
 
+        /**
+         * 加上风控参数、时间戳和签名
+         */
         fun enc(params: Map<String, String>): Map<String, String> {
             val map = mutableMapOf(
                 "dm_img_list" to "[]",
@@ -51,12 +69,18 @@ object WBI {
             return sortedMap
         }
 
+        /**
+         * 从图片地址中取出不带后缀的文件名
+         */
         private fun splitUrl(url: String): String {
             return url.removeSuffix("/").split("/").last().split(".").first()
         }
 
         private val hexDigits = "0123456789abcdef".toCharArray()
 
+        /**
+         * 转成小写十六进制文本
+         */
         fun ByteArray.toHexString() = buildString(this.size shl 1) {
             this@toHexString.forEach { byte ->
                 append(hexDigits[byte.toInt() ushr 4 and 15])
@@ -64,18 +88,27 @@ object WBI {
             }
         }
 
+        /**
+         * 计算 MD5
+         */
         fun String.toMD5(): String {
             val md = MessageDigest.getInstance("MD5")
             val digest = md.digest(this.toByteArray())
             return digest.toHexString()
         }
 
+        /**
+         * 按查询参数格式拼接内容
+         */
         fun Map<String, String>.toQueryString() = this.entries.joinToString("&") { (k, v) ->
             "${k.encodeURLParameter()}=${v.encodeURLParameter()}"
         }
 
     }
 
+    /**
+     * 从导航接口获取当前使用的 WBI 密钥
+     */
     private suspend fun BiliClient.getWbiImg(): WbiImg {
         val wbiNode = this.get(WBI_NAV)
         val imgUrl = wbiNode["wbi_img"]["img_url"].safeString()
@@ -83,4 +116,3 @@ object WBI {
         return WbiImg(imgUrl, subUrl)
     }
 }
-

@@ -8,6 +8,9 @@ import com.blr19c.falowp.bot.plugins.bili.api.data.BiliVideoInfo
 import com.blr19c.falowp.bot.system.json.Json
 import io.ktor.client.request.*
 
+/**
+ * 按 BV 号获取视频信息
+ */
 suspend fun BiliClient.getVideoInfo(
     bvid: String,
     url: String = VIDEO_INFO
@@ -16,7 +19,7 @@ suspend fun BiliClient.getVideoInfo(
 })
 
 /**
- * 获取视频的ai总结
+ * 获取视频的 AI 摘要
  */
 suspend fun BiliClient.getVideoAiSummary(
     bvid: String,

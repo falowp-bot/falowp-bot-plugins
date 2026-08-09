@@ -16,8 +16,14 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.min
 
+/**
+ * 把 B 站登录 Cookie 保存在数据库里
+ */
 object DatabaseCookiesStorage : CookiesStorage, Log {
 
+    /**
+     * 第一次使用时从数据库加载 Cookie
+     */
     private val container by lazy {
         multiTransaction {
             BiliCookie.selectAll()
@@ -28,6 +34,9 @@ object DatabaseCookiesStorage : CookiesStorage, Log {
     private val oldestCookie = AtomicLong(0L)
     private val mutex = Mutex()
 
+    /**
+     * 更新 Cookie 后同步写回数据库
+     */
     override suspend fun addCookie(requestUrl: Url, cookie: Cookie): Unit = mutex.withLock {
         if (cookie.name.isBlank()) return@withLock
         container.removeAll { it.name == cookie.name && it.matches(requestUrl) }
@@ -44,16 +53,34 @@ object DatabaseCookiesStorage : CookiesStorage, Log {
         }
     }
 
+    /**
+     * 获取能用于当前地址的 Cookie
+     */
     override suspend fun get(requestUrl: Url): List<Cookie> = mutex.withLock {
         val now = getTimeMillis()
         if (now >= oldestCookie.get()) cleanup(now)
         return@withLock container.filter { it.matches(requestUrl) }
     }
 
+    /**
+     * 获取当前保存的全部 Cookie
+     */
     suspend fun getAll(): List<Cookie> = mutex.withLock { container }
 
+    /**
+     * 获取提交表单时要用的 CSRF Token
+     */
     suspend fun csrfToken(): String? = mutex.withLock {
         container.firstOrNull { it.name == "bili_jct" }
+            ?.value
+            ?.takeIf { it.isNotBlank() }
+    }
+
+    /**
+     * 获取当前登录的 B 站账号 UID
+     */
+    suspend fun uid(): String? = mutex.withLock {
+        container.firstOrNull { it.name == "DedeUserID" }
             ?.value
             ?.takeIf { it.isNotBlank() }
     }
@@ -62,6 +89,9 @@ object DatabaseCookiesStorage : CookiesStorage, Log {
 
     }
 
+    /**
+     * 清掉已经过期的 Cookie
+     */
     private fun cleanup(timestamp: Long) {
         container.removeAll { cookie ->
             val expires = cookie.expires?.timestamp ?: return@removeAll false
@@ -74,6 +104,9 @@ object DatabaseCookiesStorage : CookiesStorage, Log {
     }
 
 
+    /**
+     * 判断 Cookie 能不能发给当前地址
+     */
     private fun Cookie.matches(requestUrl: Url): Boolean {
         val domain = domain?.toLowerCasePreservingASCIIRules()?.trimStart('.')
             ?: error("Domain field should have the default value")
@@ -103,6 +136,9 @@ object DatabaseCookiesStorage : CookiesStorage, Log {
         return !(secure && !requestUrl.protocol.isSecure())
     }
 
+    /**
+     * 补上响应里省略的域名和路径
+     */
     private fun Cookie.fillDefaults(requestUrl: Url): Cookie {
         var result = this
 

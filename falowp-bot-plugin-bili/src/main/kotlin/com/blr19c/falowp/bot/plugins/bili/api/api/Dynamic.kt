@@ -8,6 +8,9 @@ import com.blr19c.falowp.bot.plugins.bili.api.data.BiliSpaceDynamicInfo
 import com.blr19c.falowp.bot.system.json.Json
 import io.ktor.client.request.*
 
+/**
+ * 按动态 ID 获取旧版动态详情
+ */
 suspend fun BiliClient.getDynamicInfo(
     dynamicId: Long,
     url: String = DYNAMIC_INFO
@@ -15,6 +18,9 @@ suspend fun BiliClient.getDynamicInfo(
     parameter("dynamic_id", dynamicId)
 })
 
+/**
+ * 获取用户空间最新一页动态
+ */
 suspend fun BiliClient.spaceDynamicInfo(
     uid: Long,
     url: String = SPACE_DYNAMIC_INFO

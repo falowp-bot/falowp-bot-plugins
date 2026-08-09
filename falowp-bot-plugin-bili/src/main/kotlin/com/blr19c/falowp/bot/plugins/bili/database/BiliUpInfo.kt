@@ -10,28 +10,28 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 
 /**
- * b站up主信息
+ * 订阅中的 UP 主信息
  */
 object BiliUpInfo : Table("bili_up_info") {
     val id = integer("id").autoIncrement()
 
     /**
-     * b站id
+     * UP 主 UID
      */
     val mid = varchar("mid", 32).uniqueIndex()
 
     /**
-     * 直播id
+     * 直播间 ID
      */
     val roomId = varchar("room_id", 32)
 
     /**
-     * up名称
+     * UP 主昵称
      */
     val name = varchar("name", 128)
 
     /**
-     * 直播状态
+     * 上次检查时是否开播
      */
     val liveStatus = bool("live_status")
 
@@ -43,6 +43,9 @@ object BiliUpInfo : Table("bili_up_info") {
         }
     }
 
+    /**
+     * 查询全部 UP 主
+     */
     fun queryAll(): List<BiliUpInfoVo> {
         return multiTransaction {
             BiliUpInfo.selectAll().map {
@@ -57,6 +60,9 @@ object BiliUpInfo : Table("bili_up_info") {
         }
     }
 
+    /**
+     * 按 UID 查询 UP 主
+     */
     fun queryByMid(mid: String): BiliUpInfoVo? {
         return multiTransaction {
             BiliUpInfo.selectAll().where { BiliUpInfo.mid eq mid }.map {
@@ -71,6 +77,9 @@ object BiliUpInfo : Table("bili_up_info") {
         }
     }
 
+    /**
+     * 按直播状态查询 UP 主
+     */
     fun queryByLiveStatus(liveStatus: Boolean): List<BiliUpInfoVo> {
         return multiTransaction {
             BiliUpInfo.selectAll().where { BiliUpInfo.liveStatus eq liveStatus }.map {
@@ -85,6 +94,9 @@ object BiliUpInfo : Table("bili_up_info") {
         }
     }
 
+    /**
+     * 更新 UP 主的直播状态
+     */
     fun updateLiveStatus(mid: String, liveStatus: Boolean) {
         multiTransaction {
             BiliUpInfo.update({ BiliUpInfo.mid eq mid }) {
@@ -93,6 +105,9 @@ object BiliUpInfo : Table("bili_up_info") {
         }
     }
 
+    /**
+     * 保存一个新的 UP 主
+     */
     fun insert(mid: String, roomId: String, name: String) {
         multiTransaction {
             BiliUpInfo.insert {

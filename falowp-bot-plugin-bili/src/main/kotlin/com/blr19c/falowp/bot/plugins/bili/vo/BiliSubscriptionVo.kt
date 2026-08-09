@@ -1,22 +1,22 @@
 package com.blr19c.falowp.bot.plugins.bili.vo
 
 /**
- * b站订阅
+ * 一条 B 站订阅
  */
 data class BiliSubscriptionVo(
     val id: Int,
     /**
-     * b站id
+     * UP 主 UID
      */
     val mid: String,
 
     /**
-     * 来源id
+     * 接收推送的好友或群 ID
      */
     val sourceId: String,
 
     /**
-     * 来源类型
+     * 接收推送的会话类型
      */
     val sourceType: String
 )
