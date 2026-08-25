@@ -83,7 +83,7 @@ class Subscription : Log {
             val prePushDynamicList = dynamicList.filter { !alreadyPushDynamicList.contains(it.id) }
             for ((id, type) in prePushDynamicList.reversed()) {
                 // 开播提醒交给直播任务处理
-                if (type.startsWith("DYNAMIC_TYPE_LIVE") && !liveStatus) {
+                if (type.startsWith("DYNAMIC_TYPE_LIVE")) {
                     BiliDynamic.insert(mid, id)
                     continue
                 }
