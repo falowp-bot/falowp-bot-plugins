@@ -3,7 +3,7 @@ val falowpBotVersion: String = project.property("falowpBotVersion").toString()
 
 plugins {
     kotlin("jvm") version "2.4.0"
-    id("com.github.ben-manes.versions") version "0.60.0"
+    id("com.github.ben-manes.versions") version "0.61.0"
     id("com.vanniktech.maven.publish") version "0.37.0"
     id("maven-publish")
     signing

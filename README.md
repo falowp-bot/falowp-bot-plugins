@@ -6,4 +6,4 @@
 
 > 基于[falowp-bot-system](https://github.com/falowp-bot/falowp-bot-system)开发的插件
 
-## [查看插件文档](https://falowp.blr19c.com/docs/plugin/list)
+## [查看插件文档](https://falowp-bot.github.io/docs/plugins)
