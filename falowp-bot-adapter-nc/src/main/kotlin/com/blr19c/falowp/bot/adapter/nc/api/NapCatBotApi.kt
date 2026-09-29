@@ -79,7 +79,7 @@ class NapCatBotApi(receiveMessage: ReceiveMessage, originalClass: KClass<*>) : B
         sendMessageChain.map { it to buildMessage(it).splitIndependent() }.forEach {
             it.second.forEach { messages ->
                 val message = buildReference(reference, messages)
-                if (message.isNotEmpty()) this.sendGroupMsg(sourceId, message).saveHistory(it.first)
+                if (message.isNotEmpty()) this.sendPrivateMsg(sourceId, message).saveHistory(it.first)
             }
         }
     }

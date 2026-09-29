@@ -75,7 +75,7 @@ object BLiveUtils : Log {
             val cookies = DatabaseCookiesStorage.getAll().map {
                 Cookie(it.name, it.value)
                     .setDomain(".bilibili.com")
-                    .setPath(it.path)
+                    .setPath(it.path ?: "/")
                     .setHttpOnly(it.httpOnly)
                     .setSecure(it.secure)
             }.toMutableList()
@@ -204,7 +204,9 @@ object BLiveUtils : Log {
      * 滚动到底部
      */
     private fun scrollToBottom(page: Page) {
-        val viewportHeight = page.viewportSize().height.toDouble()
+        val viewportHeight = checkNotNull(page.viewportSize()) {
+            "B站页面未配置 viewport，无法执行滚动截图"
+        }.height.toDouble()
         val scrollHeight = page.evaluate("document.documentElement.scrollHeight").toString().toDouble()
         val scrollStep = viewportHeight / 10.0
         var currentScroll = 0.0
@@ -267,7 +269,10 @@ object BLiveUtils : Log {
             this.newPage().use { page ->
                 page.setContent(htmlBody.html())
                 page.waitForLoadState(LoadState.NETWORKIDLE)
-                page.querySelector(".ai-summary").screenshot().encodeToBase64String()
+                val summary = checkNotNull(page.querySelector(".ai-summary")) {
+                    "未找到 B站 AI 总结页面元素: .ai-summary"
+                }
+                summary.screenshot().encodeToBase64String()
             }
         }
     }
