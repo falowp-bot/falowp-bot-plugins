@@ -17,6 +17,7 @@ internal class AiChatSession(
 
     fun prompt(): Prompt {
         val history = AiChatHistory.query(sourceId, userId, contextMaxMessages())
+        val systemPrompt = AiPromptPreset.systemPrompt()
         return prompt(
             id = "chat",
             params = LLMParams(
@@ -24,7 +25,7 @@ internal class AiChatSession(
                 numberOfChoices = 1,
             )
         ) {
-            system(pluginConfigProperty("systemPrompt"))
+            system(systemPrompt)
             history.forEach {
                 when (it.role) {
                     ROLE_USER -> user(it.content)

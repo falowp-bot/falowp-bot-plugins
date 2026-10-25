@@ -26,7 +26,11 @@ class AiChat {
             .run(question, session.id)
             .trim()
         if (!session.pluginInvoked && res.isNotBlank()) {
-            this.sendReply(res)
+            val replies = res.lineSequence()
+                .map(String::trim)
+                .filter(String::isNotBlank)
+                .toList()
+            this.sendReply(*replies.toTypedArray())
             session.appendAnswer(question, res)
         } else if (session.pluginInvoked) {
             session.appendPluginTransfer(question)
