@@ -10,7 +10,10 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.utils.io.jvm.javaio.*
 import net.fortuna.ical4j.data.CalendarBuilder
-import net.fortuna.ical4j.model.*
+import net.fortuna.ical4j.model.Calendar
+import net.fortuna.ical4j.model.Component
+import net.fortuna.ical4j.model.DateTimePropertyAccessor
+import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.component.VEvent
 import net.fortuna.ical4j.model.property.DtEnd
 import net.fortuna.ical4j.model.property.Summary
@@ -41,7 +44,7 @@ class Idle {
         for (closestHoliday in getClosestHolidays(calendar, now)) {
             val startDate = closestHoliday.getStartDateTime()!!
             val endDate = closestHoliday.getEndDateTime()!!
-            val summary = closestHoliday.summary.value
+            val summary = closestHoliday.summary?.value
             val distanceSummary = ChronoUnit.DAYS.between(now, startDate)
             val sumSummaryDay = ChronoUnit.DAYS.between(startDate, endDate) + 1
             val line = "距离【$summary】还有: ${distanceSummary}天-共${sumSummaryDay}天"
@@ -122,16 +125,16 @@ class Idle {
             .filter { it.getStartDateTime() != null }
             .filter { it.getStartDateTime()!!.isAfter(currentDate) }
             .sortedBy { it.getEndDateTime() }) {
-            val summarySplit = holiday.summary.value.split(" ")
+            val summarySplit = holiday.summary?.value?.split(" ") ?: emptyList()
             if (summarySplit.size < 2) continue
             if (summarySplit[1] == "补班") continue
             val summaryComment = summarySplit[0] + summarySplit[1]
             if (lastSummaryComment == null) {
                 lastSummaryComment = summaryComment
-                var propertyList = holiday!!.propertyList
+                var propertyList = holiday.propertyList
                 propertyList = propertyList.remove(holiday.getProperty<Summary>(Property.SUMMARY).get())
                 propertyList = propertyList.add(Summary(lastSummaryComment))
-                lastHoliday = VEvent(propertyList as PropertyList)
+                lastHoliday = VEvent(propertyList)
                 map[summaryComment] = lastHoliday
                 continue
             }
@@ -139,7 +142,7 @@ class Idle {
                 var propertyList = lastHoliday!!.propertyList
                 propertyList = propertyList.remove(lastHoliday.getProperty<DtEnd<Temporal>>(Property.DTEND).get())
                 propertyList = propertyList.add(holiday.getProperty<DtEnd<Temporal>>(Property.DTEND).get())
-                lastHoliday = VEvent(propertyList as PropertyList)
+                lastHoliday = VEvent(propertyList)
                 map[summaryComment] = lastHoliday
                 continue
             }
