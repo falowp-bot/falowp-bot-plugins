@@ -23,10 +23,10 @@ data class BiliUserInfo(
     val liveRoom: LiveRoom?,
 )
 
-@Suppress("SpellCheckingInspection")
 /**
  * 用户的直播间状态
  */
+@Suppress("SpellCheckingInspection")
 data class LiveRoom(
     /**
      * 直播间 ID

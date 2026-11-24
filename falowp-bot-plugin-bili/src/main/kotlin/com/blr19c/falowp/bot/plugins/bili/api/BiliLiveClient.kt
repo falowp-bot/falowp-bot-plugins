@@ -9,13 +9,16 @@ import com.blr19c.falowp.bot.system.json.safeString
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.Base64
-import java.util.zip.InflaterInputStream
+import java.util.zip.DataFormatException
+import java.util.zip.Inflater
 import kotlin.collections.ArrayDeque
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -258,7 +261,7 @@ class BiliLiveClient internal constructor(
                                 if (offset + packetSize < bytes.size) {
                                     pending.addFirst(bytes.copyOfRange(offset + packetSize, bytes.size))
                                 }
-                                pending.addFirst(InflaterInputStream(ByteArrayInputStream(body)).use { it.readAllBytes() })
+                                pending.addFirst(body.inflate())
                                 break
                             }
                             when (operation) {
@@ -285,6 +288,34 @@ class BiliLiveClient internal constructor(
             } finally {
                 heartbeat.cancel()
             }
+        }
+    }
+
+    private suspend fun ByteArray.inflate(maxSize: Int = 16 * 1024 * 1024): ByteArray {
+        val inflater = Inflater()
+        val context = currentCoroutineContext()
+
+        try {
+            inflater.setInput(this)
+            val output = ByteArrayOutputStream()
+            val buffer = ByteArray(8192)
+
+            while (!inflater.finished()) {
+                context.ensureActive()
+
+                val size = inflater.inflate(buffer)
+                if (size > 0) {
+                    require(size <= maxSize - output.size()) {
+                        "解压数据超过大小限制"
+                    }
+                    output.write(buffer, 0, size)
+                } else if (!inflater.finished()) {
+                    throw DataFormatException("无效或不完整的 Zlib 数据")
+                }
+            }
+            return output.toByteArray()
+        } finally {
+            inflater.end()
         }
     }
 }

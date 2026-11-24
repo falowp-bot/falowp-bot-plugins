@@ -2,6 +2,7 @@ package com.blr19c.falowp.bot.plugins.censor
 
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.cache.CacheReference
+import com.blr19c.falowp.bot.system.expand.ensureNotCancelled
 import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.pluginConfigProperty
 import com.blr19c.falowp.bot.system.web.bodyAsJsonNode
@@ -46,6 +47,7 @@ object BaiduTextCensor : Log {
             val items = detail.elements().map { itemDetail(it) }.toList()
             return CensorResult(conclusionType, items)
         } catch (e: Exception) {
+            e.ensureNotCancelled()
             log().info("百度文本审查失败", e)
             return CensorResult(CensorConclusionTypeEnum.AUDIT_FAILURE)
         }

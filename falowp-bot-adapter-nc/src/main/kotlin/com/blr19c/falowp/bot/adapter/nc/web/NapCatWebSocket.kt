@@ -11,6 +11,7 @@ import com.blr19c.falowp.bot.adapter.nc.message.expand.toBotMessage
 import com.blr19c.falowp.bot.adapter.nc.notice.NapCatNotice
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.adapterConfigProperty
+import com.blr19c.falowp.bot.system.expand.ensureNotCancelled
 import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.plugin.PluginManagement
@@ -112,6 +113,7 @@ object NapCatWebSocket : Log {
             if (processEvent(originalMessage)) return
             if (processMessages(originalMessage)) return
         } catch (e: Exception) {
+            e.ensureNotCancelled()
             log().error("NapCat-WebSocket-处理消息失败", e)
         }
     }

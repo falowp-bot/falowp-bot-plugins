@@ -1,0 +1,8 @@
+bot:
+  system:
+    pluginPackage:
+      - "com.blr19c.falowp.bot.plugins"
+  plugin:
+    image:
+      # 原生引擎加载失败时是否禁用 ImageIO 回退
+      requireNative: false

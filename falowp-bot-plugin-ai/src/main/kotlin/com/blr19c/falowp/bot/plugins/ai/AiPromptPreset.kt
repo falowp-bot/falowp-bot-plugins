@@ -1,8 +1,9 @@
 package com.blr19c.falowp.bot.plugins.ai
 
+import com.blr19c.falowp.bot.system.cache.CacheReference
+import com.blr19c.falowp.bot.system.expand.ensureNotCancelled
 import com.blr19c.falowp.bot.system.pluginConfigProperty
 import com.blr19c.falowp.bot.system.readPluginResource
-import com.blr19c.falowp.bot.system.cache.CacheReference
 import kotlin.time.Duration
 
 /**
@@ -26,7 +27,8 @@ internal object AiPromptPreset {
         readPluginResource(PRESET_FILE) { inputStream ->
             inputStream.bufferedReader().use { it.readText() }
         }
-    } catch (_: IllegalStateException) {
+    } catch (e: IllegalStateException) {
+        e.ensureNotCancelled()
         null
     }
 

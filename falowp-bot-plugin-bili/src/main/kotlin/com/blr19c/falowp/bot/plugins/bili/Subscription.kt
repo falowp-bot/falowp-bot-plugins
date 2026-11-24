@@ -15,6 +15,7 @@ import com.blr19c.falowp.bot.plugins.db.multiTransaction
 import com.blr19c.falowp.bot.system.Log
 import com.blr19c.falowp.bot.system.api.*
 import com.blr19c.falowp.bot.system.expand.encodeToBase64String
+import com.blr19c.falowp.bot.system.expand.ensureNotCancelled
 import com.blr19c.falowp.bot.system.plugin.Plugin
 import com.blr19c.falowp.bot.system.plugin.message.MessageMatch
 import com.blr19c.falowp.bot.system.plugin.message.message
@@ -24,6 +25,8 @@ import com.blr19c.falowp.bot.system.web.webclient
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.QRCodeWriter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.update
@@ -72,7 +75,7 @@ class Subscription : Log {
      */
     private val dynamicTask = periodicScheduling(1.minutes) {
         log().info("定时查询动态/直播")
-        for ((_, mid, _, name, liveStatus) in BiliUpInfo.queryAll()) {
+        for ((_, mid, _, name, _) in BiliUpInfo.queryAll()) {
             // 找到需要接收这个 UP 主消息的会话
             val subscriptionList = BiliSubscription.queryByMid(mid)
             if (subscriptionList.isEmpty()) continue
@@ -175,6 +178,7 @@ class Subscription : Log {
             }
             this.sendReply("订阅:$subscriptionMid(${userInfo.name})完成")
         } catch (e: Exception) {
+            e.ensureNotCancelled()
             this.sendReply("订阅失败:${e.message}")
         }
     }
@@ -210,7 +214,9 @@ class Subscription : Log {
                     val matrix = encode(url, BarcodeFormat.QR_CODE, 250, 250)
                     val image = MatrixToImageWriter.toBufferedImage(matrix)
                     val byteArrayOutputStream = ByteArrayOutputStream()
-                    ImageIO.write(image, "PNG", byteArrayOutputStream)
+                    withContext(Dispatchers.IO) {
+                        ImageIO.write(image, "PNG", byteArrayOutputStream)
+                    }
                     byteArrayOutputStream.toByteArray().encodeToBase64String()
                 }
                 val message = SendMessage.builder().image(loginQrcode).build()
@@ -218,6 +224,7 @@ class Subscription : Log {
             }
             this@message.sendReply("登录成功")
         } catch (e: Exception) {
+            e.ensureNotCancelled()
             this@message.sendReply(e.message ?: "登录失败")
         }
     }

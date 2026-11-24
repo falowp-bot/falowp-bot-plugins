@@ -13,10 +13,10 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import tools.jackson.databind.JsonNode
 
-@Suppress("UNUSED")
 /**
  * 访问 B 站接口用的客户端
  */
+@Suppress("UNUSED")
 class BiliClient : Log {
 
     /**

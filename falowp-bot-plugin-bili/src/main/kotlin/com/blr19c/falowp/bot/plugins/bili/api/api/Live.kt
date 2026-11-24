@@ -19,7 +19,6 @@ suspend fun BiliClient.batchRoomInfo(
     url: String = BATCH_ROOM_INFO
 ): List<BiliRoomInfo> {
     val response = postJson(url) {
-        @Suppress("SpellCheckingInspection")
         setBody(mapOf("uids" to uidList))
     }
     val data = checkResponse(response, "获取房间信息失败")
@@ -50,10 +49,10 @@ suspend fun BiliClient.liveDMInfo(
     }
 }
 
-@Suppress("SpellCheckingInspection", "unused")
 /**
  * 向直播间发送一条普通弹幕
  */
+@Suppress("SpellCheckingInspection", "unused")
 suspend fun BiliClient.sendLiveMessage(
     roomId: String,
     message: String,
