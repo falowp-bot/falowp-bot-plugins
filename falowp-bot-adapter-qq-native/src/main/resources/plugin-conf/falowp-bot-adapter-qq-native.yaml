@@ -1,0 +1,14 @@
+bot:
+  system:
+    adapterPackage:
+      - "com.blr19c.falowp.bot.adapter.qqnative.adapter"
+  adapter:
+    qqNative:
+      # 可播放音乐卡片的签名服务地址
+      musicSignUrl: ""
+      history:
+        enabled: true
+        backend: auto
+        database: ""
+        sqlitePath: messages.sqlite
+        retentionDays: 30

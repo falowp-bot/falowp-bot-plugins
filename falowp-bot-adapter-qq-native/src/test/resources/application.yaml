@@ -1,0 +1,11 @@
+bot:
+  system:
+    administrator: []
+  plugin:
+    db:
+      - nativeHistoryTest:
+          url: "jdbc:h2:mem:nativeHistoryTest;DB_CLOSE_DELAY=-1"
+          username: sa
+          password: ""
+          driver: org.h2.Driver
+          primary: true

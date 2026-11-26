@@ -1,0 +1,53 @@
+{
+  "groupCode": "",
+  "resultCode": 0,
+  "extInfo": {
+    "groupInfoExtSeq": 0,
+    "reserve": 0,
+    "luckyWordId": "",
+    "lightCharNum": 0,
+    "luckyWord": "",
+    "starId": 0,
+    "essentialMsgSwitch": 0,
+    "todoSeq": 0,
+    "blacklistExpireTime": 0,
+    "isLimitGroupRtc": 0,
+    "companyId": 0,
+    "hasGroupCustomPortrait": 0,
+    "bindGuildId": "",
+    "groupOwnerId": {
+      "memberUin": "",
+      "memberUid": "",
+      "memberQid": ""
+    },
+    "essentialMsgPrivilege": 0,
+    "msgEventSeq": "",
+    "inviteRobotSwitch": 0,
+    "gangUpId": "",
+    "qqMusicMedalSwitch": 0,
+    "showPlayTogetherSwitch": 0,
+    "groupFlagPro1": "",
+    "groupBindGuildIds": {
+      "guildIds": []
+    },
+    "viewedMsgDisappearTime": "",
+    "groupExtFlameData": {
+      "switchState": 0,
+      "state": 0,
+      "dayNums": [],
+      "version": 0,
+      "updateTime": "",
+      "isDisplayDayNum": false
+    },
+    "groupBindGuildSwitch": 0,
+    "groupAioBindGuildId": "",
+    "groupExcludeGuildIds": {
+      "guildIds": []
+    },
+    "fullGroupExpansionSwitch": 0,
+    "fullGroupExpansionSeq": "",
+    "inviteRobotMemberSwitch": 0,
+    "inviteRobotMemberExamine": 0,
+    "groupSquareSwitch": 0
+  }
+}
