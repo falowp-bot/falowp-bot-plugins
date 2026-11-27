@@ -18,6 +18,7 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.*
+import kotlin.time.Duration.Companion.milliseconds
 
 class QQGatewayTest {
     @Test
@@ -92,7 +93,7 @@ class QQGatewayTest {
         )
         val job = CoroutineScope(currentCoroutineContext()).launch { gateway.run { registrations.incrementAndGet() } }
         try {
-            withTimeout(10000) { heartbeatSeen.await(); finished.await() }
+            withTimeout(10000.milliseconds) { heartbeatSeen.await(); finished.await() }
             assertEquals(1, registrations.get())
             assertEquals(2, connections.get())
             assertEquals(2, requestsChecked.get())
