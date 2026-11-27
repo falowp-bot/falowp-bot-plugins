@@ -5,6 +5,10 @@ import com.blr19c.falowp.bot.adapter.qq.core.config.QQConfig
 import com.blr19c.falowp.bot.system.json.Json
 import io.ktor.client.plugins.websocket.WebSockets as ClientWebSockets
 import io.ktor.http.ContentType
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.HttpTimeoutCapability
+import io.ktor.client.plugins.HttpTimeoutConfig
+import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -60,7 +64,27 @@ class QQGatewayTest {
                 }
             }
         }
-        val http = createClient { install(ClientWebSockets) }
+        val requestsChecked = AtomicInteger()
+        val timeoutCheck = createClientPlugin("GatewayTimeoutCheck") {
+            onRequest { request, _ ->
+                if (request.url.build().encodedPath == "/events") {
+                    val timeout = assertNotNull(request.getCapabilityOrNull(HttpTimeoutCapability))
+                    assertEquals(HttpTimeoutConfig.INFINITE_TIMEOUT_MS, timeout.socketTimeoutMillis)
+                    assertEquals(HttpTimeoutConfig.INFINITE_TIMEOUT_MS, timeout.requestTimeoutMillis)
+                    assertEquals(15_000L, timeout.connectTimeoutMillis)
+                    requestsChecked.incrementAndGet()
+                }
+            }
+        }
+        val http = createClient {
+            install(ClientWebSockets)
+            install(HttpTimeout) {
+                requestTimeoutMillis = 5000
+                socketTimeoutMillis = 5000
+                connectTimeoutMillis = 5000
+            }
+            install(timeoutCheck)
+        }
         val config = QQConfig("app", "secret", apiUrl = "http://localhost", tokenUrl = "http://localhost/token")
         val gateway = QQGateway(
             QQClient(config, http), onEvent = { finished.complete(Unit) },
@@ -71,6 +95,7 @@ class QQGatewayTest {
             withTimeout(10000) { heartbeatSeen.await(); finished.await() }
             assertEquals(1, registrations.get())
             assertEquals(2, connections.get())
+            assertEquals(2, requestsChecked.get())
         } finally {
             job.cancelAndJoin()
             http.close()

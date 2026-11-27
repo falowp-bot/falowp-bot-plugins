@@ -7,6 +7,8 @@ import com.blr19c.falowp.bot.system.json.Json
 import com.blr19c.falowp.bot.system.json.safeString
 import com.blr19c.falowp.bot.system.web.webclient
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeoutConfig
+import io.ktor.client.plugins.timeout
 import io.ktor.client.plugins.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
@@ -62,11 +64,19 @@ internal class QQGateway(
     private suspend fun connect(onReady: () -> Unit) {
         val url = client.gateway()
         val authorization = client.authorization()
-        http.webSocket(url) {
+        http.webSocket(urlString = url, request = {
+            timeout {
+                connectTimeoutMillis = 15_000
+                requestTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
+                socketTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
+            }
+        }) {
             try {
                 maintainSession(this, authorization, onReady)
             } finally {
-                closeCode = withTimeoutOrNull(1.seconds) { closeReason.await()?.code?.toInt() }
+                val reason = withTimeoutOrNull(1.seconds) { closeReason.await() }
+                closeCode = reason?.code?.toInt()
+                log().warn("QQ 网关连接关闭，关闭码: {}，原因: {}", closeCode, reason?.message ?: "未收到关闭帧")
             }
         }
     }
@@ -127,6 +137,7 @@ internal class QQGateway(
             while (isActive) {
                 delay(interval.milliseconds)
                 if (awaitingAck.getAndSet(true)) {
+                    log().warn("QQ 网关心跳未收到 ACK，主动关闭连接")
                     session.close(CloseReason(CloseReason.Codes.NORMAL, "heartbeat timeout"))
                     break
                 }
@@ -145,7 +156,12 @@ internal class QQGateway(
                 0 -> dispatch(event, onReady)
                 1 -> session.sendJson(mapOf("op" to 1, "d" to sequence.get()))
                 7, 9 -> {
-                    if (event.path("op").asInt() == 9) clearSession()
+                    val op = event.path("op").asInt()
+                    log().warn(
+                        "QQ 网关要求重新连接，op: {}，原因: {}", op,
+                        if (op == 9) "会话无效，重新鉴权" else "服务端请求重连"
+                    )
+                    if (op == 9) clearSession()
                     session.close()
                     return
                 }
